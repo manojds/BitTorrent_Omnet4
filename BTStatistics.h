@@ -27,12 +27,17 @@
 
 #include <omnetpp.h>
 #include "BTStatisticsMsg_m.h"
+//edited by Manoj - 2014-12-22
+//# define BT_STATS_DWL			59760
+//# define BT_STATS_PP			59761
+//# define BT_STATS_NSB			59762
+//# define BT_STATS_EXIT			59763
 
-# define BT_STATS_DWL			59760
-# define BT_STATS_PP			59761
-# define BT_STATS_NSB			59762
-# define BT_STATS_EXIT			59763
-
+# define BT_STATS_DWL			760
+# define BT_STATS_PP			761
+# define BT_STATS_NSB			762
+# define BT_STATS_EXIT			763
+//end of the edited code
 
 # define BT_STATS_MSG_TIME 		20000
 

@@ -122,7 +122,7 @@ class INET_API BTTrackerClientBase : public TCPGenericCliAppBase
 		virtual void connect();
 		virtual void close();
 		virtual void socketEstablished(int, void*);
-		virtual void socketDataArrived(int, void*, cMessage*, bool);
+		virtual void socketDataArrived(int, void*, cPacket*, bool);
 		virtual void socketPeerClosed(int, void*);
 		virtual void socketFailure(int, void*, int);
 };

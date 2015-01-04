@@ -28,6 +28,7 @@ simple BTStatistics
 {
     parameters:
         volatile double targetOverlayTerminalNum;
+	volatile int logLevel;
     gates:
         input direct_in;
 }

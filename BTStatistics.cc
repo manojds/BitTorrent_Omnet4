@@ -22,6 +22,8 @@
 
 
 #include "BTStatistics.h"
+#include "BTLogImpl.h"
+#include <iostream>
 
 Define_Module(BTStatistics);
 
@@ -36,6 +38,11 @@ BTStatistics::~BTStatistics()
 
 void BTStatistics::initialize()
 {
+	int iLogLevel=par("logLevel");
+    btLogSinker.initialize("BTLog",(LogLevel_t)iLogLevel);
+
+    BT_LOG_INFO(btLogSinker, "BTStatistics::initialize", "Log Initialized. log level is ["<<iLogLevel<<"]");
+	
 	currentTerminalNum = 0;
 	targetOverlayTerminalNum = par("targetOverlayTerminalNum");
 	dwSuccess = new  cStdDev("BitTorrent:Download Duration");
@@ -117,6 +124,8 @@ void BTStatistics::checkFinish()
 
 void BTStatistics::doFinish()
 {
+	std::cout<<"Finishing Simulation.."<<std::endl;
+	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Finishing Simulation..");
 	recordScalar("Simulation duration", simTime());
 	dwSuccess->record();
 	numBlockFail->record();

@@ -25,8 +25,9 @@
 
 
 #include "BTTrackerBase.h"
+#include "BTLogImpl.h"
 
-#define BEV	EV << "[BitTorrent Tracker]:"
+#define BEV	EV << "[BitTorrent_mjp] [BitTorrent Tracker]:"
 
 Register_Class(BTTrackerClientHandlerBase);
 Define_Module(BTTrackerBase);
@@ -718,7 +719,7 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 	}
 
 	// logging
-	BEV << "sending reply to client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// set the response size
 	findAndSetResponseSize(rmsg, compact, no_peer_id);
@@ -955,8 +956,8 @@ void BTTrackerClientHandlerBase::established()
 	scheduleAt(simTime() + (simtime_t)getHostModule()->sessionTimeout(), evtTout);
 
 	// logging
-	BEV << "connection with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established\n";
-	BEV << "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::established", "connection with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::established", "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// change state
 	state_var 	= ESTABLISHED;
@@ -973,7 +974,7 @@ void BTTrackerClientHandlerBase::established()
 void BTTrackerClientHandlerBase::dataArrived(cMessage* msg, bool urgent)
 {
 	// logging
-	BEV << "announce received from client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::dataArrived", "announce received from client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// check the message type
 	BTTrackerMsgAnnounce* mmsg = dynamic_cast<BTTrackerMsgAnnounce*>(msg);
@@ -1017,7 +1018,7 @@ void BTTrackerClientHandlerBase::timerExpired(cMessage* msg)
 	// timer expired while waiting
 
 	// logging
-	BEV << "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] expired\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] expired");
 	// perform close()
 	getSocket()->close();
 }
@@ -1036,7 +1037,7 @@ void BTTrackerClientHandlerBase::peerClosed()
 		// preliminary close
 		case ESTABLISHED:
 			// logging
-			BEV << "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] died unexpectedly\n";
+			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] died unexpectedly");
 			// fire the session timer
 			cancelEvent(evtTout);
 			scheduleAt(simTime(), evtTout);
@@ -1045,7 +1046,7 @@ void BTTrackerClientHandlerBase::peerClosed()
 		// normal close
 		case TEARDOWN:
 			// logging
-			BEV << "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] ended\n";
+			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] ended");
 			// cancel the session timer
 			cancelEvent(evtTout);
 			// default handler

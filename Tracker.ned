@@ -56,8 +56,11 @@ module Tracker
 	//added following gate instead of above
 	inout pppg[];
 
-        input ethIn[];
-        output ethOut[];
+	//Following two gates are commented by Manoj
+        //input ethIn[];
+        //output ethOut[];
+	//added following gate instead of above
+	inout ethg[];
     submodules:
         namTrace: NAMTraceWriter {
             parameters:
@@ -104,14 +107,14 @@ module Tracker
                 proxyARP = false;
                 @display("p=248,247;i=block/fork;q=queue");
             gates:
-                ifIn[sizeof(pppg)+sizeof(ethOut)];
-                ifOut[sizeof(pppg)+sizeof(ethOut)];
+                ifIn[sizeof(pppg)+sizeof(ethg)];
+                ifOut[sizeof(pppg)+sizeof(ethg)];
         }
         ppp[sizeof(pppg)]: PPPInterface {
             parameters:
                 @display("p=205,350,row,90;q=txQueue;i=block/ifcard");
         }
-        eth[sizeof(ethOut)]: EthernetInterface {
+        eth[sizeof(ethg)]: EthernetInterface {
             parameters:
                 @display("p=240,350,row,90;q=txQueue;i=block/ifcard");
         }
@@ -140,16 +143,21 @@ module Tracker
 		//Edited by Manoj
             //in[i] --> {  } --> ppp[i].phys$i;
             //out[i] <-- {  } <-- ppp[i].phys$o;
-		pppg[i] <--> {  } <--> ppp[i].phys;
-            ppp[i].netwOut --> {  } --> networkLayer.ifIn[i];
-            ppp[i].netwIn <-- {  } <-- networkLayer.ifOut[i];
+		//pppg[i] <--> {  } <--> ppp[i].phys;
+            //ppp[i].netwOut --> {  } --> networkLayer.ifIn[i];
+            //ppp[i].netwIn <-- {  } <-- networkLayer.ifOut[i];
+		pppg[i]  <--> ppp[i].phys;
+            ppp[i].netwOut  --> networkLayer.ifIn[i];
+            ppp[i].netwIn  <-- networkLayer.ifOut[i];
         }
 
-        for i=0..sizeof(ethOut)-1 {
-            ethIn[i] --> {  } --> eth[i].physIn;
-            ethOut[i] <-- {  } <-- eth[i].physOut;
-            eth[i].netwOut --> {  } --> networkLayer.ifIn[sizeof(pppg)+i];
-            eth[i].netwIn <-- {  } <-- networkLayer.ifOut[sizeof(pppg)+i];
+        for i=0..sizeof(ethg)-1 {
+	//Edited by Manoj
+            //ethIn[i] --> {  } --> eth[i].physIn;
+            //ethOut[i] <-- {  } <-- eth[i].physOut;
+		ethg[i] <--> eth[i].phys;
+            eth[i].netwOut --> networkLayer.ifIn[sizeof(pppg)+i];
+            eth[i].netwIn <-- networkLayer.ifOut[sizeof(pppg)+i];
         }
 }
 

@@ -69,13 +69,13 @@ import inet.applications.tcpapp.TCPApp;
 simple BTTrackerClientBase like TCPApp
 {
     parameters:
-        string address;			// local address - may be symbolic, IPV4 or IPv6
+        volatile string address;			// local address - may be symbolic, IPV4 or IPv6
 
-        double port;			//local port
+        volatile int port;			//local port
 
-        string connectAddress;			// tracker address - may be symbolic, IPV4 or IPv6
+        volatile string connectAddress;			// tracker address - may be symbolic, IPV4 or IPv6
 
-        double connectPort;		// tracker port number
+        volatile int connectPort;		// tracker port number
 
         double connectGiveUp; 		// give up after such failures
 
@@ -88,7 +88,7 @@ simple BTTrackerClientBase like TCPApp
 
         string peerId; 			// unique ID (20 bytes) for the client
 
-        double peerPort; 		// the actual port that the client uses for the 
+        int peerPort; 		// the actual port that the client uses for the 
 							// TCP Peer-wire protocol
 
         bool compact; 				// flag - indicates whether the client wants a compact reply 

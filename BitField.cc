@@ -73,9 +73,11 @@ BitField::BitField(int pieces, int blocks, bool seeder)
 //NOTE:This is the case of a remote BitField so we do not have accurate information about blocks.
 BitField::BitField(BTBitfieldMsg* msg, int numblocks)
 {
-	local_var = false;
+	local_var = false;	
 	numPieces_var = (int) msg->bitfieldArraySize();
 	numBlocks_var = numblocks;
+	//following line is added by Manoj
+	requested=0;
 	numRemainingPieces_var = numPieces_var;
 	numRemainingBlocks_var = numPieces_var*numBlocks_var;
 	numNonRequestedNonAvailableBlocks_var = numPieces_var*numBlocks_var;
@@ -125,8 +127,12 @@ BitField::~BitField()
 
 	for (int i=0; i<numPieces_var; i++)
 	{
-		delete blockfield[i];
-		delete requested[i];
+		//modified by Manoj.
+		//added array delete operator instead of just oeprator
+		delete [] blockfield[i];
+		//if condition is added by Manoj
+		if(requested != 0)
+			delete [] requested[i];
 	}
 
 	delete [] blockfield;

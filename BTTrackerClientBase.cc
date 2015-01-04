@@ -23,8 +23,9 @@
 
 #include "BTTrackerMsg_m.h"
 #include "BTTrackerClientBase.h"
+#include "BTLogImpl.h"
 
-#define BEV	EV << "[" << peerId_var << "]::[Tracker Client]: "
+#define BEV	EV << "[BitTorrent_mjp] [" << peerId_var << "]::[Tracker Client]: "
 
 Define_Module(BTTrackerClientBase);
 
@@ -99,6 +100,7 @@ void BTTrackerClientBase::handleMessage(cMessage* msg)
 	}
 	else
 	{
+		//BT_LOG_VERBOSE(btLogSinker, "BTTrackerClientB::handleMessage", "[" << peerId_var << "] Before Calling socket.processMessage");
 		socket.processMessage(msg);
 	}
 }
@@ -142,7 +144,7 @@ void BTTrackerClientBase::handleTimer(cMessage *msg)
 
 
 			// logging
-			BEV << "session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "] expired\n";
+			BT_LOG_INFO(btLogSinker, "BTTrackerClientB::handleTimer", "[" << peerId_var << "] session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] expired");
 
 			// close the pending connection - if it is still in pending state
 			if(socket.getState() == TCPSocket::CONNECTING || socket.getState() == TCPSocket::CONNECTED || socket.getState() == TCPSocket::PEER_CLOSED)
@@ -152,7 +154,7 @@ void BTTrackerClientBase::handleTimer(cMessage *msg)
 			if(--connectGiveUp_var > 0)
 			{
 				// logging
-				BEV << "scheduling another try at " << reconnectInterval_var << "secs\n";
+				BT_LOG_INFO(btLogSinker, "BTTrackerClientB::handleTimer", "[" << peerId_var << "] scheduling another try at " << reconnectInterval_var << "secs");
 
 				// schedule a future connect event
 				switch(transient_var)
@@ -194,10 +196,11 @@ void BTTrackerClientBase::handleTimer(cMessage *msg)
 	// we should reach this point only if a timeout did not occur
 
 	// logging
-	BEV << "connecting to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::handleTimer", "[" << peerId_var << "] connecting to Tracker[address=" << (const char *)par("connectAddress") << ", port=" << (int)par("connectPort") << "]");
 
 	// grab my IP address
 	findAndSetIPAddress();
+	BT_LOG_INFO(btLogSinker,"BTTrackerClientB::handleTimer","[" << this->getParentModule()->getFullName() << "] my local address is ["<<ipaddress_var<<"]");
 	// fire the actual connect() - TCP
 	connect();
 }
@@ -210,7 +213,7 @@ void BTTrackerClientBase::handleTimer(cMessage *msg)
 void BTTrackerClientBase::connect()
 {
 	// logging
-	BEV << "starting session timer[" << sessionTimeout_var << " secs]\n";
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClientB::connect", "[" << peerId_var << "] starting session timer[" << sessionTimeout_var << " secs]");
 
 	// schedule a session timeout and call default connect()
 	scheduleAt(simTime() + sessionTimeout_var, evtTout);
@@ -239,7 +242,7 @@ void BTTrackerClientBase::socketEstablished(int connId, void *ptr)
 	TCPGenericCliAppBase::socketEstablished(connId, ptr);
 
 	// logging
-	BEV << "connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketEstablished", "[" << peerId_var << "] connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
 
 
 	// perform the announce
@@ -277,8 +280,9 @@ const char* BTTrackerClientBase::generatePeerID()
  *
  * This method should be re-implemented in future subclasses in order to extend/add/change the behavior of the client.
  */
-void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cMessage *msg, bool urgent)
+void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg, bool urgent)
 {
+	//BT_LOG_DETAIL(btLogSinker, "BTTrackerClientB::socketDataArrived", "[" << peerId_var << "]  BTTrackerClientBase::socketDataArrived- start of the method");
 
 	// cast the reponse
 	BTTrackerMsgResponse* mmsg = dynamic_cast<BTTrackerMsgResponse*>(msg);
@@ -290,7 +294,7 @@ void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cMessage *msg
 	}
 
 	// logging
-	BEV << "announce reply from Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketDataArrived", "[" << peerId_var << "] announce reply from Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
 
 	// we have a valid reply - reset previous failures
 	connectGiveUp_var = (size_t)par("connectGiveUp");
@@ -354,14 +358,14 @@ void BTTrackerClientBase::socketPeerClosed(int connId, void *yourPtr)
 	if(transient_var != 0)
 	{
 		// logging
-		BEV << "session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "] ended unexpectedly\n";
+		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketPeerClosed", "[" << peerId_var << "] session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] ended unexpectedly");
 
 		// fire the timeout event to handle possible errors
 		cancelEvent(evtTout);
 		scheduleAt(simTime(), evtTout);
 
 		// default handling
-		EV << "remote TCP closed, closing here as well\n";
+		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketPeerClosed", "[" << peerId_var << "] remote TCP closed, closing here as well");
 	}
 }
 
@@ -380,7 +384,7 @@ void BTTrackerClientBase::socketFailure(int connId, void *yourPtr, int code)
 	if(transient_var != 0)
 	{
 		// logging
-		BEV << "session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "] died unexpectedly\n";
+		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketFailure", "[" << peerId_var << "] session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] died unexpectedly");
 
 		// fire the timeout event to handle possible errors
 		cancelEvent(evtTout);
@@ -448,7 +452,7 @@ void BTTrackerClientBase::announce()
 	bytesSent+=msg->getByteLength();
 
 	// logging
-	BEV << "sending announce to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << par("connectPort").stdstringValue () << "]\n";
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
 
 	// send the announce
 	socket.send(msg);

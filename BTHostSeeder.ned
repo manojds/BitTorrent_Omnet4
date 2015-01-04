@@ -22,17 +22,16 @@
 
 package inet.applications.BitTorrent;
 
-import NotificationBoard;
-import InterfaceTable;
-import RoutingTable;
-import UDP;
-import NetworkLayer;
-import PingApp;
-import PPPInterface;
-import TCPApp.ned;
-import TCP.ned;
-import PPPInterface;
-import EthernetInterface;
+import inet.base.NotificationBoard;
+import inet.networklayer.common.InterfaceTable;
+import inet.networklayer.ipv4.RoutingTable;
+import inet.transport.udp.UDP;
+import inet.nodes.inet.NetworkLayer;
+import inet.applications.pingapp.PingApp;
+import inet.linklayer.ppp.PPPInterface;
+import inet.applications.tcpapp.TCPApp;
+import inet.transport.tcp.TCP;
+import inet.linklayer.ethernet.EthernetInterface;
 
 //
 // Host that participates in the overlay
@@ -53,11 +52,17 @@ module BTHostSeeder
 
         @display("bgb=337,472");
     gates:
-        input in[]; // incoming gates from router
-        input ethIn[]; // placeholder for zero-size vector
+	//Following two gates are commented by Manoj
+        //input in[]; // incoming gates from router
+	//output out[]; // outgoing gates to router
+	//added following gate instead of above
+	inout pppg[];
 
-        output out[]; // outgoing gates to router
-        output ethOut[]; // placeholder for zero-size vector
+	//Following two gates are commented by Manoj
+        //input ethIn[]; // placeholder for zero-size vector        
+        //output ethOut[]; // placeholder for zero-size vector
+	//added following gate instead of above
+	inout ethg[];
 
     submodules:
         notificationBoard: NotificationBoard {
@@ -92,14 +97,14 @@ module BTHostSeeder
                 proxyARP = false; // sets proxy \ARP mode (replying to \ARP requests for the addresses for which a routing table entry exists)
                 @display("p=200,240;i=block/fork;q=queue");
             gates:
-                ifIn[sizeof(out)+sizeof(ethOut)];
-                ifOut[sizeof(out)+sizeof(ethOut)];
+                ifIn[sizeof(pppg)+sizeof(ethg)];
+                ifOut[sizeof(pppg)+sizeof(ethg)];
         }
-        ppp[sizeof(out)]: PPPInterface {
+        ppp[sizeof(pppg)]: PPPInterface {
             parameters:
                 @display("p=200,320,row,90;q=txQueue;i=block/ifcard");
         }
-        eth[sizeof(ethOut)]: EthernetInterface {
+        eth[sizeof(ethg)]: EthernetInterface {
             parameters:
                 @display("p=240,350,row,90;q=txQueue;i=block/ifcard");
 
@@ -108,28 +113,35 @@ module BTHostSeeder
         peerWire.btorrentOut --> {  } --> trackerClient.btorrentIn;
         trackerClient.btorrentOut --> {  } --> peerWire.btorrentIn;
 
-        peerWire.tcpOut --> {  } --> tcp.from_appl++;
+        peerWire.tcpOut --> {  } --> tcp.appIn++;
         peerWire.tcpIn <-- {  } <-- tcp.appOut++;
 
-        trackerClient.tcpOut --> {  } --> tcp.from_appl++;
+        trackerClient.tcpOut --> {  } --> tcp.appIn++;
         trackerClient.tcpIn <-- {  } <-- tcp.appOut++;
 
         tcp.ipOut --> {  } --> networkLayer.tcpIn;
-        tcp.ipIn <-- {  } <-- networkLayer.TCPOut;
+        tcp.ipIn <-- {  } <-- networkLayer.tcpOut;
 
         // connections to network outside
-        for i=0..sizeof(out)-1 {
-            in[i] --> {  } --> ppp[i].physIn;
-            out[i] <-- {  } <-- ppp[i].physOut;
-            ppp[i].netwOut --> {  } --> networkLayer.ifIn[i];
-            ppp[i].netwIn <-- {  } <-- networkLayer.ifOut[i];
+        for i=0..sizeof(pppg)-1 {
+		//Edited by Manoj
+            //in[i] --> {  } --> ppp[i].phys$i;
+            //out[i] <-- {  } <-- ppp[i].phys$o;
+		//pppg[i] <--> {  } <--> ppp[i].phys;
+            //ppp[i].netwOut --> {  } --> networkLayer.ifIn[i];
+            //ppp[i].netwIn <-- {  } <-- networkLayer.ifOut[i];
+		pppg[i]  <--> ppp[i].phys;
+            ppp[i].netwOut  --> networkLayer.ifIn[i];
+            ppp[i].netwIn  <-- networkLayer.ifOut[i];
         }
 
-        for i=0..sizeof(ethOut)-1 {
-            ethIn[i] --> {  } --> eth[i].physIn;
-            ethOut[i] <-- {  } <-- eth[i].physOut;
-            eth[i].netwOut --> {  } --> networkLayer.ifIn[sizeof(out)+i];
-            eth[i].netwIn <-- {  } <-- networkLayer.ifOut[sizeof(out)+i];
+        for i=0..sizeof(ethg)-1 {
+	//Edited by Manoj
+            //ethIn[i] --> {  } --> eth[i].physIn;
+            //ethOut[i] <-- {  } <-- eth[i].physOut;
+		ethg[i] <--> eth[i].phys;
+            eth[i].netwOut --> networkLayer.ifIn[sizeof(pppg)+i];
+            eth[i].netwIn <-- networkLayer.ifOut[sizeof(pppg)+i];
         }
 
 }

@@ -44,16 +44,16 @@ simple BTPeerWireBase like TCPApp
 
         string debuggedNode;				//To be removed, used for debugging
 
-        string address;
+        volatile string address;
 
-        volatile double port;
+        volatile int port;
         double file_size;			// the size of the file, in KB
 
         double piece_size;			// the size of a piece, in KB
 
         double block_size;			// the size of a block, in KB
 
-        double DHT_port;			// for DHT trackers (optional,not supported)
+        int DHT_port;			// for DHT trackers (optional,not supported)
 
         string pstr;					// string identifier of the protocol, 
 							//default value = "BitTorrent protocol"
@@ -66,13 +66,13 @@ simple BTPeerWireBase like TCPApp
 
         double chocking_interval;		// time between choke/unchoke, in sec (default = 10 sec)
 
-        double seederDownloaders;			// number of concurrent downloaders allowed from a seeder	
+        int seederDownloaders;			// number of concurrent downloaders allowed from a seeder	
 
-        double downloaders;			// number of concurrent downloaders allowed (default = 4)	
+        int downloaders;			// number of concurrent downloaders allowed (default = 4)	
 
-        double optUnchockedPeers;		// number of optimisticaly unchocked peers (default = 1)
+        int optUnchockedPeers;		// number of optimisticaly unchocked peers (default = 1)
 
-        double seederOptUnchockedPeers;		// number of optimisticaly unchocked peers by the seeder
+        int seederOptUnchockedPeers;		// number of optimisticaly unchocked peers by the seeder
 
         double optUnchocking_interval;		// time between optimistic unchocking events, in sec 
 												// (default = 30 sec)
@@ -83,9 +83,9 @@ simple BTPeerWireBase like TCPApp
         double rarest_list_size;		// the number of rarest pieces among which we shall 
 											// randomize selection
 
-        double minNumConnections;		// minimum number of maintained connections (default = 30)
+        int minNumConnections;		// minimum number of maintained connections (default = 30)
 
-        double maxNumConnections;		// maximum number of maintained connections (default = 55)
+        int maxNumConnections;		// maximum number of maintained connections (default = 55)
 
         string serverThreadClass;
 
