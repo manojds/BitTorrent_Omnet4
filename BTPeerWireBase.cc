@@ -751,8 +751,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				thread->timerExpired(new cMessage(toString(CLOSE_CONNECTION_TIMER),CLOSE_CONNECTION_TIMER));
 			}
 
-			//Commented by Manoj
-			//stopListening();
+			stopListening();
 			delete msg;
 
  			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
