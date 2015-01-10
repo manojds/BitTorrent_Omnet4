@@ -7,10 +7,12 @@
 
 #ifndef BTLOGIMPL_H
 #define	BTLOGIMPL_H
+
+
+
 #include "BTLogSink.h"
 
 extern BTLogSink btLogSinker;
-
 
 
 #endif	/* BTLOGIMPL_H */

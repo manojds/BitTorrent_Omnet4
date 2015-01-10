@@ -1,3 +1,5 @@
+#ifndef WINNT
+
 #include "BTLogInterface.h"
 #include "BTLogger.h"
 #include <sys/stat.h>
@@ -244,3 +246,4 @@ void BTLogger::WriteInFile(const char *_pszMsg) {
     }
 }
 
+#endif /* WINNT */

@@ -21,6 +21,8 @@
 #ifndef BTLOGGER_H
 #define	BTLOGGER_H
 
+#ifndef WINNT
+
 class BTLogger 
 {
 public:
@@ -74,6 +76,7 @@ private:
 
 }; 
 
+#endif /* WINNT */
 
 #endif	/* BTLOGGER_H */
 
