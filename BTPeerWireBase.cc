@@ -64,25 +64,26 @@ void BTPeerWireBase::initialize()
 	piece_size_var 				= (double)par("piece_size");
 	block_size_var 				= (double)par("block_size");
 	DHT_port_var 				= (size_t)par("DHT_port");
-	pstr_var 				= (const char*)par("pstr");
-    	pstrlen_var 				= (int)par("pstrlen");
+	pstr_var 				    = (const char*)par("pstr");
+	pstrlen_var 				= (int)par("pstrlen");
 	keep_alive_var 				= (int)par("keep_alive");
-	have_supression_var 			= (bool)par("have_supression");
-	chocking_interval_var 			= (int)par("chocking_interval");
+	have_supression_var 		= (bool)par("have_supression");
+	chocking_interval_var 		= (int)par("chocking_interval");
 	downloaders_var 			= (int)par("downloaders");
-	optUnchockedPeers_var 			= (int)par("optUnchockedPeers");
-	optUnchocking_interval_var 		= (int)par("optUnchocking_interval");
-	snubbing_interval_var 			= (int)par("snubbing_interval");
-	rarest_list_size_var			= (int)par("rarest_list_size");
-	minNumConnections_var			= (int)par("minNumConnections");
-	maxNumConnections_var			= (int)par("maxNumConnections");
+	optUnchockedPeers_var 		= (int)par("optUnchockedPeers");
+	optUnchocking_interval_var 	= (int)par("optUnchocking_interval");
+	snubbing_interval_var 		= (int)par("snubbing_interval");
+	rarest_list_size_var		= (int)par("rarest_list_size");
+	minNumConnections_var		= (int)par("minNumConnections");
+	maxNumConnections_var		= (int)par("maxNumConnections");
 	timeToSeed_var				= (int)par("timeToSeed");
-	request_queue_depth_var			= (int)par("request_queue_depth");
+	request_queue_depth_var		= (int)par("request_queue_depth");
 	super_seed_mode_var			= (bool)par("super_seed_mode");
+
 	maxNumEmptyTrackerResponses_var 	= (int)par("maxNumEmptyTrackerResponses");
 	newlyConnectedOptUnchokeProb_var	= (double)par("newlyConnectedOptUnchokeProb");
-	enableEndGameMode_var			= (bool)par("enableEndGameMode");
-	downloadRateSamplingDuration_var= (int)par("downloadRateSamplingDuration");
+	enableEndGameMode_var			    = (bool)par("enableEndGameMode");
+	downloadRateSamplingDuration_var    = (int)par("downloadRateSamplingDuration");
 
 	setProcDelay((int)par("procDelay")/1000000);
 
@@ -133,7 +134,7 @@ void BTPeerWireBase::initialize()
 	WATCH(numBlocks_var);
 	WATCH(DHT_port_var);
 	WATCH(pstr_var);
-    	WATCH(pstrlen_var);
+    WATCH(pstrlen_var);
 	WATCH(keep_alive_var);
 	WATCH(have_supression_var);
 	WATCH(chocking_interval_var);
@@ -206,187 +207,193 @@ void BTPeerWireBase::handleMessage(cMessage *msg)
 {
 
    	if (msg->isSelfMessage())
-    	{
-		if (msg->getKind()<_PEER_WIRE_BASE_MSG_FLAG)
-			handleSelfMessage(msg);
-		else
-			handleThreadMessage(msg);
-    	}// !=selfMessage()
-    	else
-    	{
-		//TODO: Make this a method call ...
-		if (msg->arrivedOn("btorrentIn"))
-		{
-			if (getState() < EXITING)
-			{
-				//This is the only msg possible to receive from the tracker client. All checks have already been
-				//performed by that module.
-				BTTrackerMsgResponse* trackerResponse_msg = check_and_cast<BTTrackerMsgResponse*>(msg);
+   	{
+        if (msg->getKind() < _PEER_WIRE_BASE_MSG_FLAG)
+            handleSelfMessage(msg);
+        else
+            handleThreadMessage(msg);
+    } // !=selfMessage()
+    else
+    {
+        //TODO: Make this a method call ...
+        if (msg->arrivedOn("btorrentIn")) {
+            if (getState() < EXITING) {
+                //This is the only msg possible to receive from the tracker client. All checks have already been
+                //performed by that module.
+                BTTrackerMsgResponse* trackerResponse_msg = check_and_cast<
+                        BTTrackerMsgResponse*>(msg);
 
-				//Keep this response for reference (until the next one)...
-				setTrackerResponse(trackerResponse_msg);
+                //Keep this response for reference (until the next one)...
+                setTrackerResponse(trackerResponse_msg);
 
-				setAnnounceInterval(trackerResponse()->announceInterval());
+                setAnnounceInterval(trackerResponse()->announceInterval());
 
-				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleMessage","[" << this->getParentModule()->getFullName() << "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<<" peers. My Current State is ["<<getState()<<"]");
+                BT_LOG_INFO(
+                        btLogSinker,
+                        "BTPeerWireBase::handleMessage",
+                        "[" << this->getParentModule()->getFullName() << "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<<" peers. My Current State is ["<<getState()<<"]");
 
+                //Based on the peer dictionary, establish connections to remote peers.
+                //Furthermore, initiate the (optimistic un-)choking procedures.
+                if (trackerResponse()->peersArraySize() > 0) {
+                    setCurrentNumEmptyTrackerResponses(0);
+                    //this if and else block added by Manoj. 214-12-27
+                    //previously only call to scheduleConnections(trackerResponse()); was here.
+                    //this was added to stop seeders initating conenctions.
+                    //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
+                    //stop because BTHostSeeder, who is still in operation tries to connect to this peer
+                    if ((getState() != SEEDING) && (getState() != SEEDER)) {
+                        scheduleConnections(trackerResponse());
+                    } else
+                        BT_LOG_INFO(
+                                btLogSinker,
+                                "BTPeerWireBase::handleMessage",
+                                "[" << this->getParentModule()->getFullName() << "] refraining from initiating connections by my self because I am seeding. ");
 
-				//Based on the peer dictionary, establish connections to remote peers.
-				//Furthermore, initiate the (optimistic un-)choking procedures.
-				if (trackerResponse()->peersArraySize() > 0)
-				{
-					setCurrentNumEmptyTrackerResponses(0);
-					//this if and else block added by Manoj. 214-12-27
-					//previously only call to scheduleConnections(trackerResponse()); was here.
-					//this was added to stop seeders initating conenctions.
-					//when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
-					//stop because BTHostSeeder, who is still in operation tries to connect to this peer
-					if ( (getState() != SEEDING ) && (getState() != SEEDER ) )
-					{
-						scheduleConnections(trackerResponse());
-					}
-					else
-						BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleMessage","[" << this->getParentModule()->getFullName() << "] refraining from initiating connections by my self because I am seeding. ");
+                    //Check if we have already scheduled the execution of the algorithms i.e. this is not the first
+                    //tracker response received.
+                    if (!((cMessage*) evtChokeAlg)->isScheduled())
+                        scheduleAt(simTime(), evtChokeAlg);
 
-					//Check if we have already scheduled the execution of the algorithms i.e. this is not the first
-					//tracker response received.
-					if (!((cMessage*)evtChokeAlg)->isScheduled())
-						scheduleAt(simTime(), evtChokeAlg);
+                    if (!((cMessage*) evtOptUnChoke)->isScheduled())
+                        scheduleAt(simTime(), evtOptUnChoke);
+                } else {
+                    setCurrentNumEmptyTrackerResponses(
+                            currentNumEmptyTrackerResponses() + 1);
 
-					if (!((cMessage*)evtOptUnChoke)->isScheduled())
-						scheduleAt(simTime(), evtOptUnChoke);
-				}
-				else
-				{
-					setCurrentNumEmptyTrackerResponses(currentNumEmptyTrackerResponses()+1);
+                    //Exiting due to empty response will be scheduled only if this is not a Seeding (not seeder) node.
+                    //Else, exit would be scheduled twice!
+                    if ((currentNumEmptyTrackerResponses()
+                            >= maxNumEmptyTrackerResponses())
+                            && (peerState.size() == 0)
+                            && (getState() != SEEDING)) {
+                        BT_LOG_INFO(
+                                btLogSinker,
+                                "BTPeerWireBase::handleMessage",
+                                "[" << this->getParentModule()->getFullName() << "] reached maximum allowed number of empty subsequent tracker responses ( ="<<maxNumEmptyTrackerResponses() <<").");
+                        setState(EXITING);
+                        stopChokingAlorithms();
 
-					//Exiting due to empty response will be scheduled only if this is not a Seeding (not seeder) node.
-					//Else, exit would be scheduled twice!
-					if ((currentNumEmptyTrackerResponses() >= maxNumEmptyTrackerResponses()) && (peerState.size()==0)
-						&& (getState()!=SEEDING))
-					{
-						BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleMessage","[" << this->getParentModule()->getFullName() << "] reached maximum allowed number of empty subsequent tracker responses ( ="<<maxNumEmptyTrackerResponses() <<").");
-						setState(EXITING);
-						stopChokingAlorithms();
+                        //Setting download duration to zero: will be interprented as a failure
+                        //in BTStatistics
+                        setDownloadDuration(0);
+                        scheduleAt(
+                                simTime(),
+                                new cMessage(toString(INTERNAL_EXIT_MSG),
+                                        INTERNAL_EXIT_MSG));
+                    }
+                }
 
-						//Setting download duration to zero: will be interprented as a failure
-						//in BTStatistics
-						setDownloadDuration(0);
-						scheduleAt(simTime(),new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
-					}
-				}
+                //Scheduling next contact with the tracker.
+                scheduleAt(simTime() + announceInterval(), evtTrackerComm);
+            }
 
-				//Scheduling next contact with the tracker.
-				scheduleAt(simTime()+announceInterval(), evtTrackerComm);
-			}
+            delete msg;
+        }
+        else
+        {
+            TCPSocket *socket = socketMap.findSocketFor(msg);
 
-			delete msg;
-		}
-		else
-		{
-			TCPSocket *socket = socketMap.findSocketFor(msg);
+            if (!socket) {
+                //This is not a self-message. If it is not a TCP_I_ESTABLISHED message then there should
+                //exist a socket for it.
+                if (msg->getKind() == TCP_I_ESTABLISHED) {
 
-			if (!socket)
-			{
-				//This is not a self-message. If it is not a TCP_I_ESTABLISHED message then there should
-				//exist a socket for it.
-				if (msg->getKind()==TCP_I_ESTABLISHED)
-				{
+                    // new connection -- create new socket object and server process
+                    socket = new TCPSocket(msg);
+                    socket->setOutputGate(gate("tcpOut"));
 
-					// new connection -- create new socket object and server process
-					socket = new TCPSocket(msg);
-					socket->setOutputGate(gate("tcpOut"));
+                    const char *serverThreadClass = (const char*) par(
+                            "serverThreadClass");
+                    TCPServerThreadBase *proc = check_and_cast<
+                            TCPServerThreadBase *>(
+                            createOne(serverThreadClass));
 
-					const char *serverThreadClass = (const char*)par("serverThreadClass");
-					TCPServerThreadBase *proc = check_and_cast<TCPServerThreadBase *>(createOne(serverThreadClass));
+                    socket->setCallbackObject(proc);
 
-					socket->setCallbackObject(proc);
+                    BTPeerWireClientHandlerBase* myProc =
+                            (BTPeerWireClientHandlerBase*) proc;
+                    myProc->init(this, socket);
+                    myProc->setActiveConnection(false);
 
-					BTPeerWireClientHandlerBase* myProc = (BTPeerWireClientHandlerBase*) proc;
-					myProc->init(this, socket);
-					myProc->setActiveConnection(false);
+                    //NOTE: Since we dont have the peer's name we just make an entry with the IP address and port.
+                    // We will update this entry with the peerId once we have received it via the Handshake msg.
+                    ostringstream o;
+                    o << socket->getRemoteAddress().str() << "_"
+                            << socket->getRemotePort();
+                    PEER peer;
 
-					//NOTE: Since we dont have the peer's name we just make an entry with the IP address and port.
-					// We will update this entry with the peerId once we have received it via the Handshake msg.
-					ostringstream o;
-					o << socket->getRemoteAddress().str()<< "_"<<socket->getRemotePort();
-					PEER peer;
+                    opp_string* tmp = new opp_string(o.str().c_str());
+                    peer.peerId = *tmp;
+                    myProc->setRemotePeerID(o.str().c_str());
 
-					opp_string* tmp = new opp_string(o.str().c_str());
-					peer.peerId = *tmp;
-					myProc->setRemotePeerID(o.str().c_str());
+                    peer.ipAddress = socket->getRemoteAddress();
+                    peer.peerPort = socket->getRemotePort();
+                    peerState.addPeer(peer, proc, simTime());
+                    socketMap.addSocket(socket);
+                    increasePendingNumConnections();
 
-					peer.ipAddress = socket->getRemoteAddress();
-					peer.peerPort = socket->getRemotePort();
-					peerState.addPeer(peer,proc,simTime());
-					socketMap.addSocket(socket);
-					increasePendingNumConnections();
+                    int index = peerState.findPeer(peer.ipAddress);
+                    bool rejectConn = false;
 
-					int index  = peerState.findPeer(peer.ipAddress);
-					bool rejectConn = false;
+                    if (index >= 0)
+                        rejectConn = connectionAlreadyEstablished(index);
 
-					if (index>=0)
-						rejectConn = connectionAlreadyEstablished(index);
+                    if (!rejectConn) {
+                        BT_LOG_INFO(
+                                btLogSinker,
+                                "BTPeerWireBase::handleMessage",
+                                "[" << this->getParentModule()->getFullName() << "] established ('passive') connection to "<<socket->getRemoteAddress()<<":"<<socket->getRemotePort()<<" , adding peerInfo...");
 
-					if (!rejectConn)
-					{
-						BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleMessage","[" << this->getParentModule()->getFullName() << "] established ('passive') connection to "<<socket->getRemoteAddress()<<":"<<socket->getRemotePort()<<" , adding peerInfo...");
+                        updateDisplay();
+                        socket->processMessage(msg);
+                    } else {
+                        //The peer-state will be taken care of later when the connection will have closed
+                        //i.e. the thread itself will indicate that it must be removed from the state.
+                        socket->close();
 
-						updateDisplay();
-						socket->processMessage(msg);
-					}
-					else
-					{
-						//The peer-state will be taken care of later when the connection will have closed
-						//i.e. the thread itself will indicate that it must be removed from the state.
-						socket->close();
+                        //By closing the socket here the current number of connections is decreased
+                        //however "established" was never called so we have to increase it again.
+                        increaseCurrentNumConnections();
+                        delete msg;
+                    }
+                } else {
+                    delete msg;
+                    //error("%s:%d at %s() Peer-wire protocol error, invalid message type (msg->getKind() = %d)\n", __FILE__, __LINE__, __func__,msg->getKind());
+                }
+            } else {
+                int kind = msg->getKind();
 
-						//By closing the socket here the current number of connections is decreased
-						//however "established" was never called so we have to increase it again.
-						increaseCurrentNumConnections();
-						delete msg;
-					}
-				}
-				else
-				{
-					delete msg;
-					//error("%s:%d at %s() Peer-wire protocol error, invalid message type (msg->getKind() = %d)\n", __FILE__, __LINE__, __func__,msg->getKind());
-				}
-			}
-			else
-			{
-				int kind = msg->getKind();
+                bool rejectConn = false;
 
-				bool rejectConn = false;
+                if (kind == TCP_I_ESTABLISHED) {
+                    BT_LOG_INFO(
+                            btLogSinker,
+                            "BTPeerWireBase::handleMessage",
+                            "[" << this->getParentModule()->getFullName() << "] a connection initiated by this peer is now established.");
 
-				if (kind==TCP_I_ESTABLISHED)
-				{
-					BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleMessage","[" << this->getParentModule()->getFullName() << "] a connection initiated by this peer is now established.");
+                    int connIndex = peerState.findPeer(
+                            socket->getRemoteAddress());
+                    if (connIndex >= 0) {
+                        rejectConn = connectionAlreadyEstablished(connIndex);
+                        peerState.getPeerEntryRef(connIndex)->setConnTime(
+                                simTime());
+                    }
+                }
 
-					int connIndex  = peerState.findPeer(socket->getRemoteAddress());
-					if (connIndex>=0)
-					{
-						rejectConn = connectionAlreadyEstablished(connIndex);
-						peerState.getPeerEntryRef(connIndex)->setConnTime(simTime());
-					}
-				}
+                if (!rejectConn) {
+                    socket->processMessage(msg);
+                } else {
+                    socket->close();
 
-				if (!rejectConn)
-				{
-					socket->processMessage(msg);
-				}
-				else
-				{
-					socket->close();
-
-					//By closing the socket here the current number of connections is decreased
-					//however "established" was never called so we have to increase it again.
-					increaseCurrentNumConnections();
-					delete msg;
-				}
-			}
-		}
-	}
+                    //By closing the socket here the current number of connections is decreased
+                    //however "established" was never called so we have to increase it again.
+                    increaseCurrentNumConnections();
+                    delete msg;
+                }
+            }
+        }
+    }
 }
 
 /**
