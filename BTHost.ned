@@ -83,11 +83,11 @@ module BTHost
         }
         trackerClient: <trackerClientTCPAppType> like TCPApp {
             parameters:
-                @display("p=170,80;i=block/app");
+                @display("p=120,80;i=block/app");
         }
         peerWire: <peerWireTCPAppType> like TCPApp {
             parameters:
-                @display("p=250,80;i=block/app");
+                @display("p=200,80;i=block/app");
         }
         tcp: TCP {
             parameters:

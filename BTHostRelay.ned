@@ -45,17 +45,17 @@ module BTHostRelay extends BTHost
 
     submodules:
         //sub modlue which handles the tracker communication for the relay torrent hash
-        relayTrackerClient: <relayTrackerClientTCPAppType> like TCPApp {
+        relay_trackerClient: <relayTrackerClientTCPAppType> like TCPApp {
             parameters:
                 @display("p=290,80;i=block/app");
         }
                 
 
     connections allowunconnected:
-        peerWire.relayTrackerOut --> {  } --> relayTrackerClient.relayTrackerIn;
-        relayTrackerClient.btorrentOut --> {  } --> peerWire.btorrentIn;
+        peerWire.relayTrackerOut --> {  } --> relay_trackerClient.relayTrackerIn;
+        relay_trackerClient.btorrentOut --> {  } --> peerWire.btorrentIn;
         
-        relayTrackerClient.tcpOut --> {  } --> tcp.appIn++;
-        relayTrackerClient.tcpIn <-- {  } <-- tcp.appOut++;
+        relay_trackerClient.tcpOut --> {  } --> tcp.appIn++;
+        relay_trackerClient.tcpIn <-- {  } <-- tcp.appOut++;
 }
 
