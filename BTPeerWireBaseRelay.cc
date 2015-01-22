@@ -38,7 +38,7 @@ void BTPeerWireBaseRelay::handleMessage(cMessage *msg)
     else
     {
         //This is not related to us. let the super handle this message.
-        BTPeerWireBaseRelay::handleMessage(msg);
+        BTPeerWireBase::handleMessage(msg);
     }
 }
 
