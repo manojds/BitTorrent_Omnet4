@@ -28,7 +28,7 @@ import inet.applications.tcpapp.TCPApp;
 simple BTPeerWireBaseRelay extends BTPeerWireBase like TCPApp
 {
     parameters:
-		//@class(BTPeerWireBaseRelay); 
+		@class(BTPeerWireBaseRelay); 
 		
 
 	gates:

@@ -52,8 +52,8 @@ module BTHostRelay extends BTHost
                 
 
     connections allowunconnected:
-        peerWire.relayTrackerOut --> {  } --> relay_trackerClient.relayTrackerIn;
-        relay_trackerClient.btorrentOut --> {  } --> peerWire.btorrentIn;
+        peerWire.relayTrackerOut --> {  } --> relay_trackerClient.btorrentIn;
+        relay_trackerClient.btorrentOut --> {  } --> peerWire.relayTrackerIn;
         
         relay_trackerClient.tcpOut --> {  } --> tcp.appIn++;
         relay_trackerClient.tcpIn <-- {  } <-- tcp.appOut++;
