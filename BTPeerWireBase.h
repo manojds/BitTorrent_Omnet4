@@ -277,8 +277,8 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 
 		virtual void removeThread(TCPServerThreadBase *);
 
-		void handleThreadMessage(cMessage* msg);
-		void handleSelfMessage(cMessage* msg);
+		virtual void handleThreadMessage(cMessage* msg);
+		virtual void handleSelfMessage(cMessage* msg);
 
 		void initializePieceFrequencies(int);
 		void printPieceFrequencies();
