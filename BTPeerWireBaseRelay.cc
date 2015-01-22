@@ -46,6 +46,9 @@ void BTPeerWireBaseRelay::handleMsgFromRelayTracker(cMessage *msg)
 {
     if (getState() < EXITING)
     {
+        BT_LOG_DEBUG( btLogSinker,
+                        "BTPeerWireBaseRelay::handleMsgFromRelayTracker",
+                        "["<< this->getParentModule()->getFullName()<<"] tracker response arrived.");
 
         BTTrackerMsgResponse* trackerResponse_msg =
                 check_and_cast<BTTrackerMsgResponse*>(msg);
