@@ -16,7 +16,8 @@
 #include "BTTrackerClientHandlerRelayEnbled.h"
 
 
-Define_Module(BTTrackerClientHandlerRelayEnbled);
+Register_Class(BTTrackerClientHandlerRelayEnbled);
+
 BTTrackerClientHandlerRelayEnbled::BTTrackerClientHandlerRelayEnbled() {
     // TODO Auto-generated constructor stub
 
