@@ -268,8 +268,13 @@ const char* BTTrackerClientBase::generatePeerID()
 	
 	oss << strID;
 
-    	for(int i=0; i<12; i++)
-        	oss <<intrand(10);
+	//Commented by Manoj. 2015-01-24
+	//This is because There are two tracker clients for same peer
+	//and peer ID needs to be same in both tracker clients.
+	//otherwise one peer tries to connect it self, because
+	//tracker may send the same node info in the peer list bcz of different peer IDs
+//    	for(int i=0; i<12; i++)
+//        	oss <<intrand(10);
 	
 	return 	oss.str().c_str();
 }
