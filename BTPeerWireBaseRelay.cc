@@ -31,7 +31,7 @@ void BTPeerWireBaseRelay::initialize()
 
 void BTPeerWireBaseRelay::handleMessage(cMessage *msg)
 {
-    if (!msg->isSelfMessage() && msg->arrivedOn("relayTrackerIn"))
+    if ((!msg->isSelfMessage()) && msg->arrivedOn("relayTrackerIn"))
     {
         handleMsgFromRelayTracker(msg);
         delete msg;
