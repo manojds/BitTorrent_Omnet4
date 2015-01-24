@@ -46,6 +46,31 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
     //otherwise we let super class to handle it
     if(amsg->infoHash() == getHostModule()->relayInfoHash())
     {
+        // TODO ::this switch case added temporary.
+        //remove this and modify commented block accordingly
+        switch (amsg->event())
+        {
+        case A_STARTED:
+            return A_VALID_STARTED;
+            break;
+
+        case A_COMPLETED:
+            return A_VALID_COMPLETED;
+            break;
+
+        case A_NORMAL:
+            return A_VALID_NORMAL;
+            break;
+
+        case A_STOPPED:
+            return A_VALID_STOPPED;
+            break;
+        default:
+            return A_INVALID_EVENT;
+            break;
+
+
+        }
 //        // temporary peer struct with the announce info
 //        BTTrackerStructBase* tpeer = NULL;
 //        // a peer from the pool
@@ -197,7 +222,7 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
 //            delete tpeer;
 //
 //            return A_INVALID_EVENT;
-        }
+//        }
     }
     else
     {

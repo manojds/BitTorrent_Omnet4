@@ -15,7 +15,7 @@
 
 #ifndef BTTRACKERCLIENTHANDLERRELAYENBLED_H_
 #define BTTRACKERCLIENTHANDLERRELAYENBLED_H_
-#include "BTTrackerBase.h"
+#include "BTTrackerRelayEnabled.h"
 
 class INET_API BTTrackerClientHandlerRelayEnbled :public BTTrackerClientHandlerBase {
 public:
