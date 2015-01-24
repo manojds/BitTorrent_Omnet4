@@ -24,6 +24,8 @@ void BTPeerWireBaseRelay::initialize()
 {
     BTPeerWireBase::initialize();
     evtRelayTrackerComm = new cMessage(toString(INTERNAL_TRACKER_REALY_COM_MSG), INTERNAL_TRACKER_REALY_COM_MSG);
+    //TODO :: uncomment this to enble communication with tracker as relay peer
+    //          after respective modifications done in the tracker.
     scheduleAt(simTime(), evtRelayTrackerComm);
 }
 

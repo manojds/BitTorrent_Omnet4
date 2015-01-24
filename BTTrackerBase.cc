@@ -222,7 +222,7 @@ bool BTTrackerBase::alwaysSendTrackerId() const
  */
 void BTTrackerBase::setAlwaysSendTrackerId(bool alwaysSendTrackerId)
 {
-	alwaysSendTrackerId_var = alwaysSendTrackerId_var;
+	alwaysSendTrackerId_var = alwaysSendTrackerId;
 }
 
 /**
