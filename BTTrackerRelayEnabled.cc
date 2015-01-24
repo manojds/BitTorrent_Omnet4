@@ -15,6 +15,8 @@
 
 #include "BTTrackerRelayEnabled.h"
 
+Define_Module(BTTrackerRelayEnabled);
+
 BTTrackerRelayEnabled::BTTrackerRelayEnabled() {
     // TODO Auto-generated constructor stub
 
