@@ -25,7 +25,9 @@ public:
     BTTrackerRelayEnabled* getHostModule();
 
 protected:
+    // overrides from BTTrackerClientHandlerBase
     virtual int processAnnounce(BTTrackerMsgAnnounce*);
+    // end of overrides from BTTrackerClientHandlerBase
 
 
 };
