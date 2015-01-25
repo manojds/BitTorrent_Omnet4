@@ -14,7 +14,7 @@
 // 
 
 #include "BTTrackerClientHandlerRelayEnbled.h"
-
+#include "BTLogImpl.h"
 
 Register_Class(BTTrackerClientHandlerRelayEnbled);
 
@@ -49,6 +49,8 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
     //otherwise we let super class to handle it
     if(amsg->infoHash() == getHostModule()->relayInfoHash())
     {
+        BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::processAnnounce", "Announce request for relay hash from client[address="
+                << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
         // TODO ::this switch case added temporary.
         //remove this and modify commented block accordingly
         switch (amsg->event())
