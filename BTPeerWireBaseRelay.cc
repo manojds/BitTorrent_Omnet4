@@ -11,7 +11,9 @@
 
 Define_Module(BTPeerWireBaseRelay);
 
-BTPeerWireBaseRelay::BTPeerWireBaseRelay() {
+BTPeerWireBaseRelay::BTPeerWireBaseRelay():
+        b_TrackerCommIsEnbled(false)
+{
     // TODO Auto-generated constructor stub
 
 }
@@ -114,6 +116,25 @@ void BTPeerWireBaseRelay::handleSelfMessage(cMessage* msg)
         break;
 
     }
+}
+
+void BTPeerWireBaseRelay::scheduleTrackerCommAt(simtime_t t)
+{
+    if(b_TrackerCommIsEnbled)
+    {
+        BTPeerWireBase::scheduleTrackerCommAt(t);
+    }
+
+}
+
+void BTPeerWireBaseRelay::enbaleTrackerComm()
+{
+    b_TrackerCommIsEnbled=true;
+}
+
+void BTPeerWireBaseRelay::disableTrackerComm()
+{
+    b_TrackerCommIsEnbled=false;
 }
 
 const char* BTPeerWireBaseRelay::toString(int type)

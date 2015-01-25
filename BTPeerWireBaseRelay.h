@@ -24,12 +24,18 @@ protected:
     virtual void handleMessage(cMessage *msg);
 
     virtual void handleSelfMessage(cMessage* msg);
+    virtual void scheduleTrackerCommAt(simtime_t t);
     /* End of redefined methods from BTPeerWireBase */
+
+    virtual void enbaleTrackerComm();
+    virtual void disableTrackerComm();
 
     const char* toString(int);
 
 private:
     void handleMsgFromRelayTracker(cMessage *msg);
+
+    bool        b_TrackerCommIsEnbled;
     cMessage*   evtRelayTrackerComm;   //Timer to schedule communication with the Tracker for Relay purposes
 
 };
