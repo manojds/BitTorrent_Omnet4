@@ -280,6 +280,10 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual void handleThreadMessage(cMessage* msg);
 		virtual void handleSelfMessage(cMessage* msg);
 
+		// functions added by Manoj
+		virtual void scheduleTrackerCommAt(simtime_t t);
+		//end of teh functions added by Manoj.
+
 		void initializePieceFrequencies(int);
 		void printPieceFrequencies();
 		void increasePieceFrequency(int);

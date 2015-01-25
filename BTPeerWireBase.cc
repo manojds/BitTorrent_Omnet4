@@ -161,7 +161,9 @@ void BTPeerWireBase::initialize()
 	evtTrackerComm = new cMessage(toString(INTERNAL_TRACKER_COM_MSG), INTERNAL_TRACKER_COM_MSG);
 
 	//Immidiately schedule the communication with the tracker. We will then learn by the tracker about the interval between requests.
-	scheduleAt(simTime(), evtTrackerComm);
+	//scheduleAt(simTime(), evtTrackerComm);
+	//Following line is added by Manoj instead of above commented line. 2015-01-25
+	scheduleTrackerCommAt(simTime());
 }
 /**
  * This method is called in order to close the server socket listening for incoming
@@ -285,7 +287,9 @@ void BTPeerWireBase::handleMessage(cMessage *msg)
                 }
 
                 //Scheduling next contact with the tracker.
-                scheduleAt(simTime() + announceInterval(), evtTrackerComm);
+                //scheduleAt(simTime() + announceInterval(), evtTrackerComm);
+                //Following line is added by Manoj instead of above commented line. 2015-01-25
+                scheduleTrackerCommAt(simTime()+ announceInterval());
             }
 
             delete msg;
@@ -1609,6 +1613,11 @@ void BTPeerWireBase::checkandScheduleHaveMsgs(BTBitfieldMsg* msg, const char* pe
 			}
 		}
 	}
+}
+
+void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
+{
+    scheduleAt(t, evtTrackerComm);
 }
 
 // GET/SET Functions
