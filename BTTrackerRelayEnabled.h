@@ -28,6 +28,9 @@ public:
     cArray& relayPeers();
     size_t  realyPeersNum() const;
     void    setRealyPeersNum(size_t peersNum);
+
+    double  relayPeerPropotionInReply() const;
+    void    setRelayPeerPropotionInReply(double relayPeerPropotionInReply);
 protected:
     virtual void initialize();
 
@@ -35,7 +38,8 @@ protected:
 
 
 
-    size_t realyPeersNum_var;    // realy peers counter
+    size_t realyPeersNum_var;    // relay peers counter
+    double relayPeerPropotionInReply_var;
     string realyIfoHash;
     cArray relayPeers_var;   // relay peers container
 };

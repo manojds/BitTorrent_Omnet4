@@ -21,5 +21,6 @@ simple BTTrackerRelayEnabled extends BTTrackerBase like TCPApp , UDPApp
 {
     parameters:
         @class(BTTrackerRelayEnabled);
+        double relayPeerPropotionInReply= default(0.5);
         string realyInfoHash;		// the SHA-1 (20 bytes) hash value of realy torrent
 }

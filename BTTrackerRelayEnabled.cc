@@ -29,10 +29,13 @@ BTTrackerRelayEnabled::~BTTrackerRelayEnabled() {
 void BTTrackerRelayEnabled::initialize()
 {
     BTTrackerBase::initialize();
-    realyIfoHash        =  par("realyInfoHash").stdstringValue ();
+    relayPeerPropotionInReply_var   = (double)par("relayPeerPropotionInReply");
+    realyIfoHash                    =  par("realyInfoHash").stdstringValue ();
+
 
     realyPeersNum_var   = 0;
 
+    WATCH(relayPeerPropotionInReply_var);
     WATCH(realyPeersNum_var);
     WATCH_OBJ(relayPeers_var);
 }
@@ -60,6 +63,23 @@ int BTTrackerRelayEnabled::containsRelay(BTTrackerStructBase* obj) const
 
     // not found
     return -1;
+}
+
+
+/**
+ * Get the maximum number of peers which can be included in a response.
+ */
+double BTTrackerRelayEnabled::relayPeerPropotionInReply() const
+{
+    return relayPeerPropotionInReply_var;
+}
+
+/**
+ * Set the maximum number of peers which can be included in a response.
+ */
+void BTTrackerRelayEnabled::setRelayPeerPropotionInReply(double relayPeerPropotionInReply)
+{
+    relayPeerPropotionInReply_var = relayPeerPropotionInReply;
 }
 
 /**
