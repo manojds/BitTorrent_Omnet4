@@ -58,7 +58,7 @@ void BTPeerWireBaseRelay::handleMsgFromRelayTracker(cMessage *msg)
                 check_and_cast<BTTrackerMsgResponse*>(msg);
 
         double      relayAnnounceInterval_var=
-                            trackerResponse()->announceInterval();
+                trackerResponse_msg->announceInterval();
 
         //Scheduling next contact with the tracker.
         scheduleAt(simTime() + relayAnnounceInterval_var, evtRelayTrackerComm);
