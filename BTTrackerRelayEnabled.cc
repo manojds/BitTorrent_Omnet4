@@ -29,11 +29,54 @@ BTTrackerRelayEnabled::~BTTrackerRelayEnabled() {
 void BTTrackerRelayEnabled::initialize()
 {
     BTTrackerBase::initialize();
-    realyIfoHash_var        =  par("realyInfoHash").stdstringValue ();
+    realyIfoHash        =  par("realyInfoHash").stdstringValue ();
 
+    realyPeersNum_var   = 0;
+
+    WATCH(realyPeersNum_var);
+    WATCH_OBJ(relayPeers_var);
 }
 
+/**
+ * Returns the position of obj inside the relay peers container (if it is contained)
+ * or -1 if obj is not found.
+ */
+int BTTrackerRelayEnabled::containsRelay(BTTrackerStructBase* obj) const
+{
+    // temp peer
+    BTTrackerStructBase* tpeer;
 
+    // traverse the peers pool to find obj
+    for(int i=0; i<relayPeers_var.size(); i++)
+    {
+        // get peer i
+        tpeer = (BTTrackerStructBase*)relayPeers_var[i];
+        // user operator ==
+        if(tpeer && obj && (*obj == *tpeer))
+        {
+            return i;
+        }
+    }
+
+    // not found
+    return -1;
+}
+
+/**
+ * Get the relay peers count.
+ */
+size_t BTTrackerRelayEnabled::realyPeersNum() const
+{
+    return realyPeersNum_var;
+}
+
+/**
+ * Set the relay peers count.
+ */
+void BTTrackerRelayEnabled::setRealyPeersNum(size_t peersNum)
+{
+    realyPeersNum_var = peersNum;
+}
 
 /**
  * Get the relay info hash of tracker.
@@ -41,7 +84,7 @@ void BTTrackerRelayEnabled::initialize()
  */
 const string& BTTrackerRelayEnabled::relayInfoHash() const
 {
-    return realyIfoHash_var;
+    return realyIfoHash;
 }
 
 /**
@@ -50,6 +93,13 @@ const string& BTTrackerRelayEnabled::relayInfoHash() const
  */
 void BTTrackerRelayEnabled::setRelayInfoHash(const string& infoHash)
 {
-    realyIfoHash_var = infoHash;
+    realyIfoHash = infoHash;
 }
 
+/**
+ * Get the relay peers container.
+ */
+cArray& BTTrackerRelayEnabled::relayPeers()
+{
+    return relayPeers_var;
+}

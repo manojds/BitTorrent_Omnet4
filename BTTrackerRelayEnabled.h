@@ -24,13 +24,20 @@ public:
 
     const string& relayInfoHash() const;
 
+    int containsRelay(BTTrackerStructBase* obj) const;
+    cArray& relayPeers();
+    size_t  realyPeersNum() const;
+    void    setRealyPeersNum(size_t peersNum);
 protected:
     virtual void initialize();
 
-    void setRelayInfoHash(const string& infoHash);
+    void    setRelayInfoHash(const string& infoHash);
 
-private:
-    string realyIfoHash_var;
+
+
+    size_t realyPeersNum_var;    // realy peers counter
+    string realyIfoHash;
+    cArray relayPeers_var;   // relay peers container
 };
 
 #endif /* BTTRACKERRELAYENABLED_H_ */
