@@ -31,7 +31,7 @@ BTTrackerRelayEnabled* BTTrackerClientHandlerRelayEnbled::getHostModule()
 {
     // get the host module and check its type
     BTTrackerRelayEnabled* hostMod = check_and_cast<BTTrackerRelayEnabled*>(TCPServerThreadBase::getHostModule());
-
+    //mjp
     // return the correct module
     return hostMod;
 }
@@ -321,7 +321,12 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
     // remove this and add relay peers according to the proportion
 
 
+
     cArray& relayPeers=getHostModule()->relayPeers();
+
+    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::fillPeersInResponse",
+            "filling peers, current number of true peers["<< added_peers.size()<<"], number of available relay peers ["<<relayPeers.size()<<"]");
+
     int iTruePeerMark=added_peers.size();
     rmsg->setPeersArraySize(added_peers.size()+relayPeers.size());
 
