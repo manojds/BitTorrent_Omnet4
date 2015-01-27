@@ -129,7 +129,7 @@ void BTTrackerRelayEnabled::cleanRemoveRelayPeer(int index)
     if (index>=0)
     {
         BTTrackerStructBase* peer = (BTTrackerStructBase*)relayPeers()[index];
-        peers().remove(index);
+        relayPeers().remove(index);
         delete peer;
     }
     else
