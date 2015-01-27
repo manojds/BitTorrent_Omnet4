@@ -31,6 +31,7 @@ public:
 
     double  relayPeerPropotionInReply() const;
     void    setRelayPeerPropotionInReply(double relayPeerPropotionInReply);
+    void    cleanRemoveRelayPeer(int);
 protected:
     virtual void initialize();
 

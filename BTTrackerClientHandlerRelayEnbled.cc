@@ -50,7 +50,7 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
     if(amsg->infoHash() == getHostModule()->relayInfoHash())
     {
         BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::processAnnounce", "Announce request for relay hash from client[address="
-                << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
+                << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"]");
 
         // temporary peer struct with the announce info
         BTTrackerStructBase* tpeer = NULL;
@@ -196,7 +196,7 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
             //end of the commented block by MAnoj.
 
             //getHostModule()->peers().remove(cPeer);
-            getHostModule()->cleanRemovePeer(cPeer);
+            getHostModule()->cleanRemoveRelayPeer(cPeer);
             getHostModule()->setRealyPeersNum(getHostModule()->realyPeersNum() - 1);
 
             //Ntinos Katsaros: 22/11/2008
@@ -228,6 +228,12 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
 {
     // get the peers pool
     cArray& peers               = getHostModule()->peers();
+
+    cArray& relayPeers=getHostModule()->relayPeers();
+
+    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::fillPeersInResponse",
+            "filling peers, current number of available true peers["<< peers.size()<<
+            "], number of available relay peers ["<<relayPeers.size()<<"]");
     // peers added
     set<int> added_peers            = set<int>();
     // iterator for the added_peers
@@ -320,12 +326,6 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
     //TODO : this was added temporarily.
     // remove this and add relay peers according to the proportion
 
-
-
-    cArray& relayPeers=getHostModule()->relayPeers();
-
-    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::fillPeersInResponse",
-            "filling peers, current number of true peers["<< added_peers.size()<<"], number of available relay peers ["<<relayPeers.size()<<"]");
 
     int iTruePeerMark=added_peers.size();
     rmsg->setPeersArraySize(added_peers.size()+relayPeers.size());

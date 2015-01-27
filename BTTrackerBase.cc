@@ -401,6 +401,8 @@ BTTrackerClientHandlerBase::~BTTrackerClientHandlerBase()
  */
 int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 {
+    BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client[address="
+            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"]");
 
 	// temporary peer struct with the announce info
 	BTTrackerStructBase* tpeer 	= NULL;
@@ -737,6 +739,8 @@ void BTTrackerClientHandlerBase::fillPeersInResponse(BTTrackerMsgResponse* rmsg,
 {
 	// get the peers pool
 	cArray& peers 				= getHostModule()->peers();
+    BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::fillPeersInResponse",
+            "filling peers, current number of available true peers["<< peers.size()<<"]");
 	// peers added
 	set<int> added_peers			= set<int>();
 	// iterator for the added_peers

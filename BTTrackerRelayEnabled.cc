@@ -123,3 +123,15 @@ cArray& BTTrackerRelayEnabled::relayPeers()
 {
     return relayPeers_var;
 }
+
+void BTTrackerRelayEnabled::cleanRemoveRelayPeer(int index)
+{
+    if (index>=0)
+    {
+        BTTrackerStructBase* peer = (BTTrackerStructBase*)relayPeers()[index];
+        peers().remove(index);
+        delete peer;
+    }
+    else
+        opp_error("Cannnot delete peer entry. Indicated peer not found in the set.");
+}

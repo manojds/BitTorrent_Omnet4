@@ -287,6 +287,7 @@ const char* BTTrackerClientBase::generatePeerID()
  */
 void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg, bool urgent)
 {
+
 	//BT_LOG_DETAIL(btLogSinker, "BTTrackerClientB::socketDataArrived", "[" << peerId_var << "]  BTTrackerClientBase::socketDataArrived- start of the method");
 
 	// cast the reponse
@@ -344,6 +345,12 @@ void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg,
 	bytesRcvd += mmsg->getByteLength();
 	// we changed state
 	transient_var = 0;
+
+	//TODO (critical) : check the errors or warning kind is set on mmsg before forwarding it.
+	// I (Manoj) got an error like this - tracker set error and don't set announce interval
+	// in the message. and since no checks are performed here that message get forwarded to PeerwireBase
+	// then PeerwireBase act like a normal message and uses announce interval which is not set (may be default to 0 )
+	// and get a wired error where INET says socket of this module get a message which does not belong to it.
 
 	// forward the message to the btorrent application
 	send(mmsg, "btorrentOut");
