@@ -281,8 +281,17 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual void handleSelfMessage(cMessage* msg);
 
 		// functions added by Manoj
+		// These methods are added to increase the extensibility (and also readability) of this class
+		// Functionality executed by these methods are previously in some other big functions.
+		// basically these methods are refactored from bigger functions
 		virtual void scheduleTrackerCommAt(simtime_t t);
-		//end of teh functions added by Manoj.
+		virtual void handleNewPeerConn(cMessage *msg);
+		virtual void handleMsgFromTrackerClient(cMessage *msg);
+		//Following methods are only to be used in sub classes (no functionality is implemented on this classes.)
+		virtual void newConnectionFromPeerEstablished(PEER peer, TCPServerThreadBase* thread){}
+		virtual void newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread){}
+		virtual void connectionLostFromPeer(string peerId){}
+		//end of the functions added by Manoj.
 
 		void initializePieceFrequencies(int);
 		void printPieceFrequencies();
