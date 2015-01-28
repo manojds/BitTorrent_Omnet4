@@ -49,7 +49,7 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
     //otherwise we let super class to handle it
     if(amsg->infoHash() == getHostModule()->relayInfoHash())
     {
-        BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::processAnnounce", "Announce request for relay hash from client[address="
+        BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRE::processAnnounce", "Announce request for relay hash from client[address="
                 << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"]");
 
         // temporary peer struct with the announce info
@@ -226,114 +226,33 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
  */
 void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse* rmsg, bool seed, bool no_peer_id)
 {
-    // get the peers pool
-    cArray& peers               = getHostModule()->peers();
+
+    BTTrackerClientHandlerBase::fillPeersInResponse(rmsg, seed, no_peer_id);
 
     cArray& relayPeers=getHostModule()->relayPeers();
 
-    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRB::fillPeersInResponse",
-            "filling peers, current number of available true peers["<< peers.size()<<
+    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRE::fillPeersInResponse",
+            "filling peers, number of true peers in response ["<< rmsg->peersArraySize()<<
             "], number of available relay peers ["<<relayPeers.size()<<"]");
-    // peers added
-    set<int> added_peers            = set<int>();
-    // iterator for the added_peers
-    set<int>::iterator it;
-    // the number of peers in the reply
-    size_t max_peers            = 0;
+
     // temporary peer from the peers pool
     BTTrackerStructBase* tpeer;
     // temporary peer to add to the response
     PEER ttpeer;
-    // random peer
-    int rndpeer             = -1;
-
-    if(seed) // response to a seed
-    {
-        // how many peers we have to add, -1 to exclude the requesting peer
-        if(getHostModule()->peersNum() - getHostModule()->seeds() > 1)
-        {
-            max_peers = (getHostModule()->peersNum() - getHostModule()->seeds() <= getHostModule()->maxPeersInReply()) ? getHostModule()->peersNum() - getHostModule()->seeds(): getHostModule()->maxPeersInReply();
-        }
-        else
-        {
-            return;
-        }
-    }
-    else // response to a normal peer
-    {
-        // how many peers we have to add, -1 to exclude the requesting peer
-        if(peers.size() > 1)
-        {
-            max_peers = (getHostModule()->peersNum() - 1 <= getHostModule()->maxPeersInReply()) ? getHostModule()->peersNum() - 1 : getHostModule()->maxPeersInReply();
-        }
-        else // no available peers
-        {
-            return;
-        }
-    }
-
-    //calculate the count of relay peers.
-//    size_t relayPeerCount=(getHostModule()->relayPeerPropotionInReply())*();
-
-    // random selection
-    while(added_peers.size() < max_peers)
-    {
-        // get a random peer
-        rndpeer = intrand(peers.size());
-
-        // the random peer is the peer that made the announce, ignore
-        if(rndpeer == cPeer)
-        {
-            continue;
-        }
-        // the random peer is already added, ignore
-        if(added_peers.find(rndpeer) != added_peers.end())
-        {
-            continue;
-        }
-        // the response is returned to a seed (i.e., do not include seeds in the response)
-        if(seed && (BTTrackerStructBase*)peers[rndpeer] && ((BTTrackerStructBase*)peers[rndpeer])->isSeed())
-        {
-            continue;
-        }
-
-        // add the peer to the "added peers" pool
-        if((BTTrackerStructBase*)peers[rndpeer])
-        {
-            added_peers.insert(rndpeer);
-        }
-    }
-
-    // traverse the set and fill the response
-    rmsg->setPeersArraySize(added_peers.size());
-    for(it = added_peers.begin(); it != added_peers.end(); it++)
-    {
-        // get the peer from the pool
-        tpeer = (BTTrackerStructBase*)peers[*it];
-
-        // copy some fields/values
-        if(!no_peer_id)
-        {
-            ttpeer.peerId       = tpeer->peerId().c_str();
-        }
-        ttpeer.peerPort     = tpeer->peerPort();
-        ttpeer.ipAddress    = tpeer->ipAddress();
-
-        // insert the peer to the response
-        rmsg->setPeers(--max_peers, ttpeer);
-    }
 
     //TODO : this was added temporarily.
     // remove this and add relay peers according to the proportion
 
 
-    int iTruePeerMark=added_peers.size();
-    rmsg->setPeersArraySize(added_peers.size()+relayPeers.size());
+    int iTruePeerMark=rmsg->peersArraySize();
+    rmsg->setPeersArraySize(iTruePeerMark+relayPeers.size());
 
     for(int i=0; i <relayPeers.size(); i++)
     {
         // get the peer from the pool
         tpeer = (BTTrackerStructBase*)relayPeers[i];
+
+        //TODO :: if this relay peer is the same one who made the announce do not add it to the list
 
         // copy some fields/values
         if(!no_peer_id)
