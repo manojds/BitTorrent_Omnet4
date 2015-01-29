@@ -25,6 +25,10 @@ protected:
 
     virtual void handleSelfMessage(cMessage* msg);
     virtual void scheduleTrackerCommAt(simtime_t t);
+
+    virtual void newConnectionFromPeerEstablished(PEER peer, TCPServerThreadBase* thread);
+    virtual void newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread);
+    virtual void connectionLostFromPeer(string peerId);
     /* End of redefined methods from BTPeerWireBase */
 
     virtual void enbaleTrackerComm();
@@ -37,6 +41,7 @@ private:
 
     bool        b_TrackerCommIsEnbled;
     cMessage*   evtRelayTrackerComm;   //Timer to schedule communication with the Tracker for Relay purposes
+    PeerState   initiatedPeers;     //Peer who initiated connections to this relay peer
 
 };
 

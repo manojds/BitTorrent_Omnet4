@@ -127,6 +127,24 @@ void BTPeerWireBaseRelay::scheduleTrackerCommAt(simtime_t t)
 
 }
 
+void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerThreadBase* thread)
+{
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished",
+            "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - New connection arrived from peer ["<<peer.peerId<<"]");
+
+}
+void BTPeerWireBaseRelay::newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread)
+{
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionToPeerEstablished",
+            "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Established with peer ["<<peer.peerId<<"]");
+
+}
+void BTPeerWireBaseRelay::connectionLostFromPeer(string peerId)
+{
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionToPeerEstablished",
+            "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Established with peer ["<<peerId<<"]");
+}
+
 void BTPeerWireBaseRelay::enbaleTrackerComm()
 {
     b_TrackerCommIsEnbled=true;
