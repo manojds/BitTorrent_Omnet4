@@ -229,28 +229,54 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
 
     BTTrackerClientHandlerBase::fillPeersInResponse(rmsg, seed, no_peer_id);
 
+    int iTruePeerCount=rmsg->peersArraySize();
+
     cArray& relayPeers=getHostModule()->relayPeers();
 
     BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRE::fillPeersInResponse",
-            "filling peers, number of true peers in response ["<< rmsg->peersArraySize()<<
+            "filling peers, number of true peers in response ["<< iTruePeerCount<<
             "], number of available relay peers ["<<relayPeers.size()<<"]");
+
+
 
     // temporary peer from the peers pool
     BTTrackerStructBase* tpeer;
     // temporary peer to add to the response
     PEER ttpeer;
 
+    // peers added
+    set<int> added_peers            = set<int>();
+
     //TODO : this was added temporarily.
     // remove this and add relay peers according to the proportion
+    //currently we add at most same number of realy peers as true peers.
 
 
-    int iTruePeerMark=rmsg->peersArraySize();
-    rmsg->setPeersArraySize(iTruePeerMark+relayPeers.size());
+    int iMaxRelayPeers(0);
+    if( iTruePeerCount < relayPeers.size())
+        iMaxRelayPeers=iTruePeerCount;
+    else
+        iMaxRelayPeers= relayPeers.size();
 
-    for(int i=0; i <relayPeers.size(); i++)
+    for (int i=0; (added_peers.size() < iMaxRelayPeers) && (i < relayPeers.size()) ; i++ )
+    {
+        if(i == cPeer)  //if it is this peer we don't add
+            continue;
+        //if there is peer at this index add it
+        if(relayPeers[i] != NULL)
+            added_peers.insert(i);
+    }
+
+
+
+    rmsg->setPeersArraySize(iTruePeerCount+added_peers.size());
+
+    set<int>::iterator it= added_peers.begin();
+    int i=0;
+    for( ; it != added_peers.end(); it++, i++)
     {
         // get the peer from the pool
-        tpeer = (BTTrackerStructBase*)relayPeers[i];
+        tpeer = (BTTrackerStructBase*)relayPeers[*it];
 
         //TODO :: if this relay peer is the same one who made the announce do not add it to the list
 
@@ -263,7 +289,7 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
         ttpeer.ipAddress    = tpeer->ipAddress();
 
         // insert the peer to the response
-        rmsg->setPeers(iTruePeerMark+i, ttpeer);
+        rmsg->setPeers(iTruePeerCount+i, ttpeer);
     }
 }
 
