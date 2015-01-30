@@ -636,7 +636,6 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			TCPServerThreadBase *thread;
 			PeerEntryVector peerVector = peerState.getVector();
 
-			BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] this ["<< (void*)this<<"], peerState vector size ["<< peerVector.size()<<"]");
 
 			for (unsigned int i=0; i<peerVector.size(); i++)
 			{

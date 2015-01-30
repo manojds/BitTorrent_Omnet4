@@ -148,16 +148,14 @@ void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerT
 
         throw cRuntimeError(ss.str().c_str());
     }
-
-
-
 }
+
 void BTPeerWireBaseRelay::newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread)
 {
     BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionToPeerEstablished",
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Established with peer ["<<peer.peerId<<"]");
-
 }
+
 void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
 {
     BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::connectionLostFromPeer",
@@ -174,10 +172,7 @@ void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
         throw cRuntimeError(ss.str().c_str());
 
     }
-
 }
-
-
 
 void BTPeerWireBaseRelay::enbaleTrackerComm()
 {
