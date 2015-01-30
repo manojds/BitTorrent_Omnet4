@@ -8,6 +8,7 @@
 #ifndef BTPEERWIREBASERELAY_H_
 #define BTPEERWIREBASERELAY_H_
 #include "BTPeerWireBase.h"
+#include <map>
 
 #define INTERNAL_TRACKER_REALY_COM_MSG                  208
 
@@ -39,9 +40,10 @@ protected:
 private:
     void handleMsgFromRelayTracker(cMessage *msg);
 
-    bool        b_TrackerCommIsEnbled;
-    cMessage*   evtRelayTrackerComm;   //Timer to schedule communication with the Tracker for Relay purposes
-    PeerState   initiatedPeers;     //Peer who initiated connections to this relay peer
+
+    bool                    b_TrackerCommIsEnbled;
+    cMessage*               evtRelayTrackerComm;   //Timer to schedule communication with the Tracker for Relay purposes
+    std::map<IPvXAddress, PEER>   initiatedPeers;     //Peer who initiated connections to this relay peer
 
 };
 

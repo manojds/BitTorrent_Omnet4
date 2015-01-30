@@ -132,6 +132,25 @@ void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerT
     BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished",
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - New connection arrived from peer ["<<peer.peerId<<"]");
 
+    std::map<IPvXAddress, PEER>::iterator itr = initiatedPeers.find(peer.ipAddress);
+    if(itr != initiatedPeers.end())
+    {
+        initiatedPeers[peer.ipAddress]=peer;
+    }
+    else
+    {
+        std::stringstream ss;
+        ss<<"["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection came from the same peer  twice. PeerID ["<<
+                peer.peerId<<"] IPaddress ["<<peer.ipAddress<<"]";
+
+        BT_LOG_ERROR( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished", ss.str().c_str());
+
+
+        throw cRuntimeError(ss.str().c_str());
+    }
+
+
+
 }
 void BTPeerWireBaseRelay::newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread)
 {
@@ -143,7 +162,22 @@ void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
 {
     BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::connectionLostFromPeer",
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Lost with peer ["<<peer.ipAddress<<"]");
+
+
+    if (initiatedPeers.erase(peer.ipAddress) !=1 )
+    {
+        std::stringstream ss;
+        ss<<"["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - No Connection info found. PeerID ["<<
+                        peer.peerId<<"] IPaddress ["<<peer.ipAddress<<"]";
+        BT_LOG_ERROR( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished", ss.str().c_str());
+
+        throw cRuntimeError(ss.str().c_str());
+
+    }
+
 }
+
+
 
 void BTPeerWireBaseRelay::enbaleTrackerComm()
 {
