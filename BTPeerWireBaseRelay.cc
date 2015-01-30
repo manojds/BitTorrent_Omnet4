@@ -133,7 +133,7 @@ void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerT
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - New connection arrived from peer ["<<peer.peerId<<"]");
 
     std::map<IPvXAddress, PEER>::iterator itr = initiatedPeers.find(peer.ipAddress);
-    if(itr != initiatedPeers.end())
+    if(itr == initiatedPeers.end())
     {
         initiatedPeers[peer.ipAddress]=peer;
     }
