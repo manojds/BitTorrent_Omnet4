@@ -139,10 +139,10 @@ void BTPeerWireBaseRelay::newConnectionToPeerEstablished(PEER peer, TCPServerThr
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Established with peer ["<<peer.peerId<<"]");
 
 }
-void BTPeerWireBaseRelay::connectionLostFromPeer(string peerId)
+void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
 {
-    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionToPeerEstablished",
-            "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Established with peer ["<<peerId<<"]");
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::connectionLostFromPeer",
+            "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Lost with peer ["<<peer.ipAddress<<"]");
 }
 
 void BTPeerWireBaseRelay::enbaleTrackerComm()

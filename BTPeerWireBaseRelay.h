@@ -28,7 +28,7 @@ protected:
 
     virtual void newConnectionFromPeerEstablished(PEER peer, TCPServerThreadBase* thread);
     virtual void newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread);
-    virtual void connectionLostFromPeer(string peerId);
+    virtual void connectionLostFromPeer(PEER peer);
     /* End of redefined methods from BTPeerWireBase */
 
     virtual void enbaleTrackerComm();
