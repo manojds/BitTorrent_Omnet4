@@ -636,7 +636,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			//Following function call was added by Manoj. 2015-01-31
 			//Previously contents of this function just executed here.
 			//Refactored since this code segment can be reused in subclasses
-			closeAllFunctions();
+			closeAllConnections();
 
 			stopListening();
 			delete msg;
@@ -762,9 +762,9 @@ void BTPeerWireBase::stopChokingAlorithms()
 	cancelAndDelete(evtOptUnChoke);
 }
 
-void BTPeerWireBase::closeAllFunctions()
+void BTPeerWireBase::closeAllConnections()
 {
-    BT_LOG_INFO( btLogSinker,"BTPeerWireBase::closeAllFunctions","["<<this->getParentModule()->getFullName()<<
+    BT_LOG_INFO( btLogSinker,"BTPeerWireBase::closeAllConnections","["<<this->getParentModule()->getFullName()<<
             "] Closing All connections with other peers.");
 
     TCPServerThreadBase *thread(NULL);
