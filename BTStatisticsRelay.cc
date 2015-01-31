@@ -33,7 +33,7 @@ BTStatisticsRelay::~BTStatisticsRelay() {
 
 void BTStatisticsRelay::initialize()
 {
-
+    BTStatistics::initialize();
 
     BT_LOG_INFO(btLogSinker, "BTStatisticsRelay::initialize", "Initializing ....");
 
