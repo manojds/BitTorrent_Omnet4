@@ -26,7 +26,24 @@ BTStatisticsRelay::BTStatisticsRelay() {
 }
 
 BTStatisticsRelay::~BTStatisticsRelay() {
-    // TODO Auto-generated destructor stub
+    delete dwSuccess_Relay;
+    delete numBlockFail_Relay;
+
+}
+
+void BTStatisticsRelay::initialize()
+{
+
+
+    BT_LOG_INFO(btLogSinker, "BTStatisticsRelay::initialize", "Initializing ....");
+
+
+    dwSuccess_Relay = new  cStdDev("BitTorrent Relay:Download Duration");
+    dwSuccess_Relay_vec.setName("BitTorrent Relay:Download Duration");
+
+    numBlockFail_Relay = new  cStdDev("BitTorrent Relay:Failed Downloads:Number of Completed Blocks");
+    numBlockFail_Relay_vec.setName("BitTorrent Relay:Failed Downloads:Number of Completed Blocks");
+
 }
 
 void BTStatisticsRelay::handleMessage(cMessage* msg)
@@ -35,6 +52,8 @@ void BTStatisticsRelay::handleMessage(cMessage* msg)
     {
         case BT_STATS_RELAY_DWL:
         {
+            BT_LOG_DEBUG(btLogSinker,"BTStatisticsRelay::handleMessage","BT_STATS_RELAY_DWL msg received !");
+
             BTStatisticsDWLMsg* dwMsg = dynamic_cast<BTStatisticsDWLMsg*>(msg);
             double dwTime = dwMsg->downloadTime();
             double rmBlocks = dwMsg->remainingBlocks();

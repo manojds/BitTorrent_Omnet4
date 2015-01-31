@@ -33,6 +33,9 @@ public:
     virtual void finish();
 
 protected:
+
+    virtual void initialize();
+
     cStdDev*    dwSuccess_Relay;
     cOutVector  dwSuccess_Relay_vec;
 
