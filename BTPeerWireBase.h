@@ -349,7 +349,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		//Following function added by Manoj - 2015-01-31
         //not adding any new functionality. just refactoring
         //previous code segment in to a function
-		void closeAllFunctions();
+		void closeAllConnections();
 
 		virtual void ChokingAlgorithm();
 		virtual void chokeWorstDownloader();
