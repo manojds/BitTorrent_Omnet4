@@ -341,7 +341,15 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 
 		void stopListening();
 		void startListening();
+		//Following function added by Manoj - 2015-01-31
+		//not adding any new functionality. just refactoring
+		//previous code segment in to a function
+		void startChokingAlorithms();
 		void stopChokingAlorithms();
+		//Following function added by Manoj - 2015-01-31
+        //not adding any new functionality. just refactoring
+        //previous code segment in to a function
+		void closeAllFunctions();
 
 		virtual void ChokingAlgorithm();
 		virtual void chokeWorstDownloader();

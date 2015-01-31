@@ -632,20 +632,11 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			}
 
 			BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ...");
-			BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] closing all peer wire connections...");
-			TCPServerThreadBase *thread;
-			PeerEntryVector peerVector = peerState.getVector();
 
-
-			for (unsigned int i=0; i<peerVector.size(); i++)
-			{
-				PeerEntry entry= peerVector[i];
-				thread = check_and_cast<TCPServerThreadBase *>(entry.getPeerThread());
-				if (!thread)
-					error("%s:%d at %s() Inconsistent thread state, could not find peer thread. \n", __FILE__, __LINE__, __func__);
-
-				thread->timerExpired(new cMessage(toString(CLOSE_CONNECTION_TIMER),CLOSE_CONNECTION_TIMER));
-			}
+			//Following function call was added by Manoj. 2015-01-31
+			//Previously contents of this function just executed here.
+			//Refactored since this code segment can be reused in subclasses
+			closeAllFunctions();
 
 			stopListening();
 			delete msg;
@@ -753,10 +744,42 @@ void BTPeerWireBase::printConnections()
 	}
 }
 
+/*!
+ * Starts Choking algorithm if not started already
+ */
+void BTPeerWireBase::startChokingAlorithms()
+{
+    if (!((cMessage*) evtChokeAlg)->isScheduled())
+        scheduleAt(simTime(), evtChokeAlg);
+
+    if (!((cMessage*) evtOptUnChoke)->isScheduled())
+        scheduleAt(simTime(), evtOptUnChoke);
+}
+
 void BTPeerWireBase::stopChokingAlorithms()
 {
 	cancelAndDelete(evtChokeAlg);
 	cancelAndDelete(evtOptUnChoke);
+}
+
+void BTPeerWireBase::closeAllFunctions()
+{
+    BT_LOG_INFO( btLogSinker,"BTPeerWireBase::closeAllFunctions","["<<this->getParentModule()->getFullName()<<
+            "] Closing All connections with other peers.");
+
+    TCPServerThreadBase *thread(NULL);
+    PeerEntryVector peerVector = peerState.getVector();
+
+    for (unsigned int i=0; i<peerVector.size(); i++)
+    {
+        PeerEntry entry= peerVector[i];
+        thread = check_and_cast<TCPServerThreadBase *>(entry.getPeerThread());
+        if (!thread)
+            error("%s:%d at %s() Inconsistent thread state, could not find peer thread. \n", __FILE__, __LINE__, __func__);
+
+        thread->timerExpired(new cMessage(toString(CLOSE_CONNECTION_TIMER),CLOSE_CONNECTION_TIMER));
+    }
+
 }
 
 /**
@@ -1602,7 +1625,7 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
             setCurrentNumEmptyTrackerResponses(0);
             //this if and else block added by Manoj. 214-12-27
             //previously only call to scheduleConnections(trackerResponse()); was here.
-            //this was added to stop seeders initating conenctions.
+            //this was added to stop seeders initiating conenctions.
             //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
             //stop because BTHostSeeder, who is still in operation tries to connect to this peer
             if ((getState() != SEEDING) && (getState() != SEEDER))
@@ -1616,13 +1639,13 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
                         "] refraining from initiating connections by my self because I am seeding. ");
             }
 
-            //Check if we have already scheduled the execution of the algorithms i.e. this is not the first
-            //tracker response received.
-            if (!((cMessage*) evtChokeAlg)->isScheduled())
-                scheduleAt(simTime(), evtChokeAlg);
+            //Starting Choking algorithm if not started
 
-            if (!((cMessage*) evtOptUnChoke)->isScheduled())
-                scheduleAt(simTime(), evtOptUnChoke);
+            //Following function call was added by Manoj. 2015-01-31
+            //Previously contents of this function just executed here.
+            //Refactored since this code segment can be reused in subclasses
+            startChokingAlorithms();
+
         }
         else
         {
