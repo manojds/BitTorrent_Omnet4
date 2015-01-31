@@ -840,7 +840,7 @@ void BTPeerWireBase::ChokingAlgorithm()
 
 	PeerEntryVector peerVector = peerState.getVector();
 
-	//First short the peerVector in decreasing download rate order.
+	//First sort the peerVector in decreasing download rate order.
 	std::sort(peerVector.rbegin(), peerVector.rend());
 
 	int numDownloaders = 0;
@@ -1597,20 +1597,24 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
 
         //Based on the peer dictionary, establish connections to remote peers.
         //Furthermore, initiate the (optimistic un-)choking procedures.
-        if (trackerResponse()->peersArraySize() > 0) {
+        if (trackerResponse()->peersArraySize() > 0)
+        {
             setCurrentNumEmptyTrackerResponses(0);
             //this if and else block added by Manoj. 214-12-27
             //previously only call to scheduleConnections(trackerResponse()); was here.
             //this was added to stop seeders initating conenctions.
             //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
             //stop because BTHostSeeder, who is still in operation tries to connect to this peer
-            if ((getState() != SEEDING) && (getState() != SEEDER)) {
+            if ((getState() != SEEDING) && (getState() != SEEDER))
+            {
                 scheduleConnections(trackerResponse());
-            } else
-                BT_LOG_INFO(
-                        btLogSinker,
-                        "BTPeerWireBase::handleMessage",
-                        "[" << this->getParentModule()->getFullName() << "] refraining from initiating connections by my self because I am seeding. ");
+            }
+            else
+            {
+                BT_LOG_INFO( btLogSinker,"BTPeerWireBase::handleMessage",
+                        "[" << this->getParentModule()->getFullName() <<
+                        "] refraining from initiating connections by my self because I am seeding. ");
+            }
 
             //Check if we have already scheduled the execution of the algorithms i.e. this is not the first
             //tracker response received.
@@ -1619,29 +1623,28 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
 
             if (!((cMessage*) evtOptUnChoke)->isScheduled())
                 scheduleAt(simTime(), evtOptUnChoke);
-        } else {
+        }
+        else
+        {
             setCurrentNumEmptyTrackerResponses(
                     currentNumEmptyTrackerResponses() + 1);
 
             //Exiting due to empty response will be scheduled only if this is not a Seeding (not seeder) node.
             //Else, exit would be scheduled twice!
-            if ((currentNumEmptyTrackerResponses()
-                    >= maxNumEmptyTrackerResponses()) && (peerState.size() == 0)
-                    && (getState() != SEEDING)) {
-                BT_LOG_INFO(
-                        btLogSinker,
-                        "BTPeerWireBase::handleMessage",
-                        "[" << this->getParentModule()->getFullName() << "] reached maximum allowed number of empty subsequent tracker responses ( ="<<maxNumEmptyTrackerResponses() <<").");
+            if ((currentNumEmptyTrackerResponses() >= maxNumEmptyTrackerResponses()) &&
+                    (peerState.size() == 0) && (getState() != SEEDING))
+            {
+                BT_LOG_INFO(btLogSinker, "BTPeerWireBase::handleMessage",
+                        "[" << this->getParentModule()->getFullName() <<
+                        "] reached maximum allowed number of empty subsequent tracker responses ( ="
+                        <<maxNumEmptyTrackerResponses() <<").");
                 setState(EXITING);
                 stopChokingAlorithms();
 
                 //Setting download duration to zero: will be interprented as a failure
                 //in BTStatistics
                 setDownloadDuration(0);
-                scheduleAt(
-                        simTime(),
-                        new cMessage(toString(INTERNAL_EXIT_MSG),
-                                INTERNAL_EXIT_MSG));
+                scheduleAt( simTime(), new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
             }
         }
 
