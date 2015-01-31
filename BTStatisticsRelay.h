@@ -17,6 +17,7 @@
 #define BTSTATISTICSRELAY_H_
 #include "BTStatistics.h"
 
+# define BT_STATS_RELAY_DWL         764
 
 /*!
  * class which collects statistics of BTTorrent Relays Hosts

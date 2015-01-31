@@ -35,6 +35,8 @@ protected:
     virtual void enbaleTrackerComm();
     virtual void disableTrackerComm();
 
+    virtual void writeStats();
+
     const char* toString(int);
 
 private:

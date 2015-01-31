@@ -8,6 +8,7 @@
 #include "BTPeerWireBaseRelay.h"
 #include "BTPeerWireClientHandlerBase.h"
 #include "BTLogImpl.h"
+#include "BTStatisticsRelay.h"
 
 Define_Module(BTPeerWireBaseRelay);
 
@@ -182,6 +183,16 @@ void BTPeerWireBaseRelay::enbaleTrackerComm()
 void BTPeerWireBaseRelay::disableTrackerComm()
 {
     b_TrackerCommIsEnbled=false;
+}
+
+void BTPeerWireBaseRelay::writeStats()
+{
+    BTStatisticsDWLMsg* msgDWL = new BTStatisticsDWLMsg("BT_STATS_RELAY_DWL",BT_STATS_RELAY_DWL);
+    msgDWL->setDownloadTime(SIMTIME_DBL(downloadDuration()));
+    msgDWL->setRemainingBlocks(localBitfield()->numRemainingBlocks());
+    sendDirect(msgDWL,  btStatistics, btStatistics->findGate("direct_in"));
+
+
 }
 
 const char* BTPeerWireBaseRelay::toString(int type)

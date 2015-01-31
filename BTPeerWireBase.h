@@ -373,7 +373,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		/**
 		 * Sends measurements to the BTStatistics Module
 		 */
-		void writeStats();
+		virtual void writeStats();
 
 		void printConnections();
 };

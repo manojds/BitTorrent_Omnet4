@@ -16,7 +16,7 @@
 #include "BTStatisticsRelay.h"
 #include "BTLogImpl.h"
 
-# define BT_STATS_RELAY_DWL         764
+
 
 Define_Module(BTStatisticsRelay);
 
