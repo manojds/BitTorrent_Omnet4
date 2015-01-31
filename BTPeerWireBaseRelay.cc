@@ -133,6 +133,11 @@ void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerT
     BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished",
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - New connection arrived from peer ["<<peer.peerId<<"]");
 
+    bool bInitiateTrackerComm(false);
+
+    if(initiatedPeers.size() == 0)
+        bInitiateTrackerComm=true;
+
     std::map<IPvXAddress, PEER>::iterator itr = initiatedPeers.find(peer.ipAddress);
     if(itr == initiatedPeers.end())
     {
@@ -148,6 +153,14 @@ void BTPeerWireBaseRelay::newConnectionFromPeerEstablished(PEER peer, TCPServerT
 
 
         throw cRuntimeError(ss.str().c_str());
+    }
+
+    if(bInitiateTrackerComm)
+    {
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished",
+                "Starting to act as Relay. Initiating TRacker Communication for true hash");
+
+        enableTrackerComm();
     }
 }
 
@@ -173,16 +186,61 @@ void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
         throw cRuntimeError(ss.str().c_str());
 
     }
+
+    if(initiatedPeers.size() == 0)
+    {
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::connectionLostFromPeer","["<<this->getParentModule()->getFullName()<<"]"
+                "There is no more connections to act as Relay. Stopping participating in swarm");
+        disableTrackerComm();
+        pauseChokingAlgos();
+        closeAllConnections();
+
+    }
 }
 
-void BTPeerWireBaseRelay::enbaleTrackerComm()
+void BTPeerWireBaseRelay::pauseChokingAlgos()
 {
-    b_TrackerCommIsEnbled=true;
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::pauseChokingAlgos","["<<this->getParentModule()->getFullName()<<"]"
+            "Pausing Choking Algorithms...");
+
+    if(evtChokeAlg->isScheduled())
+        cancelEvent(evtChokeAlg);
+
+    if(evtOptUnChoke->isScheduled())
+        cancelEvent(evtOptUnChoke);
+
+}
+
+void BTPeerWireBaseRelay::enableTrackerComm()
+{
+    if(b_TrackerCommIsEnbled == false)
+    {
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::enableTrackerComm","["<<this->getParentModule()->getFullName()<<"]"
+                "Enabling Tracker Communication...");
+
+        b_TrackerCommIsEnbled=true;
+
+        if(evtTrackerComm->isScheduled() == false)
+        {
+            scheduleTrackerCommAt(simTime());
+
+        }
+    }
 }
 
 void BTPeerWireBaseRelay::disableTrackerComm()
 {
-    b_TrackerCommIsEnbled=false;
+    if(b_TrackerCommIsEnbled == true)
+    {
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::disableTrackerComm","["<<this->getParentModule()->getFullName()<<"]"
+                "Disabling Tracker Communication...");
+
+        b_TrackerCommIsEnbled=false;
+        if(evtTrackerComm->isScheduled() == true)
+        {
+            cancelEvent(evtTrackerComm);
+        }
+    }
 }
 
 void BTPeerWireBaseRelay::writeStats()

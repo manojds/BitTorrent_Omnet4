@@ -32,7 +32,9 @@ protected:
     virtual void connectionLostFromPeer(PEER peer);
     /* End of redefined methods from BTPeerWireBase */
 
-    virtual void enbaleTrackerComm();
+    virtual void pauseChokingAlgos();
+
+    virtual void enableTrackerComm();
     virtual void disableTrackerComm();
 
     virtual void writeStats();
