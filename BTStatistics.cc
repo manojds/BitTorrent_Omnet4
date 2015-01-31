@@ -27,6 +27,10 @@
 
 Define_Module(BTStatistics);
 
+BTStatistics::BTStatistics(){
+
+}
+
 BTStatistics::~BTStatistics()
 {
 	delete dwSuccess;

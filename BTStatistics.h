@@ -53,50 +53,51 @@ using namespace std;
 class INET_API BTStatistics : public cSimpleModule
 {
 	public:
-		/**
-		* Destructor
-		*/
-		~BTStatistics();
+    BTStatistics();
+    /**
+     * Destructor
+     */
+    virtual ~BTStatistics();
 
-	protected:
-		int currentTerminalNum;
-		int targetOverlayTerminalNum;
+protected:
+    int currentTerminalNum;
+    int targetOverlayTerminalNum;
 
-		cStdDev* dwSuccess;
-		cOutVector dwSuccess_vec;
+    cStdDev* dwSuccess;
+    cOutVector dwSuccess_vec;
 
-		cStdDev* numBlockFail;
-		cOutVector numBlockFail_vec;
+    cStdDev* numBlockFail;
+    cOutVector numBlockFail_vec;
 
-		cStdDev* dataProviders;
-		cOutVector dataProviders_vec;
+    cStdDev* dataProviders;
+    cOutVector dataProviders_vec;
 
-		cStdDev* numSeederBlocks;
-		cOutVector numSeederBlocks_vec;
-		/**
-		* Check whether the statistics collection has completed
-		*/
-		void checkFinish();
+    cStdDev* numSeederBlocks;
+    cOutVector numSeederBlocks_vec;
+    /**
+     * Check whether the statistics collection has completed
+     */
+    void checkFinish();
 
-		/**
-		* Init member function of module
-		*/
-		virtual void initialize();
+    /**
+     * Init member function of module
+     */
+    virtual void initialize();
 
-		/**
-		* HandleMessage member function of module
-		*/
-		virtual void handleMessage(cMessage* msg);
+    /**
+     * HandleMessage member function of module
+     */
+    virtual void handleMessage(cMessage* msg);
 
-		/**
-		* Finish member function of module
-		*/
-		virtual void finish();
+    /**
+     * Finish member function of module
+     */
+    virtual void finish();
 
-		/**
-		* Do the actual finish() call and record scalars
-		*/
-		void doFinish();
+    /**
+     * Do the actual finish() call and record scalars
+     */
+    void doFinish();
 };
 
 #endif
