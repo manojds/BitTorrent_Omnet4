@@ -19,7 +19,7 @@ import oversim.common.IGlobalFunctions;
 module BTStatisticsRelayFunction like IGlobalFunctions
 {
     submodules:
-        btstatistics: BTStatistics;
+        btstatistics: BTStatisticsRelay;
 	connections allowunconnected:
 
 }
