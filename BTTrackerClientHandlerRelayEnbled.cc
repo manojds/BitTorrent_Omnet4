@@ -38,10 +38,8 @@ BTTrackerRelayEnabled* BTTrackerClientHandlerRelayEnbled::getHostModule()
 
 
 /**
- * Handle an announce.
+ * Handle an announce for a relay Hash.
  * Returns the status of the process (i.e., a constant value which indicates what should the tracker reply with).
- *
- * This method should re-implemented in future subclasses in order to extend/add/change the behavior of the tracker.
  */
 int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* amsg)
 {
@@ -86,10 +84,12 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
 
             // insert the peer to the peers pool
             if (cPeer == -1) // do the magic only if the peer does not exist
-                    {
+            {
                 cPeer = getHostModule()->relayPeers().add(tpeer);
-                getHostModule()->setRealyPeersNum(getHostModule()->realyPeersNum() + 1);
-            } else // the peer exists, update its fields
+                getHostModule()->setRealyPeersNum(
+                        getHostModule()->realyPeersNum() + 1);
+            }
+            else // the peer exists, update its fields
             {
                 // get the peer
                 peer = (BTTrackerStructBase*) getHostModule()->relayPeers()[cPeer];
@@ -223,17 +223,25 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
 
 /**
  * Fill the response with peers.
+ * for true hash
  */
-void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse* rmsg, bool seed, bool no_peer_id)
+void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgAnnounce* amsg, BTTrackerMsgResponse* rmsg, bool seed, bool no_peer_id)
 {
+    //if it is relay hash we don't fill peers.
+    if(strcmp(amsg->infoHash(), getHostModule()->relayInfoHash().c_str()) == 0)
+    {
+        BT_LOG_DETAIL(btLogSinker, "BTTrackerClntHndlRE::fillPeersInResponse", "Avoiding filling peers for relay hash announce. "
+                "Client details [address="<< getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+        return;
+    }
 
-    BTTrackerClientHandlerBase::fillPeersInResponse(rmsg, seed, no_peer_id);
+    BTTrackerClientHandlerBase::fillPeersInResponse(amsg, rmsg, seed, no_peer_id);
 
     int iTruePeerCount=rmsg->peersArraySize();
 
     cArray& relayPeers=getHostModule()->relayPeers();
 
-    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlRE::fillPeersInResponse",
+    BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlRE::fillPeersInResponse",
             "filling peers, number of true peers in response ["<< iTruePeerCount<<
             "], number of available relay peers ["<<relayPeers.size()<<"]");
 
@@ -249,7 +257,7 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
 
     //TODO : this was added temporarily.
     // remove this and add relay peers according to the proportion
-    //currently we add at most same number of realy peers as true peers.
+    //currently we add at most same number of relay peers as true peers.
 
 
     int iMaxRelayPeers(0);
@@ -260,8 +268,12 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
 
     for (int i=0; (added_peers.size() < iMaxRelayPeers) && (i < relayPeers.size()) ; i++ )
     {
-        if(i == cPeer)  //if it is this peer we don't add
+        //This announcing peer is also could be a relay peer.
+        //So this particular index may be give us the same peer from relay peer array.
+        //We should not add the same peer requesting in the response
+        if(amsg->peerId()  == ((BTTrackerStructBase*)relayPeers[i])->peerId())
             continue;
+
         //if there is peer at this index add it
         if(relayPeers[i] != NULL)
             added_peers.insert(i);
@@ -278,7 +290,6 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgResponse
         // get the peer from the pool
         tpeer = (BTTrackerStructBase*)relayPeers[*it];
 
-        //TODO :: if this relay peer is the same one who made the announce do not add it to the list
 
         // copy some fields/values
         if(!no_peer_id)

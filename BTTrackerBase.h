@@ -152,7 +152,8 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		/* Reflection methods */
 		virtual int processAnnounce(BTTrackerMsgAnnounce*); 			// announce processing method
 		virtual void sendResponse(int, BTTrackerMsgAnnounce*);			// response sending method
-		virtual void fillPeersInResponse(BTTrackerMsgResponse*, bool, bool);	// selects the peers which will included in the response
+		//function signature changed by Manoj. 2015-02-01
+		virtual void fillPeersInResponse(BTTrackerMsgAnnounce* amsg, BTTrackerMsgResponse*, bool, bool);	// selects the peers which will included in the response
 		virtual void findAndSetResponseSize(BTTrackerMsgResponse*, bool, bool); // set the size of the response
 		size_t sizeOfStrInt(size_t) const;						// count the length of an integer in ASCII representation
 

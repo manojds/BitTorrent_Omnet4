@@ -688,6 +688,9 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 				}
 			}
 
+			//TODO -Manoj:: take following three method calls into functions such that
+			//they can be overridden in subclasses.
+
 			// set the announce interval
 			rmsg->setAnnounceInterval(getHostModule()->announceInterval());
 			// set the seeders count
@@ -695,7 +698,9 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 			// set the leechers count
 			rmsg->setIncomplete(getHostModule()->peersNum() - rmsg->complete());
 			// set the peers
-			fillPeersInResponse(rmsg, completed, no_peer_id);
+			//changed by Manoj. 2015-01-01
+			//Pass new argument (frist one) since functino signature has been changed.
+			fillPeersInResponse(amsg, rmsg, completed, no_peer_id);
 			// set the message kind
 			if(warning) // something happened
 			{
@@ -734,8 +739,11 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
  * Fill the response with peers.
  *
  * This method should re-implemented in future subclasses in order to extend/add/change the behavior of the tracker.
+ * function signature changed by Manoj -2015-02-01
+ * Added new parameter at the beginning, bcz in subclasses when filling peers,
+ *  we need to know whether we are filling peers for a relay hash
  */
-void BTTrackerClientHandlerBase::fillPeersInResponse(BTTrackerMsgResponse* rmsg, bool seed, bool no_peer_id)
+void BTTrackerClientHandlerBase::fillPeersInResponse(BTTrackerMsgAnnounce* amsg, BTTrackerMsgResponse* rmsg, bool seed, bool no_peer_id)
 {
 	// get the peers pool
 	cArray& peers 				= getHostModule()->peers();

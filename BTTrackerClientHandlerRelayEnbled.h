@@ -27,7 +27,7 @@ public:
 protected:
     // overrides from BTTrackerClientHandlerBase
     virtual int processAnnounce(BTTrackerMsgAnnounce*);
-    virtual void fillPeersInResponse(BTTrackerMsgResponse*, bool, bool);    // selects the peers which will included in the response
+    virtual void fillPeersInResponse(BTTrackerMsgAnnounce* amsg, BTTrackerMsgResponse*, bool, bool);    // selects the peers which will included in the response
     // end of overrides from BTTrackerClientHandlerBase
 
 
