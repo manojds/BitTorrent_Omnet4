@@ -176,16 +176,8 @@ void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
             "["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - Connection Lost with peer ["<<peer.ipAddress<<"]");
 
 
-    if (initiatedPeers.erase(peer.ipAddress) !=1 )
-    {
-        std::stringstream ss;
-        ss<<"["<< this->getParentModule()->getFullName()<<"] ConnMngmnt - No Connection info found. PeerID ["<<
-                        peer.peerId<<"] IPaddress ["<<peer.ipAddress<<"]";
-        BT_LOG_ERROR( btLogSinker, "BTPeerWireBaseRelay::newConnectionFromPeerEstablished", ss.str().c_str());
-
-        throw cRuntimeError(ss.str().c_str());
-
-    }
+    //we remove this peer from initiator list if it is a initiator
+    initiatedPeers.erase(peer.ipAddress);
 
     if(initiatedPeers.size() == 0)
     {
