@@ -253,7 +253,7 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgAnnounce
     PEER ttpeer;
 
     // peers added
-    set<int> added_peers            = set<int>();
+    set<int> added_peers;
 
     //TODO : this was added temporarily.
     // remove this and add relay peers according to the proportion
@@ -268,15 +268,32 @@ void BTTrackerClientHandlerRelayEnbled::fillPeersInResponse(BTTrackerMsgAnnounce
 
     for (int i=0; (added_peers.size() < iMaxRelayPeers) && (i < relayPeers.size()) ; i++ )
     {
-        //This announcing peer is also could be a relay peer.
-        //So this particular index may be give us the same peer from relay peer array.
-        //We should not add the same peer requesting in the response
-        if(amsg->peerId()  == ((BTTrackerStructBase*)relayPeers[i])->peerId())
-            continue;
+
 
         //if there is peer at this index add it
         if(relayPeers[i] != NULL)
-            added_peers.insert(i);
+        {
+            //This announcing peer is also could be a relay peer.
+            //So this particular index may be give us the same peer from relay peer array.
+            //We should not add the same peer requesting in the response
+            if(amsg->peerId()  == ((BTTrackerStructBase*)relayPeers[i])->peerId())
+                continue;
+            //also check whether this peer already in true peers list
+            //bcz it is participating in the swarm
+            bool bPresent(false);
+            for(int j=0; j< rmsg->peersArraySize(); j++)
+            {
+                if( strcmp ((rmsg->peers(j)).peerId.c_str(),  ((BTTrackerStructBase*)relayPeers[i])->peerId().c_str() ) == 0 )
+                {
+                    bPresent=true;
+                    break;
+                }
+
+            }
+
+            if(!bPresent)
+                added_peers.insert(i);
+        }
     }
 
 
