@@ -1537,6 +1537,25 @@ void BTPeerWireBase::handleNewPeerConn(cMessage *msg)
     TCPSocket *socket = new TCPSocket(msg);
     socket->setOutputGate(gate("tcpOut"));
 
+    //Added by Manoj -2015-02-04 - BTR-010
+    int index = peerState.findPeer(socket->getRemoteAddress());
+    if( index >= 0)
+    {
+        //there exists a connection with this peer.
+        //So we will just ignore this connection.
+        //Of we close this socket two msgs (peer_closed and closed / in the specifeid order )
+        //arrive this socket and simulation crashes
+
+        BT_LOG_WARN( btLogSinker, "BTPeerWireBase::handleNewPeerConn",
+                        "[" << this->getParentModule()->getFullName() << "]  connection arrived from ["
+                        <<socket->getRemoteAddress()<<":"<<socket->getRemotePort()<<"] , ignoring the connection "
+                                "since already established connection is there");
+        delete socket;
+        delete msg;
+        return;
+    }
+    //end of the Added by Manoj -2015-02-04 - BTR-010
+
     const char *serverThreadClass = (const char*) par(
             "serverThreadClass");
     TCPServerThreadBase *proc = check_and_cast<
@@ -1567,17 +1586,18 @@ void BTPeerWireBase::handleNewPeerConn(cMessage *msg)
     socketMap.addSocket(socket);
     increasePendingNumConnections();
 
-    int index = peerState.findPeer(peer.ipAddress);
+    //Commented by Manoj -2015-02-04 - BTR-010
+//    int index = peerState.findPeer(peer.ipAddress);
     bool rejectConn = false;
 
-    if (index >= 0)
-        rejectConn = connectionAlreadyEstablished(index);
+    //Commented by Manoj -2015-02-04 - BTR-010
+//    if (index >= 0)
+//        rejectConn = connectionAlreadyEstablished(index);
 
     if (!rejectConn) {
-        BT_LOG_INFO(
-                btLogSinker,
-                "BTPeerWireBase::handleNewPeerConn",
-                "[" << this->getParentModule()->getFullName() << "] established ('passive') connection to "<<socket->getRemoteAddress()<<":"<<socket->getRemotePort()<<" , adding peerInfo...");
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBase::handleNewPeerConn",
+                "[" << this->getParentModule()->getFullName() << "] established ('passive') connection to ["
+                <<socket->getRemoteAddress()<<":"<<socket->getRemotePort()<<"] , adding peerInfo...");
 
         updateDisplay();
         socket->processMessage(msg);
