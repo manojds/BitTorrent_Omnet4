@@ -192,14 +192,19 @@ void BTPeerWireBaseRelay::connectionLostFromPeer(PEER peer)
 
 void BTPeerWireBaseRelay::pauseChokingAlgos()
 {
-    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::pauseChokingAlgos","["<<this->getParentModule()->getFullName()<<"]"
-            "Pausing Choking Algorithms...");
+    //if get state is exiting we have already stopped choking algorithms.
+    //so nothing to pause
+    if(getState() < EXITING)
+    {
+        BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::pauseChokingAlgos","["<<this->getParentModule()->getFullName()<<"]"
+                "Pausing Choking Algorithms...");
 
-    if(evtChokeAlg->isScheduled())
-        cancelEvent(evtChokeAlg);
+        if(evtChokeAlg->isScheduled())
+            cancelEvent(evtChokeAlg);
 
-    if(evtOptUnChoke->isScheduled())
-        cancelEvent(evtOptUnChoke);
+        if(evtOptUnChoke->isScheduled())
+            cancelEvent(evtOptUnChoke);
+    }
 
 }
 
