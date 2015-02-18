@@ -412,7 +412,9 @@ void BTTrackerClientBase::socketFailure(int connId, void *yourPtr, int code)
 void BTTrackerClientBase::announce()
 {
 	// get an annouse message
-	BTTrackerMsgAnnounce *msg = new BTTrackerMsgAnnounce();
+    //edited by Manoj. 2015-02-18
+	//BTTrackerMsgAnnounce *msg = new BTTrackerMsgAnnounce();
+    BTTrackerMsgAnnounce * msg = createAnnounceMsg();
 
 	// mandatory fields
 	msg->setInfoHash(infoHash().c_str());
@@ -477,6 +479,13 @@ void BTTrackerClientBase::announce()
 	}
 }
 
+//method added by Manoj. 2015-02-18
+//This method added to facilitate subclasses to choose
+//what kind tracker announce message they use.
+BTTrackerMsgAnnounce * BTTrackerClientBase::createAnnounceMsg()
+{
+    return new BTTrackerMsgAnnounce();
+}
 
 /**
  * Set the size of the announce message.

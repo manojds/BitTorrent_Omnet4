@@ -82,6 +82,9 @@ class INET_API BTTrackerClientBase : public TCPGenericCliAppBase
 		virtual void findAndSetIPAddress();
 		virtual void findAndSetAnnounceSize(cMessage*) const;
 
+		//method added by Manoj. 2015-02-18
+		virtual BTTrackerMsgAnnounce * createAnnounceMsg();
+
 	public:
 		/* Constructor */
 		BTTrackerClientBase();
