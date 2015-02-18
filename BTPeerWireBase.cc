@@ -758,7 +758,7 @@ void BTPeerWireBase::startChokingAlorithms()
 
 void BTPeerWireBase::stopChokingAlorithms()
 {
-    BT_LOG_INFO( btLogSinker, "BTPeerWireBaseRelay::stopChokingAlorithms","["<<this->getParentModule()->getFullName()<<"] "
+    BT_LOG_INFO( btLogSinker, "BTPeerWireBase::stopChokingAlorithms","["<<this->getParentModule()->getFullName()<<"] "
             "stopping Choking Algorithms");
 	cancelAndDelete(evtChokeAlg);
 	evtChokeAlg=0;
