@@ -27,7 +27,9 @@ package inet.applications.BitTorrent;
 simple BTStatistics
 {
     parameters:
-        volatile double targetOverlayTerminalNum;
+        //modifeid by Manoj - BTR-012 - 2015-03-01
+        //volatile double targetOverlayTerminalNum;
+        int numDownloadersToComplete;
         //Added by Manoj for Logging
 		volatile int logLevel;
     gates:

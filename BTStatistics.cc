@@ -48,7 +48,10 @@ void BTStatistics::initialize()
     BT_LOG_INFO(btLogSinker, "BTStatistics::initialize", "Log Initialized. log level is ["<<iLogLevel<<"]");
 	
 	currentTerminalNum = 0;
-	targetOverlayTerminalNum = par("targetOverlayTerminalNum");
+	//modifeid by Manoj - BTR-012 - 2015-03-01
+	//targetOverlayTerminalNum = par("targetOverlayTerminalNum");
+	targetOverlayTerminalNum = par("numDownloadersToComplete");
+
 	dwSuccess = new  cStdDev("BitTorrent:Download Duration");
 	dwSuccess_vec.setName("BitTorrent:Download Duration");
 
