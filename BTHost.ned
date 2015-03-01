@@ -52,7 +52,7 @@ module BTHost
         string peerWireTCPAppType;
         string routingFile= default(""); // use predefined routing file if given
         //Added by Manoj - BTR-012 - 2015-03-01
-        bool seerder= default(false);
+        bool seeder= default(false);
 
         @display("bgb=337,472");
     gates:
