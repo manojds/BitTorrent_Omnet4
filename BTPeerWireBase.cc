@@ -113,7 +113,7 @@ void BTPeerWireBase::initialize()
 
 	//edited by Manoj - BTR-012 - 2015-03-01
 	//if (!strcmp(this->getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder"))
-	bool isSeeder=par("seeder");
+	bool isSeeder=getParentModule()->par("seeder");
 	if(isSeeder)
 	{
 	    BT_LOG_INFO(btLogSinker, "BTPeerWireBase::initialize",
@@ -668,7 +668,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 			    //edited by Manoj - BTR-012 - 2015-03-01
 			    //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
-			    bool isSeeder=par("seeder");
+			    bool isSeeder=getParentModule()->par("seeder");
 
 				if (!isSeeder)
 				{
