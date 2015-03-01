@@ -111,8 +111,13 @@ void BTPeerWireBase::initialize()
 	peerState.setMinDownloaderRate(numeric_limits<float>::max());
 	pieceFreqState.initializePieceFrequencies(numPieces());
 
-	if (!strcmp(this->getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder"))
+	//edited by Manoj - BTR-012 - 2015-03-01
+	//if (!strcmp(this->getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder"))
+	bool isSeeder=par("seeder");
+	if(isSeeder)
 	{
+	    BT_LOG_INFO(btLogSinker, "BTPeerWireBase::initialize",
+	                                "[" << this->getParentModule()->getFullName() << "]	Seeder is initializing...");
 		setSuperSeedMode(superSeedMode());
 		setState(SEEDER);
 		downloaders_var = (int)par("seederDownloaders");
@@ -661,7 +666,11 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] ***** EXITING SAFELY *****");
 				cerr<<"\t\t\t\t\t***** "<<getParentModule()->getFullName()<<" EXITING SAFELY *****"<<endl;
 
-				if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
+			    //edited by Manoj - BTR-012 - 2015-03-01
+			    //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
+			    bool isSeeder=par("seeder");
+
+				if (!isSeeder)
 				{
 					BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
 					writeStats();
