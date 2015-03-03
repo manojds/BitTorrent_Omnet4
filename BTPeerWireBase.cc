@@ -484,6 +484,8 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 			{
 				setState(COMPLETED);
 				setDownloadDuration(simTime()-downloadDuration());
+				//Added by Manoj - 2015-03-03
+				downloadCompleted();
 
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<"]\ndownload of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds.");
 
