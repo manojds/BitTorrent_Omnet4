@@ -520,7 +520,9 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			peer->setPeerPort(tpeer->peerPort());
 			peer->setKey(tpeer->key());
 			peer->setLastAnnounce(tpeer->lastAnnounce());
-			peer->setIsSeed(false);
+			//removed by Manoj. We don't need this because it is already initialized as not a seed.
+			//removed since this created problems when hiding leachers( sedning only seeders in the reponse)
+			//peer->setIsSeed(false);
 
 			//Ntinos Katsaros: 22/11/2008
 			delete tpeer;
