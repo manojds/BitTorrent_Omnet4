@@ -1658,21 +1658,23 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
         if (trackerResponse()->peersArraySize() > 0)
         {
             setCurrentNumEmptyTrackerResponses(0);
-            //this if and else block added by Manoj. 214-12-27
-            //previously only call to scheduleConnections(trackerResponse()); was here.
-            //this was added to stop seeders initiating conenctions.
-            //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
-            //stop because BTHostSeeder, who is still in operation tries to connect to this peer
-            if ((getState() != SEEDING) && (getState() != SEEDER))
-            {
-                scheduleConnections(trackerResponse());
-            }
-            else
-            {
-                BT_LOG_INFO( btLogSinker,"BTPeerWireBase::handleMessage",
-                        "[" << this->getParentModule()->getFullName() <<
-                        "] refraining from initiating connections by my self because I am seeding. ");
-            }
+            scheduleConnections(trackerResponse());
+
+//            //this if and else block added by Manoj. 214-12-27
+//            //previously only call to scheduleConnections(trackerResponse()); was here.
+//            //this was added to stop seeders initiating conenctions.
+//            //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
+//            //stop because BTHostSeeder, who is still in operation tries to connect to this peer
+//            if ((getState() != SEEDING) && (getState() != SEEDER))
+//            {
+//                scheduleConnections(trackerResponse());
+//            }
+//            else
+//            {
+//                BT_LOG_INFO( btLogSinker,"BTPeerWireBase::handleMessage",
+//                        "[" << this->getParentModule()->getFullName() <<
+//                        "] refraining from initiating connections by my self because I am seeding. ");
+//            }
 
             //Starting Choking algorithm if not started
 
