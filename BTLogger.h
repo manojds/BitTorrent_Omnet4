@@ -21,7 +21,7 @@
 #ifndef BTLOGGER_H
 #define	BTLOGGER_H
 
-#ifndef WINNT
+
 
 class BTLogger 
 {
@@ -55,8 +55,7 @@ private:
     char *pc_FileNamePrefix;
     // pointer to the log file
     FILE *fp_Log;
-    //mutex to control the access to log file
-    pthread_mutex_t mtx_FileAccess;
+
     // maximum size of the log file in bytes
     size_t st_MaxFileBytes;
 
@@ -72,11 +71,9 @@ private:
     std::string s_Buffer;
 
 
-    bool b_IsFileMtxInitalized;
-
 }; 
 
-#endif /* WINNT */
+
 
 #endif	/* BTLOGGER_H */
 

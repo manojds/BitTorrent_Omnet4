@@ -1,4 +1,4 @@
-#ifndef WINNT
+
 
 #include "BTLogInterface.h"
 #include "BTLogger.h"
@@ -13,6 +13,8 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdio.h>
+
 
 
 using std::cerr;
@@ -29,8 +31,7 @@ pc_FullLogFName(NULL),
 l_FullLogFNameLen(MAX_FILE_NAME_APPEND_LENGTH),
 i_LogLevel(INT_MAX),
 b_Continue(true),
-s_Buffer(""),
-b_IsFileMtxInitalized(false) {
+s_Buffer("") {
 }
 
 BTLogger::~BTLogger() {
@@ -46,21 +47,11 @@ BTLogger::~BTLogger() {
     if(pc_FullLogFName != NULL)
         delete [] pc_FullLogFName;    
 
-
-    if (b_IsFileMtxInitalized == true) {
-        pthread_mutex_lock(&mtx_FileAccess);
-
         if (fp_Log != NULL) {
             fclose(fp_Log);
             fp_Log = NULL;
         }
-        pthread_mutex_unlock(&mtx_FileAccess);        
-        
 
-        iRet = pthread_mutex_destroy(&mtx_FileAccess);
-        if (iRet != 0)
-           std::cerr << "CPortabLog::~CPortabLog\t"<<"Failed to destroy the mutex variable for accessing the file.Error- "<<iRet;
-    }
 
 }
 
@@ -95,31 +86,25 @@ bool BTLogger::Initialize(const char *_szFileNamePrefix, int _iLogLevel, int _iM
                 SetLogLevel(_iLogLevel);
             }
 
-            int iRet = pthread_mutex_init(&mtx_FileAccess, NULL);
-            if (iRet == 0) {
 
-                b_IsFileMtxInitalized = true;
+            if (OpenFile() == true) {
+                bRet = true;
 
-                if (OpenFile() == true) {
-                    bRet = true;
-
-                    int iBufferLen = strlen(s_Buffer.c_str());
-                    if (iBufferLen > 0) {
-                        WriteInFile(s_Buffer.c_str());
-                        s_Buffer = "";
-                    }
+                int iBufferLen = strlen(s_Buffer.c_str());
+                if (iBufferLen > 0) {
+                    WriteInFile(s_Buffer.c_str());
+                    s_Buffer = "";
                 }
-                else
-                {
-                    std::cerr << "CPortabLog::Initialize ; Failed to Open File:"<<pc_FullLogFName<<std::endl;
-                }
-            } else {
-                std::cerr << "CPortabLog::Initialize ; Failed to initialize the mutex. Ret <" << iRet << ">" << std::endl;
             }
+            else
+            {
+                std::cerr << "BTLogger::Initialize ; Failed to Open File:"<<pc_FullLogFName<<std::endl;
+            }
+
         }
 
     } catch (std::exception & e) {
-        std::cerr << "CPortabLog::Init ;   EXCEPTION:" << e.what() << std::endl;
+        std::cerr << "BTLogger::Init ;   EXCEPTION:" << e.what() << std::endl;
     }
 
     return bRet;
@@ -157,8 +142,8 @@ bool BTLogger::OpenFile() {
             }
         }
 
-    } catch (std::exception e) {
-        std::cout << "CPortabLog::Init ;   EXCEPTION:" << e.what() << std::endl;
+    } catch (std::exception & e) {
+        std::cout << "BTLogger::Init ;   EXCEPTION:" << e.what() << std::endl;
     }
     return bRet;
 }
@@ -171,8 +156,11 @@ void BTLogger::SetFileTimeStamp() {
 
     ftime(&tbNow);
     strftime(szNow, sizeof (szNow), "%m%d_%H%M%S", localtime(&tbNow.time));
-
+#ifndef WINNT
     snprintf(pc_FullLogFName, l_FullLogFNameLen,"%s_%s%03u.log", pc_FileNamePrefix, szNow, tbNow.millitm);
+#else
+    _snprintf(pc_FullLogFName, l_FullLogFNameLen,"%s_%s%03u.log", pc_FileNamePrefix, szNow, tbNow.millitm);
+#endif /* WINNT */
 }
 
 void BTLogger::Log(const char *_pszMsgType, const char *_pszMsgKey, const char *_pszText) {
@@ -182,34 +170,27 @@ void BTLogger::Log(const char *_pszMsgType, const char *_pszMsgKey, const char *
     char szLog[i_LogMsgMaxLength];
     int iPrintfRes;
 
-
-    try 
-    {
-        pthread_mutex_lock(&mtx_FileAccess);
         // acquire the current time
         ftime(&tbNow);
         strftime(szNow, sizeof (szNow), "%H:%M:%S", localtime(&tbNow.time));
         // prepares the complete string to write to the file
-        iPrintfRes = snprintf(szLog, i_LogMsgMaxLength, "%s.%03u %16.16lx %-3.3s %-*.*s %s \n\n", 
-                szNow, tbNow.millitm, pthread_self(), _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey, _pszText);
 
+#ifndef WINNT
+        iPrintfRes = snprintf(szLog, i_LogMsgMaxLength, "%s.%03u  %-3.3s %-*.*s %s \n\n",
+                szNow, tbNow.millitm,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey, _pszText);
+
+#else
+        iPrintfRes = _snprintf(szLog, i_LogMsgMaxLength, "%s.%03u  %-3.3s %-*.*s %s \n\n",
+                szNow, tbNow.millitm,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey, _pszText);
+
+#endif /* WINNT */
 
         if (iPrintfRes > 0 )
             WriteInFile(szLog);
         else
             throw std::runtime_error("Failed to prepare the log statement");
 
-        pthread_mutex_unlock(&mtx_FileAccess);
-    } 
-    catch(std::exception & ex)
-    {
-        pthread_mutex_unlock(&mtx_FileAccess);
-        throw;
-    }    
-    catch (...) 
-    {
-        pthread_mutex_unlock(&mtx_FileAccess);
-    }
+
 }
 
 void BTLogger::WriteInFile(const char *_pszMsg) {
@@ -225,9 +206,7 @@ void BTLogger::WriteInFile(const char *_pszMsg) {
         {
             if(ferror(fp_Log))
             {
-                char  pErrorBuffer[64];
-                char * pError=strerror_r(errno, pErrorBuffer ,64);
-                throw std::runtime_error(pError);
+                throw std::runtime_error("Failed to write in the log");
             }            
         }    
         
@@ -236,8 +215,10 @@ void BTLogger::WriteInFile(const char *_pszMsg) {
             if(ferror(fp_Log))
             {
                 char  pErrorBuffer[128];
-                char * pError=strerror_r(errno, pErrorBuffer ,128);
-                throw std::runtime_error(pError);
+
+
+
+                throw std::runtime_error("Failed to write in the log");
             }            
         }        
 
@@ -246,4 +227,4 @@ void BTLogger::WriteInFile(const char *_pszMsg) {
     }
 }
 
-#endif /* WINNT */
+

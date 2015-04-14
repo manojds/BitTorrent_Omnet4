@@ -9,9 +9,9 @@
 #define	BTLOGSINK_H
 #include "BTLogInterface.h"
 
-#ifndef WINNT
+
 class BTLogger;
-#endif /* WINNT */
+
 
 class BTLogSink: public LogSinkInterface
 {
@@ -27,9 +27,9 @@ public:
 
 private:
     LogLevel_t      t_LogLevel;
-#ifndef WINNT
+
     BTLogger *          p_Logger;
-#endif /* WINNT */
+
 
 };
 
