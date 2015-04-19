@@ -46,6 +46,8 @@ void BTStatistics::initialize()
     btLogSinker.initialize("BTLog",(LogLevel_t)iLogLevel);
 
     BT_LOG_INFO(btLogSinker, "BTStatistics::initialize", "Log Initialized. log level is ["<<iLogLevel<<"]");
+
+    simulationFinishDelay = par("simulationFinishDelay");
 	
 	currentTerminalNum = 0;
 	//modifeid by Manoj - BTR-012 - 2015-03-01
@@ -125,7 +127,9 @@ void BTStatistics::checkFinish()
 	currentTerminalNum++;
 	if (currentTerminalNum == targetOverlayTerminalNum)
 	{
-		scheduleAt(simTime()+BT_STATS_MSG_TIME, new cMessage(NULL,BT_STATS_EXIT));
+	    //edited by Manoj. 2015-04-17
+		//scheduleAt(simTime()+BT_STATS_MSG_TIME, new cMessage(NULL,BT_STATS_EXIT));
+	    scheduleAt(simTime()+simulationFinishDelay, new cMessage(NULL,BT_STATS_EXIT));
 	}
 }
 
@@ -134,6 +138,13 @@ void BTStatistics::doFinish()
 	std::cout<<"Finishing Simulation.."<<std::endl;
 	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Finishing Simulation..");
 	recordScalar("Simulation duration", simTime());
+
+	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Simulation time ["<<simTime()<<"]");
+
+
+	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Download duration Mean ["<<dwSuccess->getMean()<<
+	        "] STD Dev["<<dwSuccess->getStddev()<<"] Count ["<<dwSuccess->getCount()<<"]");
+
 	dwSuccess->record();
 	numBlockFail->record();
 	dataProviders->record();

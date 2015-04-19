@@ -62,6 +62,10 @@ class INET_API BTStatistics : public cSimpleModule
 protected:
     int currentTerminalNum;
     int targetOverlayTerminalNum;
+    //Added by Manoj, 2015-04-17. to be able to control the simulation time
+    //because this parameters's hard coded value is too high for
+    //small file downloads
+    int simulationFinishDelay;
 
     cStdDev* dwSuccess;
     cOutVector dwSuccess_vec;

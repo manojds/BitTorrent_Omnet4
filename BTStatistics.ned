@@ -32,6 +32,10 @@ simple BTStatistics
         int numDownloadersToComplete;
         //Added by Manoj for Logging
 		volatile int logLevel;
+		//Added by Manoj, 2015-04-17. to be able to control the simulation time
+		//because this parameters's hard coded value is too high for
+		//small file downloads
+		int simulationFinishDelay=default(20000);
     gates:
         input direct_in;
 }
