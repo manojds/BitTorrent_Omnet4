@@ -254,7 +254,7 @@ void PeerState::addPeer(PEER peer, TCPServerThreadBase* thread)
 
 void PeerState::addPeer(PEER peer, TCPServerThreadBase* thread, double connTime)
 {
-	BT_LOG_INFO(btLogSinker,"PeerState::addPeer","adding a peer..PeerState obj ["<<(void *)this<<"] remote peer id ["<<peer.peerId<<"] Peer addr ["<< peer.ipAddress<<"]");
+	//BT_LOG_INFO(btLogSinker,"PeerState::addPeer","adding a peer..PeerState obj ["<<(void *)this<<"] remote peer id ["<<peer.peerId<<"] Peer addr ["<< peer.ipAddress<<"]");
 	PeerEntry entry(peer,thread,connTime);
 	peerVector.push_back(entry);
 }
