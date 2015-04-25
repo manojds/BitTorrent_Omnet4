@@ -291,7 +291,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual void newConnectionFromPeerEstablished(PEER peer, TCPServerThreadBase* thread){}
 		virtual void newConnectionToPeerEstablished(PEER peer, TCPServerThreadBase* thread){}
 		virtual void connectionLostFromPeer(PEER peer){}
-		virtual void downloadCompleted(){}
+		virtual void downloadCompleted(simtime_t _tDuration){}
 		//end of the functions added by Manoj.
 
 		void initializePieceFrequencies(int);
