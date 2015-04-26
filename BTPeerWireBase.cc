@@ -302,6 +302,9 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			//This socket may be removed only if it has closed or failed (due to a timeout e.g. the remote peer exited)
 			if ((thread->getSocket()->getState()!= TCPSocket::CLOSED) && (thread->getSocket()->getState()!= TCPSocket::SOCKERROR))
 			{
+			    BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()
+			            <<"] socket is not closed yet. current state ["<<thread->getSocket()->getState()<<"] delaying removal");
+
 				scheduleAt(simTime()+100,msg);
 			}
 			else
@@ -668,15 +671,21 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] ***** EXITING SAFELY *****");
 				cerr<<"\t\t\t\t\t***** "<<getParentModule()->getFullName()<<" EXITING SAFELY *****"<<endl;
 
-			    //edited by Manoj - BTR-012 - 2015-03-01
-			    //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
-			    bool isSeeder=getParentModule()->par("seeder");
 
-				if (!isSeeder)
-				{
-					BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
-					writeStats();
-				}
+
+			    //moved out of the else block by Manoj - 2015-04-26
+			    //this is because simulation doesn't stop because peerstate vector is not empty
+			    //but ther are no active connections. some how peer state vector is not get cleared.
+			    //so I moved writestats() out of the else block to stop the simulation in any case.
+                //edited by Manoj - BTR-012 - 2015-03-01
+                //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
+//                bool isSeeder=getParentModule()->par("seeder");
+//				if (!isSeeder)
+//				{
+//					BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
+//					writeStats();
+//				}
+				//end of the moved block
 
 				//Clean up ...
 				cancelAndDelete(evtTrackerComm);
@@ -689,6 +698,14 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] Exit.");
 			}
+			//this block moved here by Manoj. 2015-04-26
+            bool isSeeder=getParentModule()->par("seeder");
+          if (!isSeeder)
+          {
+              BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
+              writeStats();
+          }
+          //end of the moved block
 
 			break;
 		}
