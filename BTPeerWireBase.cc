@@ -652,6 +652,17 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			delete msg;
 
  			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
+
+            //this block moved here by Manoj. 2015-04-26
+ 			//moved from case INTERNAL_EXIT_SAFE_MSG
+            bool isSeeder=getParentModule()->par("seeder");
+          if (!isSeeder)
+          {
+              BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
+              writeStats();
+          }
+          //end of the moved block
+
 			break;
 
 		}
@@ -673,10 +684,10 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 
 
-			    //moved out of the else block by Manoj - 2015-04-26
+			    //moved out to the case INTERNAL_EXIT_MSG by Manoj - 2015-04-26
 			    //this is because simulation doesn't stop because peerstate vector is not empty
 			    //but ther are no active connections. some how peer state vector is not get cleared.
-			    //so I moved writestats() out of the else block to stop the simulation in any case.
+			    //so I moved writestats() to the case INTERNAL_EXIT_MSG to stop the simulation in any case.
                 //edited by Manoj - BTR-012 - 2015-03-01
                 //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
 //                bool isSeeder=getParentModule()->par("seeder");
@@ -698,14 +709,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] Exit.");
 			}
-			//this block moved here by Manoj. 2015-04-26
-            bool isSeeder=getParentModule()->par("seeder");
-          if (!isSeeder)
-          {
-              BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
-              writeStats();
-          }
-          //end of the moved block
+
 
 			break;
 		}

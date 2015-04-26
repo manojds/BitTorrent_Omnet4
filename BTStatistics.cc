@@ -79,11 +79,12 @@ void BTStatistics::handleMessage(cMessage* msg)
 			double rmBlocks = dwMsg->remainingBlocks();
 			if (rmBlocks == 0 )
 			{
-			    BT_LOG_INFO(btLogSinker, "BTStatistics::handleMessage",
-			            "Download success count is now ["<<dwSuccess->getCount()<<"]");
-
 				dwSuccess->collect(dwTime);
 				dwSuccess_vec.record(dwTime);
+
+                BT_LOG_INFO(btLogSinker, "BTStatistics::handleMessage",
+                        "Download success count is now ["<<dwSuccess->getCount()<<
+                        "] just completed node ["<<msg->getSenderModule()->getParentModule()->getFullName()<<"]");
 			}
 			else
 			{
