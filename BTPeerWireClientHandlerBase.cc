@@ -45,9 +45,9 @@ BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
 	// Anti-snubbing  not actually supported due to contradictory definitions...
 	//evtAntiSnub  = 	new cMessage(peerWireBase->toString(ANTI_SNUB_TIMER), ANTI_SNUB_TIMER);
 	delThreadMsg = new BTInternalMsg(peerWireBase->toString(INTERNAL_REMOVE_THREAD_MSG),INTERNAL_REMOVE_THREAD_MSG);
-	evtMeasureDownloadRate = new cMessage(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER);
-	evtMeasureUploadRate = new cMessage(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER);
-	lastDownloadTime_var = 0;
+	evtMeasureDownloadRate  = new cMessage(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER);
+	evtMeasureUploadRate    = new cMessage(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER);
+	lastDownloadTime_var    = 0;
 	setDownloadRate(0);
 	lastUploadTime_var = simTime();
 	setUploadRate(0);
@@ -55,11 +55,36 @@ BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
 	setOptimisticallyUnchoked(false);
 	setSeeder(false);
 	setInEndGame(false);
+
+
 }
 
 BTPeerWireClientHandlerBase::~BTPeerWireClientHandlerBase()
 {
 	delete remoteBitfield;
+
+	BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::destructor", "[" <<
+	        getHostModule()->getParentModule()->getFullName() <<
+	        "] deleted object ["<<this<<']');
+
+	cancelAndDelete(evtIsAlive);
+	evtIsAlive = NULL;
+
+    cancelAndDelete(evtKeepAlive);
+    evtKeepAlive = NULL;
+
+    cancelAndDelete(evtDelThread);
+    evtDelThread = NULL;
+
+    cancelAndDelete(delThreadMsg);
+    delThreadMsg = NULL;
+
+    cancelAndDelete(evtMeasureDownloadRate);
+    evtMeasureDownloadRate = NULL;
+
+    cancelAndDelete(evtMeasureUploadRate);
+    evtMeasureUploadRate = NULL;
+
 }
 
 void BTPeerWireClientHandlerBase::cancelAndDelete(cMessage* msg)
@@ -98,6 +123,11 @@ void BTPeerWireClientHandlerBase::established()
 void BTPeerWireClientHandlerBase::init( TCPSrvHostApp* hostmodule, TCPSocket* socket)
 {
 	TCPServerThreadBase::init(hostmodule, socket);
+
+    BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::init", "[" <<
+            getHostModule()->getParentModule()->getFullName() <<
+            "] created object ["<<this<<']');
+
 	peerWireBase= (BTPeerWireBase*) getHostModule();
 	remoteBitfield = new BitField(peerWireBase->numPieces(),peerWireBase->numBlocks(),false);	
 	remoteBitfield->setLocal(false);
@@ -148,10 +178,6 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
     delete mmsg;
 
     //end of the edited code.
-
-
-
-
 
 
 	if (msg->getKind() == HANDSHAKE_MSG)
@@ -869,7 +895,10 @@ void BTPeerWireClientHandlerBase::closeConnection()
 		if (getState() != EARLY_ABORTING)
 		{
 			cancelAndDelete(evtIsAlive);
+			evtIsAlive = NULL;
+
 			cancelAndDelete(evtKeepAlive);
+			evtKeepAlive=NULL;
 			// Anti-snubbing  not actually supported due to contradictory definitions...
 			//cancelAndDelete(evtAntiSnub);
 		}
@@ -878,6 +907,7 @@ void BTPeerWireClientHandlerBase::closeConnection()
 
 		if( evtDelThread->isScheduled())
 			cancelEvent	(evtDelThread);
+
 		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::closeConnection", "["<<getHostModule()->getParentModule()->getFullName()<<
 		        "] remote host ["<<getSocket()->getRemoteAddress() <<"] Scheduling Delete Thread Timer after ["<<
 		        2*TCP_TIMEOUT_2MSL<<"] seconds");
@@ -903,10 +933,14 @@ void BTPeerWireClientHandlerBase::peerClosed()
 		setState(PASSIVE_ABORTING);
 		if( evtDelThread->isScheduled())
 			cancelEvent	(evtDelThread);
+
 		scheduleAt(simTime() + 2*TCP_TIMEOUT_2MSL, evtDelThread);
 
 		cancelAndDelete(evtIsAlive);
+		evtIsAlive = NULL;
+
 		cancelAndDelete(evtKeepAlive);
+		evtKeepAlive=NULL;
 		// Anti-snubbing  not actually supported due to contradictory definitions...
 		//cancelAndDelete(evtAntiSnub);
 	}
@@ -933,7 +967,12 @@ void BTPeerWireClientHandlerBase::failure(int code)
 		}
 
 		setState(PASSIVE_ABORTING);
-		if(evtIsAlive)   cancelAndDelete(evtIsAlive);
+		if(evtIsAlive)
+		{
+		    cancelAndDelete(evtIsAlive);
+		    evtIsAlive = NULL;
+		}
+
 		if(evtKeepAlive) cancelAndDelete(evtKeepAlive);
 		if(evtDelThread) cancelEvent(evtDelThread);
 		// Anti-snubbing  not actually supported due to contradictory definitions...
@@ -955,10 +994,16 @@ void BTPeerWireClientHandlerBase::removeCurrentThread()
 	chokedRequests.clear();
 	chokedIncomingRequests.clear();
 	cancelAndDelete(evtMeasureDownloadRate);
+	evtMeasureDownloadRate = NULL;
+
 	cancelAndDelete(evtMeasureUploadRate);
+	evtMeasureUploadRate = NULL;
 
 	if (evtDelThread)
-			cancelAndDelete(evtDelThread);
+	{
+	    cancelAndDelete(evtDelThread);
+	    evtDelThread = NULL;
+	}
 
  	//Remove this thread
 	delThreadMsg->setText(getRemotePeerID().c_str());

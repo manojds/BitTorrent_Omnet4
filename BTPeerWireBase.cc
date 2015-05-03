@@ -231,23 +231,28 @@ void BTPeerWireBase::handleMessage(cMessage *msg)
         {
             TCPSocket *socket = socketMap.findSocketFor(msg);
 
-            if (!socket) {
+            if (!socket)
+            {
                 //This is not a self-message. If it is not a TCP_I_ESTABLISHED message then there should
                 //exist a socket for it.
-                if (msg->getKind() == TCP_I_ESTABLISHED) {
-
+                if (msg->getKind() == TCP_I_ESTABLISHED)
+                {
                     handleNewPeerConn(msg);
-
-                } else {
+                }
+                else
+                {
                     delete msg;
                     //error("%s:%d at %s() Peer-wire protocol error, invalid message type (msg->getKind() = %d)\n", __FILE__, __LINE__, __func__,msg->getKind());
                 }
-            } else {
+            }
+            else
+            {
                 int kind = msg->getKind();
 
                 bool rejectConn = false;
 
-                if (kind == TCP_I_ESTABLISHED) {
+                if (kind == TCP_I_ESTABLISHED)
+                {
                     BT_LOG_INFO(
                             btLogSinker,
                             "BTPeerWireBase::handleMessage",
@@ -255,7 +260,8 @@ void BTPeerWireBase::handleMessage(cMessage *msg)
 
                     int connIndex = peerState.findPeer(
                             socket->getRemoteAddress());
-                    if (connIndex >= 0) {
+                    if (connIndex >= 0)
+                    {
                         rejectConn = connectionAlreadyEstablished(connIndex);
                         peerState.getPeerEntryRef(connIndex)->setConnTime( simTime());
 
@@ -269,10 +275,13 @@ void BTPeerWireBase::handleMessage(cMessage *msg)
                     }
                 }
 
-                if (!rejectConn) {
+                if (!rejectConn)
+                {
                     socket->processMessage(msg);
 
-                } else {
+                }
+                else
+                {
                     socket->close();
 
                     //By closing the socket here the current number of connections is decreased
@@ -1166,6 +1175,14 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 	}
 
 	int index = -1;
+
+	//DEBUG loop remvoe it
+//    for (unsigned int i=0;i<msg->peersArraySize();i++)
+//    {
+//        PEER peer = msg->peers(i);
+//        BT_LOG_INFO(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<
+//                "] debug received peer "<< peer.peerId.c_str()<< " in tracker's response. *****REMOVE THIS LOG*****.");
+//    }
 
 	for (unsigned int i=0;i<msg->peersArraySize();i++)
 	{
