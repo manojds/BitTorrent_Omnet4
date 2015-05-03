@@ -973,7 +973,12 @@ void BTPeerWireClientHandlerBase::failure(int code)
 		    evtIsAlive = NULL;
 		}
 
-		if(evtKeepAlive) cancelAndDelete(evtKeepAlive);
+		if(evtKeepAlive)
+		{
+		    cancelAndDelete(evtKeepAlive);
+		    evtKeepAlive = NULL;
+		}
+
 		if(evtDelThread) cancelEvent(evtDelThread);
 		// Anti-snubbing  not actually supported due to contradictory definitions...
 		//if(evtAntiSnub) cancelAndDelete(evtAntiSnub);
