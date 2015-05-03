@@ -326,8 +326,9 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 
 				peerState.removePeer((handler)->getRemotePeerID());
 
-
-				delete msg;
+				//removed by Manoj since this deletion is taken care at the thread
+				//2015-05-03
+				//delete msg;
 			}
 			break;
 		}

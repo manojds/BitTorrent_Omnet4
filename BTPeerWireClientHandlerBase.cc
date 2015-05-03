@@ -67,6 +67,8 @@ BTPeerWireClientHandlerBase::~BTPeerWireClientHandlerBase()
 	        getHostModule()->getParentModule()->getFullName() <<
 	        "] deleted object ["<<this<<']');
 
+	//2015-05-03
+	//Added these deletion by Manoj
 	cancelAndDelete(evtIsAlive);
 	evtIsAlive = NULL;
 
