@@ -56,6 +56,8 @@ BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
 	setSeeder(false);
 	setInEndGame(false);
 
+    BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::constructor", "created object ["<<this<<']');
+
 
 }
 
@@ -128,7 +130,7 @@ void BTPeerWireClientHandlerBase::init( TCPSrvHostApp* hostmodule, TCPSocket* so
 
     BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::init", "[" <<
             getHostModule()->getParentModule()->getFullName() <<
-            "] created object ["<<this<<']');
+            "] initialized object ["<<this<<']');
 
 	peerWireBase= (BTPeerWireBase*) getHostModule();
 	remoteBitfield = new BitField(peerWireBase->numPieces(),peerWireBase->numBlocks(),false);	
