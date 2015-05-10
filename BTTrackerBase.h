@@ -96,6 +96,7 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		size_t currClean_exit_var; //Ntinos Katsaros 14/09/2008: Current number of subsequent clean up intervals
 					  // in which no peer has sent an announce.
 
+
 	public:
 		/* Constructor */
 		BTTrackerBase();
@@ -130,6 +131,8 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		void cleanUpPeers();
 		void cleanRemovePeer(BTTrackerStructBase*);
 		void cleanRemovePeer(int);
+
+
 	protected:
 		/* Redefined methods from TCPSrvHostApp */
 		virtual void initialize();
@@ -149,6 +152,7 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		size_t state_var;	// the state of the thread
 		int cPeer;		// index to the peer that made the announce (i.e., its position in the vector container)
 
+
 		/* Reflection methods */
 		virtual int processAnnounce(BTTrackerMsgAnnounce*); 			// announce processing method
 		virtual void sendResponse(int, BTTrackerMsgAnnounce*);			// response sending method
@@ -167,6 +171,7 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		void setTstate(size_t state);
 		/* Redefined method from TCPServerThreadBase */
 		BTTrackerBase* getHostModule();
+
 
 	protected:
 		/* Redefined methods from TCPServerThreadBase */

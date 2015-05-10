@@ -1185,8 +1185,27 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 //                "] debug received peer "<< peer.peerId.c_str()<< " in tracker's response. *****REMOVE THIS LOG*****.");
 //    }
 
-	for (unsigned int i=0;i<msg->peersArraySize();i++)
+	//changed by Manoj. 2015-05-04.
+	//this is to randomise peer selection.
+	//for (unsigned int i=0;i<msg->peersArraySize();i++)
+	//{
+
+	unsigned int iStartLoc(0);
+
+	if ( msg->peersArraySize() == 0) // no peer to connect
+	    return;
+	else if ( msg->peersArraySize() == 1 ) // because random generator doesn't work if peer array size is one
+	    iStartLoc = 0;
+	else
+	    iStartLoc = intrand(msg->peersArraySize() -1 );
+
+	unsigned int i = iStartLoc;
+	do
 	{
+//	    BT_LOG_INFO(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<
+//	            "] current loop variable value is["<< i<<"]");
+	    //end of the added code. 2015-05-04 . there is more at the end of the loop
+
 		PEER peer = msg->peers(i);
 		opp_string id = peer.peerId;
 
@@ -1216,7 +1235,16 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 				return;
 			}
 		}
+
+		// This code is added also to randomise peer selection.
+		//2015-05-04
+		i++;
+        if ( i >= msg->peersArraySize())
+            i = 0;  //if counter reaches end of the array start from the begining
 	}
+	while ( i != iStartLoc );
+	//end of the added code
+	//2015-05-04
 }
 
 

@@ -376,6 +376,8 @@ void BTTrackerBase::setPeersNum(size_t peersNum)
 }
 
 
+
+
 /**
  * Constructor.
  */
@@ -796,7 +798,10 @@ void BTTrackerClientHandlerBase::fillPeersInResponse(BTTrackerMsgAnnounce* amsg,
 	while(added_peers.size() < max_peers)
 	{
 		// get a random peer
-		rndpeer = intrand(peers.size());
+	    rndpeer = intrand(peers.size());
+
+//	    BT_LOG_DEBUG(btLogSinker, "BTTrackerClientHandlerB::fillPeersInResponse",
+//	            "filling peers, peer ID ["<<amsg->peerId()<<"] index is ["<< rndpeer<<"]");
 
 		// the random peer is the peer that made the announce, ignore
 		if(rndpeer == cPeer)
@@ -819,6 +824,8 @@ void BTTrackerClientHandlerBase::fillPeersInResponse(BTTrackerMsgAnnounce* amsg,
 		{
 			added_peers.insert(rndpeer);
 		}
+//        BT_LOG_DEBUG(btLogSinker, "BTTrackerClientHandlerB::fillPeersInResponse",
+//                "filling peers, peer ID ["<<amsg->peerId()<<"] added index is ["<< rndpeer<<"]");
 	}
 
 	// traverse the set and fill the response
