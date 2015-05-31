@@ -507,13 +507,17 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 				if (timeToSeed()>0)
 				{
 					setState(SEEDING);
-					scheduleAt(simTime()+timeToSeed(),new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+					//changed by Manoj. 2015-05-10
+					//scheduleAt(simTime()+timeToSeed(),new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+					leaveSwarmAfter(timeToSeed());
 				}
 				else
 				{
 					setState(EXITING);
 					stopChokingAlorithms();
-					scheduleAt(simTime(),new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+					//changed by Manoj. 2015-05-10
+					//scheduleAt(simTime(),new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+					leaveSwarmAfter(0);
 					return;
 				}
 			}
@@ -530,6 +534,25 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 			}
 		}
 	}
+}
+
+void BTPeerWireBase::leaveSwarmAfter(simtime_t _tDelay)
+{
+
+    //this block moved here by Manoj. 2015-05-10
+    //moved from case INTERNAL_EXIT_SAFE_MSG
+    bool isSeeder = getParentModule()->par("seeder");
+    if (!isSeeder)
+    {
+        BT_LOG_INFO(
+                btLogSinker,
+                "BTPeerWireBase::handleSelfMessage",
+                "["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
+        writeStats();
+    }
+    //end of the moved block
+
+    scheduleAt(simTime()+ _tDelay,new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
 }
 
 /**
@@ -663,16 +686,6 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
  			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
 
-            //this block moved here by Manoj. 2015-04-26
- 			//moved from case INTERNAL_EXIT_SAFE_MSG
-            bool isSeeder=getParentModule()->par("seeder");
-          if (!isSeeder)
-          {
-              BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
-              writeStats();
-          }
-          //end of the moved block
-
 			break;
 
 		}
@@ -694,10 +707,11 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 
 
-			    //moved out to the case INTERNAL_EXIT_MSG by Manoj - 2015-04-26
+			    //moved out to the leaveSwarmAfter() fucntion by Manoj - 2015-04-26
 			    //this is because simulation doesn't stop because peerstate vector is not empty
-			    //but ther are no active connections. some how peer state vector is not get cleared.
-			    //so I moved writestats() to the case INTERNAL_EXIT_MSG to stop the simulation in any case.
+			    //but there are no active connections. some how peer state vector is not get cleared.
+			    //so I moved writestats() to the leaveSwarmAfter() function which is called by
+				//case INTERNAL_EXIT_MSG to stop the simulation in any case.
                 //edited by Manoj - BTR-012 - 2015-03-01
                 //if (strcmp(getParentModule()->getFullName(),"inet.applications.BitTorrent.BTHostSeeder")!=0)
 //                bool isSeeder=getParentModule()->par("seeder");
@@ -1771,7 +1785,9 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
                 //Setting download duration to zero: will be interprented as a failure
                 //in BTStatistics
                 setDownloadDuration(0);
-                scheduleAt( simTime(), new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+                //changed by Manoj. 2015-05-10
+                //scheduleAt( simTime(), new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+                leaveSwarmAfter(0);
             }
         }
 
