@@ -84,7 +84,8 @@ void BTStatistics::handleMessage(cMessage* msg)
 
                 BT_LOG_INFO(btLogSinker, "BTStatistics::handleMessage",
                         "Download success count is now ["<<dwSuccess->getCount()<<
-                        "] just completed node ["<<msg->getSenderModule()->getParentModule()->getFullName()<<"]");
+                        "] just completed node ["<<msg->getSenderModule()->getParentModule()->getFullName()<<"] Current average ["
+                        <<dwSuccess->getMean()<<"]");
 			}
 			else
 			{
