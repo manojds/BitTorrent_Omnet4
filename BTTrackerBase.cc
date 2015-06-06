@@ -434,7 +434,7 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 	}
 
 	// init the temp peer struct
-	tpeer = new BTTrackerStructBase(IPvXAddress(getSocket()->getRemoteAddress()), string(amsg->peerId()), amsg->peerPort(), string(amsg->key()), simTime(), (amsg->event() == A_COMPLETED) ? true : false);
+	tpeer = createTrackerStructObj(amsg);
 
 	// search to find if the peer exists in the pool or not
 	cPeer = getHostModule()->contains(tpeer);
@@ -967,6 +967,17 @@ size_t BTTrackerClientHandlerBase::sizeOfStrInt(size_t uint) const
 
 	// return the counted digits
 	return dgts;
+}
+
+//added by Manoj - 2015-06-06.
+//to achieve a polymophic behaviour for BTTrackerStructBase object creation
+BTTrackerStructBase * BTTrackerClientHandlerBase::createTrackerStructObj(BTTrackerMsgAnnounce* amsg)
+{
+
+    BTTrackerStructBase * pRet = new BTTrackerStructBase(IPvXAddress(getSocket()->getRemoteAddress()), string(amsg->peerId()),
+            amsg->peerPort(), string(amsg->key()), simTime(), (amsg->event() == A_COMPLETED) ? true : false);
+
+    return pRet;
 }
 
 /**

@@ -69,10 +69,7 @@ int BTTrackerClientHandlerRelayEnbled::processAnnounce(BTTrackerMsgAnnounce* ams
         }
 
         // init the temp peer struct
-        tpeer = new BTTrackerStructBase(
-                IPvXAddress(getSocket()->getRemoteAddress()),
-                string(amsg->peerId()), amsg->peerPort(), string(amsg->key()),
-                simTime(), (amsg->event() == A_COMPLETED) ? true : false);
+        tpeer = createTrackerStructObj(amsg);
 
         // search to find if the peer exists in the pool or not
         cPeer = getHostModule()->containsRelay(tpeer);

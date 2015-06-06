@@ -161,6 +161,10 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		virtual void findAndSetResponseSize(BTTrackerMsgResponse*, bool, bool); // set the size of the response
 		size_t sizeOfStrInt(size_t) const;						// count the length of an integer in ASCII representation
 
+		//added by Manoj - 2015-06-06.
+		//to achieve a polymophic behaviour for BTTrackerStructBase object creation
+		virtual BTTrackerStructBase * createTrackerStructObj(BTTrackerMsgAnnounce* amsg);
+
 	public:
 		/* Constructor */
 		BTTrackerClientHandlerBase();
