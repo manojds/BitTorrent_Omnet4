@@ -145,7 +145,7 @@ class INET_API BTPeerWireClientHandlerBase : public TCPServerThreadBase
 		bool peerInterested();
 		void setPeerInterested(bool);
 
-		float getDownloadRate();
+		virtual float getDownloadRate();
 		void setDownloadRate(float);
 		float getUploadRate();
 		void setUploadRate(float);
