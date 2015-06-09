@@ -253,7 +253,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		void decreasePendingNumConnections();
 		void increaseCurrentNumConnections();
 		void decreaseCurrentNumConnections();
-		void checkConnections();
+		virtual void checkConnections();
 
 		void updateBitField(int,int,bool, const char*);
 
