@@ -323,6 +323,8 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
                 //Added by Manoj - 2015-01-28
 				PeerEntry pe=peerState.getPeerEntry((handler)->getRemotePeerID().c_str());
                 connectionLostFromPeer(pe.getPeer());
+                BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()
+                        <<"] removing thread for connection ["<<(handler)->getRemotePeerID()<<"]");
 
 				peerState.removePeer((handler)->getRemotePeerID());
 
