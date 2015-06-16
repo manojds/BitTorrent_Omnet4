@@ -628,40 +628,52 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				BTInternalMsg* intMsg = (BTInternalMsg*)msg;
 				PEER peer = intMsg->peer();
 
-				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] initializing a thread for the connection with peer: " << peer.peerId <<".");
+				int index = peerState.findPeer(peer.ipAddress);
+				//proceed only if we have not already connected to this peer
+				if ( index < 0)
+				{
 
-				// new connection -- create new socket object and server process
-				TCPSocket *newsocket = new TCPSocket();
+                    BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] initializing a thread for the connection with peer: " << peer.peerId <<".");
 
-				unsigned short port = tcp->getEphemeralPort();
-				int peerWirePort = par("port");
+                    // new connection -- create new socket object and server process
+                    TCPSocket *newsocket = new TCPSocket();
 
-				//It could be the case that the peerWire port is freed so that we do not accept connections.
-				while ((port==peerWirePort))
-					port = tcp->getEphemeralPort();
+                    unsigned short port = tcp->getEphemeralPort();
+                    int peerWirePort = par("port");
 
-				newsocket->bind(port);
+                    //It could be the case that the peerWire port is freed so that we do not accept connections.
+                    while ((port==peerWirePort))
+                        port = tcp->getEphemeralPort();
 
-				const char *serverThreadClass = (const char*)par("serverThreadClass");
+                    newsocket->bind(port);
 
-				TCPServerThreadBase *proc = check_and_cast<TCPServerThreadBase *>(createOne(serverThreadClass));
+                    const char *serverThreadClass = (const char*)par("serverThreadClass");
 
-				newsocket->setCallbackObject(proc);
+                    TCPServerThreadBase *proc = check_and_cast<TCPServerThreadBase *>(createOne(serverThreadClass));
 
-				BTPeerWireClientHandlerBase* myProc = (BTPeerWireClientHandlerBase*) proc;
-				myProc->init(this, newsocket);
-				myProc->setActiveConnection(true);
-				myProc->setRemotePeerID(peer.peerId.c_str());
-				peerState.addPeer(peer,proc);
+                    newsocket->setCallbackObject(proc);
 
-				newsocket->setOutputGate(gate("tcpOut"));
+                    BTPeerWireClientHandlerBase* myProc = (BTPeerWireClientHandlerBase*) proc;
+                    myProc->init(this, newsocket);
+                    myProc->setActiveConnection(true);
+                    myProc->setRemotePeerID(peer.peerId.c_str());
+                    peerState.addPeer(peer,proc);
 
-				newsocket->connect(peer.ipAddress, peer.peerPort);
-				socketMap.addSocket(newsocket);
+                    newsocket->setOutputGate(gate("tcpOut"));
 
-				increasePendingNumConnections();
+                    newsocket->connect(peer.ipAddress, peer.peerPort);
+                    socketMap.addSocket(newsocket);
 
-				updateDisplay();
+                    increasePendingNumConnections();
+
+                    updateDisplay();
+				}
+				else
+				{
+				    BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<
+				            "] connection initiation ignored, since already connected to ["<<peer.peerId<<"]");
+
+				}
 			}
 
 			delete msg;
