@@ -242,7 +242,7 @@ void BTTrackerClientBase::socketEstablished(int connId, void *ptr)
 	TCPGenericCliAppBase::socketEstablished(connId, ptr);
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketEstablished", "[" << peerId_var << "] connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClientB::socketEstablished", "[" << peerId_var << "] connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
 
 
 	// perform the announce
