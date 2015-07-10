@@ -515,7 +515,7 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 //void BTPeerWireClientHandlerBase::sendMessage(cMessage* msg)
 void BTPeerWireClientHandlerBase::sendMessage(cPacket* msg)
 {
-	if (getState() >= CONNECTED)
+	if (getState() >= CONNECTED && (getSocket()->getState() == TCPSocket::CONNECTED) )
 	{
 		msg->setTimestamp();
 		//Commented by Manoj
