@@ -204,7 +204,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//KEEP_ALIVE_MSG
 				case CHOKE_MSG:
 				{
-					BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Choke message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Choke message.");
 					setPeerChoking(true);
 					renewAliveTimer(evtIsAlive);
 					printState();
@@ -215,7 +215,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//CHOKE_MSG
 				case UNCHOKE_MSG:
 				{
-					BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Unchoke message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Unchoke message.");
 					setPeerChoking(false);
 					renewAliveTimer(evtIsAlive);
 					printState();
@@ -233,7 +233,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//UNCHOKE_MSG
 				case INTERESTED_MSG:
 				{
-					BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Interested message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Interested message.");
 					setPeerInterested(true);
 					renewAliveTimer(evtIsAlive);
 					printState();
@@ -246,7 +246,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//INTERESTED_MSG
 				case NOT_INTERESTED_MSG:
 				{
-					BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Not-Interested message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Not-Interested message.");
 					setPeerInterested(false);
 					renewAliveTimer(evtIsAlive);
 					printState();
@@ -256,7 +256,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				case HAVE_MSG:
 				{
 					BTHaveMsg* have = check_and_cast<BTHaveMsg*>(msg);
-					BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Have message for piece #"<<have->index());
+					BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Have message for piece #"<<have->index());
 					//Update the bietfield for this peer
 					remoteBitfield->update(have->index());
 					//FW to application, in order to update this piece's frequence
@@ -278,7 +278,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 					{
 						//Now check the bietfield to see if there is something interesting there
 						//and if so (maybe) schedule an Interested message.
-						BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] recieved Bitfield");
+					    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] recieved Bitfield");
 						renewAliveTimer(evtIsAlive);
 
 						//Assuming the same number of Blocks!
@@ -305,7 +305,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 					{
 						BTRequestCancelMsg* req = (BTRequestCancelMsg*)msg;
 
-						BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Request message for piece: "<< req->index() <<", block : "<<req->begin() );
+						BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Request message for piece: "<< req->index() <<", block : "<<req->begin() );
 
 						if (peerWireBase->localBitfield()->isBlockAvailable(req->index(),req->begin()))
 						{
@@ -332,17 +332,17 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 							}
 							else
 							{
-								BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] client in anti-snubbing mode, refusing to send the piece.");
+							    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] client in anti-snubbing mode, refusing to send the piece.");
 							}
 						}
 						else
 						{
-							BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, requested block not available.");
+						    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, requested block not available.");
 						}
 					}
 					else
 					{
-						BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, peer is choked.");
+					    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, peer is choked.");
 					}
 
 					delete msg;
@@ -422,7 +422,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//PIECE_MSG
 				case CANCEL_MSG:
 				{
-					BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel message.");
 					renewAliveTimer(evtIsAlive);
 					cancelBlockRequest((BTRequestCancelMsg*)msg);
 					break;
@@ -572,7 +572,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case ANTI_SNUB_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] snubbed by remote peer. Engaging in anti-snubbing mode.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] snubbed by remote peer. Engaging in anti-snubbing mode.");
 		setState(ANTI_SNUBBING);
 		scheduleAt(simTime(), new cMessage(peerWireBase->toString(CHOKE_TIMER),CHOKE_TIMER));
 		break;
@@ -583,7 +583,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (bitfield->havePiece())
 		{
 			setState(BITFIELD_COMPLETE);
-			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Bitfield message.");
+			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Bitfield message.");
 			BTBitfieldMsg* bietfieldMsg = (BTBitfieldMsg*)createBTPeerWireMessage(peerWireBase->toString(BITFIELD_MSG),BITFIELD_MSG);
 			sendMessage(bietfieldMsg);
 		}
@@ -592,7 +592,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 			//TODO: At least for the time being, we just cancel the bitfield msg. If we do not schedule
 			//this event in the future (ACTIVE) so as to re-check for piece availability, then maybe the
 			//parent module should schedule it when another thread has received a piece (ACTIVE).
-			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] will not send a bitfield message, no pieces in possession.");
+		    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] will not send a bitfield message, no pieces in possession.");
 		}
 
 		delete timer;
@@ -619,7 +619,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 			}
 			else
 			{
-				BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] Have suppression: not sending Have message for piece #"<< have->index());
+			    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] Have suppression: not sending Have message for piece #"<< have->index());
 			}
 		}
 		else
@@ -634,7 +634,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case INTERESTED_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Interested message.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Interested message.");
 		BTPeerStateMsg* interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(INTERESTED_MSG),INTERESTED_MSG);
 
 		sendMessage(interested);
@@ -648,7 +648,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case NOT_INTERESTED_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Not-Interested message");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Not-Interested message");
 		BTPeerStateMsg* not_interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(NOT_INTERESTED_MSG),NOT_INTERESTED_MSG);
 		sendMessage(not_interested);
 		delete timer;
@@ -672,7 +672,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (req.getIndex()>=0)
 		{
 			BTPieceMsg* piece = (BTPieceMsg*)createBTPeerWireMessage(peerWireBase->toString(PIECE_MSG),PIECE_MSG,req.getIndex(),req.begin(),req.length());
-			BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Piece message (data)");
+			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Piece message (data)");
 			sendMessage(piece);
 
 			simtime_t interval = simTime()-lastUploadTime_var;
@@ -690,7 +690,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 					scheduleAt(simTime()+peerWireBase->getDownloadRateSamplingDuration(),evtMeasureUploadRate);
 				}
 
-				BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] observed upload rate ="<<getUploadRate()<<" KB/sec");
+				BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] observed upload rate ="<<getUploadRate()<<" KB/sec");
 			}
 		}
 
@@ -701,7 +701,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	case  CANCEL_TIMER:
 	{
 		//TODO: Should we remove the pending requests too ... ? A block may be in transit though!
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending the Cancel message.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending the Cancel message.");
 		BTRequestCancelMsg* cancel =  check_and_cast<BTRequestCancelMsg*>(timer);
 
 		//Remove the corresponding request
@@ -717,7 +717,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case  UNCHOKE_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Unchoke message.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Unchoke message.");
 		BTPeerStateMsg* unchoke = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(UNCHOKE_MSG),UNCHOKE_MSG);
 
 		clearPendingIncomingRequests();
@@ -730,7 +730,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case CHOKE_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Choke message.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Choke message.");
 		BTPeerStateMsg* choke = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(CHOKE_MSG),CHOKE_MSG);
 
 		clearPendingIncomingRequests();
@@ -801,7 +801,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case  INTERNAL_REFUSE_CONNECTION_TIMER:
 	{
-		BT_LOG_INFO(btLogSinker, "BTStatistics::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] Refusing incoming connection...");
+	    BT_LOG_DETAIL(btLogSinker, "BTStatistics::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] Refusing incoming connection...");
 
 		closeConnection();
 		delete timer;
@@ -875,15 +875,15 @@ void BTPeerWireClientHandlerBase::sendBlockRequests(int pieceIndex,int blockInde
 void BTPeerWireClientHandlerBase::cancelBlockRequest(BTRequestCancelMsg* cancel)
 {
 	int requestIndex = incomingRequests.findRequest(cancel->index(),cancel->begin());
-	BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel msg for Request about piece #"<< cancel->index()<<" , block #"<< cancel->begin()<<". ");
+	BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel msg for Request about piece #"<< cancel->index()<<" , block #"<< cancel->begin()<<". ");
 
 	if (requestIndex >= 0)
 	{
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] canceling request.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] canceling request.");
 	 	incomingRequests.removeRequest(requestIndex);
 	}
 	else
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] this request does not exist. Either we have already sent the data or this is an error.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] this request does not exist. Either we have already sent the data or this is an error.");
 
 	delete cancel;
 }
@@ -1369,10 +1369,10 @@ void BTPeerWireClientHandlerBase:: setAllowedToRequest(bool allowedToRequest)
 void BTPeerWireClientHandlerBase::printState()
 {
 
-	BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] AM CHOKING = "<< amChoking());
-	BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] AM INTERESTED = "<< amInterested());
-	BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] PEER CHOKING = "<< peerChoking());
-	BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] PEER INTERESTED = "<< peerInterested());
+    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] AM CHOKING = "<< amChoking());
+    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] AM INTERESTED = "<< amInterested());
+    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] PEER CHOKING = "<< peerChoking());
+    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::printState", "[" << getHostModule()->getParentModule()->getFullName() << "] PEER INTERESTED = "<< peerInterested());
 }
 
 const char* BTPeerWireClientHandlerBase::socketState()

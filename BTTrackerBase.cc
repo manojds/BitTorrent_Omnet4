@@ -407,7 +407,7 @@ BTTrackerClientHandlerBase::~BTTrackerClientHandlerBase()
 int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 {
     BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client[address="
-            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"]");
+            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"] Client ["<<amsg->peerId()<<"]");
 
 	// temporary peer struct with the announce info
 	BTTrackerStructBase* tpeer 	= NULL;
@@ -733,7 +733,7 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 	}
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client["<< amsg->peerId()<<", address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// set the response size
 	findAndSetResponseSize(rmsg, compact, no_peer_id);
@@ -991,8 +991,8 @@ void BTTrackerClientHandlerBase::established()
 	scheduleAt(simTime() + (simtime_t)getHostModule()->sessionTimeout(), evtTout);
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::established", "connection with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::established", "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::established", "connection with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::established", "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// change state
 	state_var 	= ESTABLISHED;
@@ -1009,7 +1009,7 @@ void BTTrackerClientHandlerBase::established()
 void BTTrackerClientHandlerBase::dataArrived(cMessage* msg, bool urgent)
 {
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::dataArrived", "announce received from client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::dataArrived", "announce received from client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// check the message type
 	BTTrackerMsgAnnounce* mmsg = dynamic_cast<BTTrackerMsgAnnounce*>(msg);
