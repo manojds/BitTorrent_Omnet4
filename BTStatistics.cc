@@ -54,6 +54,8 @@ void BTStatistics::initialize()
 	//targetOverlayTerminalNum = par("targetOverlayTerminalNum");
 	targetOverlayTerminalNum = par("numDownloadersToComplete");
 
+	BT_LOG_INFO(btLogSinker, "BTStatistics::initialize", "target download completion count is ["<<targetOverlayTerminalNum<<"]");
+
 	dwSuccess = new  cStdDev("BitTorrent:Download Duration");
 	dwSuccess_vec.setName("BitTorrent:Download Duration");
 
