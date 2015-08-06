@@ -267,6 +267,8 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 
 		const char* toString(int);
 
+		virtual void startNodeAt(simtime_t t);
+
 	protected:
 		/* Redefined methods from BTPeerWireBase */
 		virtual void initialize();

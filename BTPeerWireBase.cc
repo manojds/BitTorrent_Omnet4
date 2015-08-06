@@ -127,6 +127,9 @@ void BTPeerWireBase::initialize()
 	}
 	else
 	{
+        BT_LOG_DETAIL(btLogSinker, "BTPeerWireBase::initialize",
+                                    "[" << this->getParentModule()->getFullName() << "] node is initializing ..");
+
 		setSuperSeedMode(false);
 		setState(NORMAL);
 		initializeLocalBitfield(false);
@@ -168,8 +171,10 @@ void BTPeerWireBase::initialize()
 	//Immidiately schedule the communication with the tracker. We will then learn by the tracker about the interval between requests.
 	//scheduleAt(simTime(), evtTrackerComm);
 	//Following line is added by Manoj instead of above commented line. 2015-01-25
-	scheduleTrackerCommAt(simTime());
+	//scheduleTrackerCommAt(simTime());
+	//commented above line since now node start will be explicitly called by churn generator by startNodeAt() function.
 }
+
 /**
  * This method is called in order to close the server socket listening for incoming
  * connection requests. This way the number of allowed TCP connections is capped.
@@ -459,7 +464,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			if (thread!=NULL)
 				thread->timerExpired(msg);
 			else
-				error("%s:%d at %s() Inconsistent thread state, could not find thread to handle this message. \n", __FILE__, __LINE__, __func__);
+				error("%s:%d at %s() Inconsistent thread state, could not find thread to handle this message. kind [%d] \n", __FILE__, __LINE__, __func__, msg->getKind());
 
 			break;
 		}
@@ -1637,6 +1642,12 @@ void BTPeerWireBase::checkandScheduleHaveMsgs(BTBitfieldMsg* msg, const char* pe
 			}
 		}
 	}
+}
+
+
+void BTPeerWireBase::startNodeAt(simtime_t t)
+{
+    scheduleTrackerCommAt(t);
 }
 
 void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
