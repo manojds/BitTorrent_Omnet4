@@ -127,8 +127,8 @@ void BTPeerWireBase::initialize()
 	}
 	else
 	{
-        BT_LOG_DETAIL(btLogSinker, "BTPeerWireBase::initialize",
-                                    "[" << this->getParentModule()->getFullName() << "] node is initializing ..");
+//        BT_LOG_DETAIL(btLogSinker, "BTPeerWireBase::initialize",
+//                                    "[" << this->getParentModule()->getFullName() << "] node is initializing ..");
 
 		setSuperSeedMode(false);
 		setState(NORMAL);
@@ -1647,6 +1647,12 @@ void BTPeerWireBase::checkandScheduleHaveMsgs(BTBitfieldMsg* msg, const char* pe
 
 void BTPeerWireBase::startNodeAt(simtime_t t)
 {
+    Enter_Method_Silent();
+
+//    BT_LOG_DEBUG( btLogSinker,
+//            "BTPeerWireBase::startNodeAt",
+//                    "["<< this->getParentModule()->getFullName()<<"] scheduleTrackerCommAt - "<< t);
+
     scheduleTrackerCommAt(t);
 }
 
