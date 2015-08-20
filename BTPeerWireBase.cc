@@ -1654,10 +1654,9 @@ void BTPeerWireBase::startNodeAt(simtime_t t)
 //            "BTPeerWireBase::startNodeAt",
 //                    "["<< this->getParentModule()->getFullName()<<"] scheduleTrackerCommAt - "<< t);
 
+    setDownloadDuration(t);
+
     scheduleTrackerCommAt(t);
-
-    setDownloadDuration(simTime() + t);
-
 }
 
 void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
