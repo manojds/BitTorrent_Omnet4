@@ -101,7 +101,8 @@ void BTPeerWireBase::initialize()
 	setAnnounceInterval(0);
 	setCurrentNumConnections(0);
 	setPendingNumConnections(0);
-	setDownloadDuration(simTime());
+	//removed from here and moved to startNodeAt() function.
+	//setDownloadDuration(simTime());
 	setCurrentNumEmptyTrackerResponses(0);
 	setBlocksFromSeeder(0);
 	trackerResponse_var = NULL;
@@ -1654,6 +1655,9 @@ void BTPeerWireBase::startNodeAt(simtime_t t)
 //                    "["<< this->getParentModule()->getFullName()<<"] scheduleTrackerCommAt - "<< t);
 
     scheduleTrackerCommAt(t);
+
+    setDownloadDuration(simTime() + t);
+
 }
 
 void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
