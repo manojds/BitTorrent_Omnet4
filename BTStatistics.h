@@ -101,7 +101,7 @@ protected:
     /**
      * Do the actual finish() call and record scalars
      */
-    void doFinish();
+    virtual void doFinish();
 };
 
 #endif

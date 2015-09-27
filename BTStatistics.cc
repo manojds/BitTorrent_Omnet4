@@ -45,7 +45,7 @@ void BTStatistics::initialize()
 	int iLogLevel=par("logLevel");
     btLogSinker.initialize("BTLog",(LogLevel_t)iLogLevel);
 
-    BT_LOG_INFO(btLogSinker, "BTStatistics::initialize", "Log Initialized. log level is ["<<iLogLevel<<"]");
+    BT_LOG_ESSEN(btLogSinker, "BTStatistics::initialize", "Log Initialized. log level is ["<<iLogLevel<<"]");
 
     simulationFinishDelay = par("simulationFinishDelay");
 	
@@ -84,7 +84,7 @@ void BTStatistics::handleMessage(cMessage* msg)
 				dwSuccess->collect(dwTime);
 				dwSuccess_vec.record(dwTime);
 
-                BT_LOG_INFO(btLogSinker, "BTStatistics::handleMessage",
+				BT_LOG_ESSEN(btLogSinker, "BTStatistics::handleMessage",
                         "Download success count is now ["<<dwSuccess->getCount()<<
                         "] just completed node ["<<msg->getSenderModule()->getParentModule()->getFullName()<<"] Current average ["
                         <<dwSuccess->getMean()<<"] just completed value ["<<dwTime <<"]");
@@ -143,13 +143,13 @@ void BTStatistics::checkFinish()
 void BTStatistics::doFinish()
 {
 	std::cout<<"Finishing Simulation.."<<std::endl;
-	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Finishing Simulation..");
+	BT_LOG_ESSEN(btLogSinker,"BTStatistics::doFinish","Finishing Simulation..");
 	recordScalar("Simulation duration", simTime());
 
-	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Simulation time ["<<simTime()<<"]");
+	BT_LOG_ESSEN(btLogSinker,"BTStatistics::doFinish","Simulation time ["<<simTime()<<"]");
 
 
-	BT_LOG_INFO(btLogSinker,"BTStatistics::doFinish","Download duration Mean ["<<dwSuccess->getMean()<<
+	BT_LOG_ESSEN(btLogSinker,"BTStatistics::doFinish","Download duration Mean ["<<dwSuccess->getMean()<<
 	        "] STD Dev["<<dwSuccess->getStddev()<<"] Count ["<<dwSuccess->getCount()<<"]");
 
 	dwSuccess->record();

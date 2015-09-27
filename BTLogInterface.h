@@ -28,6 +28,9 @@ while(0)
 #define BT_LOG_WARN(logger, token, logEvent)          \
     BT_LOG(logWARNING, logger, token, logEvent)
 
+#define BT_LOG_ESSEN(logger, token, logEvent)          \
+    BT_LOG(logESSEN,  logger, token, logEvent)
+
 #define BT_LOG_INFO(logger, token, logEvent)          \
     BT_LOG(logINFO,  logger, token, logEvent)
 
@@ -44,6 +47,7 @@ enum LogLevel_t {
     logOFF=1,
     logERROR, 
     logWARNING, 
+    logESSEN,
     logINFO, 
     logDEBUG, 
     logDETAIL,

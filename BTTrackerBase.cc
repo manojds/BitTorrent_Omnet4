@@ -124,7 +124,7 @@ void BTTrackerBase::initialize()
 	// schedule the first cleanup event
 	scheduleAt(simTime() + (simtime_t)cleanupInterval_var, clean);
 
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::initialize", "Tracker ["<<this<<"] Initialized");
+	BT_LOG_ESSEN(btLogSinker, "BTTrackerClientHandlerB::initialize", "Tracker ["<<this<<"] Initialized");
 	std::cout<<"****** Tracker Initialized *******"<<std::endl;
 }
 

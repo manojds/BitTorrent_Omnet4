@@ -552,10 +552,11 @@ void BTPeerWireBase::leaveSwarmAfter(simtime_t _tDelay)
     bool isSeeder = getParentModule()->par("seeder");
     if (!isSeeder)
     {
-        BT_LOG_INFO(
+        BT_LOG_ESSEN(
                 btLogSinker,
                 "BTPeerWireBase::handleSelfMessage",
-                "["<<this->getParentModule()->getFullName()<<"] recording collected statistics...");
+               this->getParentModule()->getFullName()<<"]  leaving swarm after, ["<<_tDelay <<"]  sim seconds ["<<
+               "recording collected statistics...");
         writeStats();
     }
     //end of the moved block
@@ -694,7 +695,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				stopChokingAlorithms();
 			}
 
-			BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ...");
+			BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ...");
 
 			//Following function call was added by Manoj. 2015-01-31
 			//Previously contents of this function just executed here.
@@ -722,7 +723,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			}
 			else
 			{
-				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] ***** EXITING SAFELY *****");
+			    BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] ***** EXITING SAFELY *****");
 				cerr<<"\t\t\t\t\t***** "<<getParentModule()->getFullName()<<" EXITING SAFELY *****"<<endl;
 
 
@@ -1815,7 +1816,7 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
             if ((currentNumEmptyTrackerResponses() >= maxNumEmptyTrackerResponses()) &&
                     (peerState.size() == 0) && (getState() != SEEDING))
             {
-                BT_LOG_INFO(btLogSinker, "BTPeerWireBase::handleMessage",
+                BT_LOG_ESSEN(btLogSinker, "BTPeerWireBase::handleMessage",
                         "[" << this->getParentModule()->getFullName() <<
                         "] reached maximum allowed number of empty subsequent tracker responses ( ="
                         <<maxNumEmptyTrackerResponses() <<").");
