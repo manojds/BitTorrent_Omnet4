@@ -114,6 +114,10 @@ inline const char * logLevelToString(LogLevel_t _level)
             pRet="WRN";
             break;  
             
+        case logESSEN:
+            pRet="ESS";
+            break;
+
         case logINFO:
             pRet="INF";
             break;  
