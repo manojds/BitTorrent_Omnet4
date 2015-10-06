@@ -389,6 +389,11 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual void writeStats();
 
 		void printConnections();
+
+		//methods which can be overriden by subclasses
+		virtual void onReadyToLeaveSwarm(){}
+		virtual void onLeavingSwarm(){}
+
 };
 
 #endif

@@ -705,6 +705,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			stopListening();
 			delete msg;
 
+			onReadyToLeaveSwarm();
  			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
 
 			break;
@@ -725,6 +726,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			{
 			    BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] ***** EXITING SAFELY *****");
 				cerr<<"\t\t\t\t\t***** "<<getParentModule()->getFullName()<<" EXITING SAFELY *****"<<endl;
+
 
 
 
@@ -751,6 +753,8 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				endGameRequests.clear();
 				peerState.clear();
 				dataProviderPeerIDs.clear();
+
+				onLeavingSwarm();
 
 				BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] Exit.");
 			}
