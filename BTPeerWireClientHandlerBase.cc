@@ -448,7 +448,9 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 		//TODO: Check this only in the case of known peerIDs (i.e. not in compact mode)
 		if (strcmp(incomingHandShake->peerId(),(getRemotePeerID()).c_str())!=0)
 		{
-			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() << "] peer ID included in received Handshake does not match the expected. Received peerID='"<<incomingHandShake->peerId()<<"' Expected peerID: '"<< getRemotePeerID()<<"' Aborting connection ...");
+			BT_LOG_ERROR(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName()
+			        << "] peer ID included in received Handshake does not match the expected. Received peerID='"<<incomingHandShake->peerId()<<
+			        "' Expected peerID: '"<< getRemotePeerID()<<"' Aborting connection ...");
 
 			closeConnection();
 			delete msg;
@@ -1202,6 +1204,10 @@ cMessage* BTPeerWireClientHandlerBase::createBTPeerWireMessage(const char* name,
 			handShakeMsg->setPstr(peerWireBase->pstr());
 			handShakeMsg->setInfoHash(trackerClient->infoHash().c_str());
 			handShakeMsg->setPeerId(trackerClient->peerId().c_str());
+
+			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::createBTPeerWireMessage", "[" << getHostModule()->getParentModule()->getFullName() <<
+			        "] set peer ID in msg as ]"<<handShakeMsg->peerId()<<"] tracker client peer id ["<<trackerClient->peerId()<<"]");
+
 			handShakeMsg->setByteLength(HANDSHAKE_MSG_SIZE);
 			return handShakeMsg;
 			//break;

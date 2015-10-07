@@ -39,6 +39,7 @@ using namespace std;
 // event constants
 #define EVT_CLN		0 // cleanup
 #define EVT_TOUT	1 // timeout
+#define EVT_STAT    2 // cleanup
 
 // server states
 #define PENDING		0 // pending state
@@ -93,6 +94,7 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		size_t seeds_var; 	// seeds counter
 		size_t peersNum_var; 	// peers counter
 		cMessage* clean; 	// cleanup event
+		cMessage* statMsg;    // cleanup event
 		size_t currClean_exit_var; //Ntinos Katsaros 14/09/2008: Current number of subsequent clean up intervals
 					  // in which no peer has sent an announce.
 
@@ -137,6 +139,8 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		/* Redefined methods from TCPSrvHostApp */
 		virtual void initialize();
 		virtual void handleMessage(cMessage*);
+
+		virtual void writeStats();
 };
 
 /**
@@ -174,7 +178,7 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		size_t tstate() const;
 		void setTstate(size_t state);
 		/* Redefined method from TCPServerThreadBase */
-		BTTrackerBase* getHostModule();
+		virtual BTTrackerBase* getHostModule();
 
 
 	protected:

@@ -46,6 +46,7 @@ BTTrackerBase::~BTTrackerBase()
 {
 	// clean any pending messages
 	cancelAndDelete(clean);
+	cancelAndDelete(statMsg);
 	cleanUpPeers();
 }
 
@@ -107,6 +108,7 @@ void BTTrackerBase::initialize()
 	seeds_var		= 0;
 	peersNum_var	= 0;
 	clean			= new cMessage(NULL, EVT_CLN);
+	statMsg         = new cMessage(NULL, EVT_STAT);
 
 	// watches
 	WATCH(infoHash_var);
@@ -123,6 +125,9 @@ void BTTrackerBase::initialize()
 
 	// schedule the first cleanup event
 	scheduleAt(simTime() + (simtime_t)cleanupInterval_var, clean);
+
+	// schedule the first stat event
+	scheduleAt(simTime() + (simtime_t)announceInterval_var, statMsg);
 
 	BT_LOG_ESSEN(btLogSinker, "BTTrackerClientHandlerB::initialize", "Tracker ["<<this<<"] Initialized");
 	std::cout<<"****** Tracker Initialized *******"<<std::endl;
@@ -160,6 +165,11 @@ void BTTrackerBase::handleMessage(cMessage* msg)
 
 		// schedule the next cleanup event
 		scheduleAt(simTime() + (simtime_t)cleanupInterval_var, clean);
+	}
+	else if (msg->getKind() == EVT_STAT)
+	{
+	    writeStats();
+	    scheduleAt(simTime() + (simtime_t)announceInterval_var, statMsg);
 	}
 	else
 	{
@@ -376,7 +386,10 @@ void BTTrackerBase::setPeersNum(size_t peersNum)
 }
 
 
-
+void BTTrackerBase::writeStats()
+{
+    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Peer array size ["<<peers().size()<<"] seeder count ["<<seeds()<<"]");
+}
 
 /**
  * Constructor.
