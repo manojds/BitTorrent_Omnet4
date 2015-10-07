@@ -106,6 +106,7 @@ void BTTrackerBase::initialize()
 
 	peers_var		= cArray();
 	seeds_var		= 0;
+	completed_count_var = 0;
 	peersNum_var	= 0;
 	clean			= new cMessage(NULL, EVT_CLN);
 	statMsg         = new cMessage(NULL, EVT_STAT);
@@ -369,6 +370,11 @@ void BTTrackerBase::setSeeds(size_t seeds)
 	seeds_var = seeds;
 }
 
+void BTTrackerBase::incrementCompletedCount()
+{
+    completed_count_var++;
+}
+
 /**
  * Get the peers count.
  */
@@ -388,7 +394,8 @@ void BTTrackerBase::setPeersNum(size_t peersNum)
 
 void BTTrackerBase::writeStats()
 {
-    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Peer array size ["<<peers().size()<<"] seeder count ["<<seeds()<<"]");
+    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Peer array size ["<<peers().size()<<"] seeder count ["<<seeds()
+            <<"] completed count ["<<completed_count_var<<"]");
 }
 
 /**
@@ -503,6 +510,8 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			{
 				peer->setIsSeed(true);
 				getHostModule()->setSeeds(getHostModule()->seeds() + 1);
+
+				getHostModule()->incrementCompletedCount();
 			}
 
 			// update
