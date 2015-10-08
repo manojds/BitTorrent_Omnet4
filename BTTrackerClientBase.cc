@@ -379,6 +379,8 @@ void BTTrackerClientBase::socketPeerClosed(int connId, void *yourPtr)
 		// default handling
 		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketPeerClosed", "[" << peerId_var << "] remote TCP closed, closing here as well");
 	}
+
+	TCPGenericCliAppBase::socketPeerClosed(connId, yourPtr);
 }
 
 

@@ -1087,35 +1087,42 @@ void BTTrackerClientHandlerBase::timerExpired(cMessage* msg)
  */
 void BTTrackerClientHandlerBase::peerClosed()
 {
+    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() <<
+            ", port=" << getSocket()->getRemotePort() << "] ended");
+    TCPServerThreadBase::peerClosed();
 
-	// different actions for different states
-	switch(state_var)
-	{
-		// preliminary close
-		case ESTABLISHED:
-			// logging
-			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] died unexpectedly");
-			// fire the session timer
-			cancelEvent(evtTout);
-			scheduleAt(simTime(), evtTout);
-			break;
+    //Above part is added by Manoj instead of below part.
+    //this is done to get rid of assertion failure at TCPSocket in TrackerClientBase (at client side) which reports received message
+    //is not belongs to TCP socket
 
-		// normal close
-		case TEARDOWN:
-			// logging
-			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] ended");
-			// cancel the session timer
-			cancelEvent(evtTout);
-			// default handler
-			TCPServerThreadBase::peerClosed();
-			break;
-
-		// bad, bad, bad...
-		case PENDING:
-		default:
-			// report the error
-			getHostModule()->error("%s:%d at %s() invalid state occured(state_var=%d)\n", __FILE__, __LINE__, __func__, state_var);
-        }
+//	// different actions for different states
+//	switch(state_var)
+//	{
+//		// preliminary close
+//		case ESTABLISHED:
+//			// logging
+//			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] died unexpectedly");
+//			// fire the session timer
+//			cancelEvent(evtTout);
+//			scheduleAt(simTime(), evtTout);
+//			break;
+//
+//		// normal close
+//		case TEARDOWN:
+//			// logging
+//			BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] ended");
+//			// cancel the session timer
+//			cancelEvent(evtTout);
+//			// default handler
+//			TCPServerThreadBase::peerClosed();
+//			break;
+//
+//		// bad, bad, bad...
+//		case PENDING:
+//		default:
+//			// report the error
+//			getHostModule()->error("%s:%d at %s() invalid state occured(state_var=%d)\n", __FILE__, __LINE__, __func__, state_var);
+//        }
 }
 
 /**
