@@ -104,12 +104,13 @@ void BTTrackerBase::initialize()
 	cleanupInterval_var	= (size_t)par("cleanupInterval");
 	sessionTimeout_var 	= (size_t)par("sessionTimeout");
 
-	peers_var		= cArray();
-	seeds_var		= 0;
+	peers_var		    = cArray();
+	seeds_var		    = 0;
 	completed_count_var = 0;
-	peersNum_var	= 0;
-	clean			= new cMessage(NULL, EVT_CLN);
-	statMsg         = new cMessage(NULL, EVT_STAT);
+	started_count_var   = 0;
+	peersNum_var	    = 0;
+	clean			    = new cMessage(NULL, EVT_CLN);
+	statMsg             = new cMessage(NULL, EVT_STAT);
 
 	// watches
 	WATCH(infoHash_var);
@@ -375,6 +376,11 @@ void BTTrackerBase::incrementCompletedCount()
     completed_count_var++;
 }
 
+void BTTrackerBase::incrementStartedCount()
+{
+    started_count_var++;
+}
+
 /**
  * Get the peers count.
  */
@@ -394,8 +400,8 @@ void BTTrackerBase::setPeersNum(size_t peersNum)
 
 void BTTrackerBase::writeStats()
 {
-    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Peer array size ["<<peers().size()<<"] seeder count ["<<seeds()
-            <<"] completed count ["<<completed_count_var<<"]");
+    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Started Count ["<<started_count_var<<"], Peer array size ["<<peers().size()
+            <<"] seeder count ["<<seeds()<<"] completed count ["<<completed_count_var<<"]");
 }
 
 /**
@@ -470,6 +476,7 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			{
 				cPeer = getHostModule()->peers().add(tpeer);
 				getHostModule()->setPeersNum(getHostModule()->peersNum() + 1);
+				getHostModule()->incrementStartedCount();
 			}
 			else // the peer exists, update its fields
 			{

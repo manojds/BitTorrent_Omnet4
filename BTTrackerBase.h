@@ -92,7 +92,9 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		// end of members documented in .ned file
 		cArray peers_var; 	// peers container (i.e., the peers in the swarm)
 		size_t seeds_var; 	// seeds counter
+		//following two variables are added by Manoj
 		size_t completed_count_var;
+		size_t started_count_var;
 		size_t peersNum_var; 	// peers counter
 		cMessage* clean; 	// cleanup event
 		cMessage* statMsg;    // cleanup event
@@ -127,6 +129,7 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		size_t seeds() const;
 		void setSeeds(size_t);
 		void incrementCompletedCount();
+		void incrementStartedCount();
 		size_t peersNum() const;
 		void setPeersNum(size_t);
 
