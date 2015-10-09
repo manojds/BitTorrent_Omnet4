@@ -216,6 +216,10 @@ void BTTrackerClientBase::connect()
 	BT_LOG_DEBUG(btLogSinker, "BTTrackerClientB::connect", "[" << peerId_var << "] starting session timer[" << sessionTimeout_var << " secs]");
 
 	// schedule a session timeout and call default connect()
+	if ( evtTout->isScheduled() )
+	{
+	    cancelEvent(evtTout);
+	}
 	scheduleAt(simTime() + sessionTimeout_var, evtTout);
 	TCPGenericCliAppBase::connect();
 }
