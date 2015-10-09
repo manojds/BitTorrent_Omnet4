@@ -478,11 +478,13 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 	if (!strcmp(trackerClient->infoHash().c_str(),info_hash))
 	{
 		renewAliveTimer(evtIsAlive);
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() << "] received Handshake message");
+		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
+		        "] received Handshake message from ["<<getRemotePeerID()<<']');
 		//Now check whether we have already answered/or trigered this Handshake message.
 		if (getState() == PASSIVE_HANDSHAKE)
 		{
-			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() << "] replying with a Handshake message.");
+			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
+			        "] replying with a Handshake message. to ["<<getRemotePeerID()<<']');
 			BTMsgHandshake* response = (BTMsgHandshake*)createBTPeerWireMessage(peerWireBase->toString(HANDSHAKE_MSG),HANDSHAKE_MSG);
 			sendMessage(response);
 		}

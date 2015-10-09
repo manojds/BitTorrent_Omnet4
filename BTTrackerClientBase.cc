@@ -300,7 +300,8 @@ void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg,
 	}
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketDataArrived", "[" << peerId_var << "] announce reply from Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketDataArrived", "[" << peerId_var << "] announce reply from Tracker[address=" <<
+	        par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]  info Hash ["<<infoHash() <<"]");
 
 	// we have a valid reply - reset previous failures
 	connectGiveUp_var = (size_t)par("connectGiveUp");
@@ -468,7 +469,8 @@ void BTTrackerClientBase::announce()
 	bytesSent+=msg->getByteLength();
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" << par("connectAddress").stdstringValue ()
+	        << ", port=" << (int)par("connectPort") << "] info Hash ["<<infoHash() <<"]");
 
 	// send the announce
 	socket.send(msg);
