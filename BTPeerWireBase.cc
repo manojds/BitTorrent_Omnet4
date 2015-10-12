@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iostream>
 #include "BTLogImpl.h"
+#include "BTMsgFactory.h"
 
 using namespace std;
 
@@ -165,9 +166,9 @@ void BTPeerWireBase::initialize()
 	WATCH(currentNumEmptyTrackerResponses_var);
 	WATCH(state_var);
 
-	evtChokeAlg = new cMessage(toString(INTERNAL_CHOKE_TIMER), INTERNAL_CHOKE_TIMER);
-	evtOptUnChoke = new cMessage(toString(INTERNAL_OPT_UNCHOKE_TIMER), INTERNAL_OPT_UNCHOKE_TIMER);
-	evtTrackerComm = new cMessage(toString(INTERNAL_TRACKER_COM_MSG), INTERNAL_TRACKER_COM_MSG);
+	evtChokeAlg = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_CHOKE_TIMER), INTERNAL_CHOKE_TIMER);
+	evtOptUnChoke = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_OPT_UNCHOKE_TIMER), INTERNAL_OPT_UNCHOKE_TIMER);
+	evtTrackerComm = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_TRACKER_COM_MSG), INTERNAL_TRACKER_COM_MSG);
 
 	//Immidiately schedule the communication with the tracker. We will then learn by the tracker about the interval between requests.
 	//scheduleAt(simTime(), evtTrackerComm);
@@ -746,7 +747,10 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				//end of the moved block
 
 				//Clean up ...
-				cancelAndDelete(evtTrackerComm);
+				cancelEvent(evtTrackerComm);
+				BTMsgFactory::getInstance()->releaseObject(evtTrackerComm);
+				evtTrackerComm = 0;
+
 				deleteTrackerResponse();
 				superSeedPending.clear();
 				pieceFreqState.clear();
@@ -841,9 +845,12 @@ void BTPeerWireBase::stopChokingAlorithms()
 {
     BT_LOG_INFO( btLogSinker, "BTPeerWireBase::stopChokingAlorithms","["<<this->getParentModule()->getFullName()<<"] "
             "stopping Choking Algorithms");
-	cancelAndDelete(evtChokeAlg);
+	cancelEvent(evtChokeAlg);
+	BTMsgFactory::getInstance()->releaseObject(evtChokeAlg);
 	evtChokeAlg=0;
-	cancelAndDelete(evtOptUnChoke);
+
+	cancelEvent(evtOptUnChoke);
+	BTMsgFactory::getInstance()->releaseObject(evtOptUnChoke);
 	evtOptUnChoke=0;
 }
 

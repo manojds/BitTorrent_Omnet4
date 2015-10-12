@@ -15,7 +15,7 @@
 class BTMsgFactory:public BTSimpleObjFactory<cMessage>
 {
 public:
-    BTMsgFactory(){}
+    BTMsgFactory():BTSimpleObjFactory<cMessage>(1000){}
     virtual ~BTMsgFactory(){}
 
     cMessage* getMessageObj(const char * _pName, short _kind)
@@ -27,6 +27,14 @@ public:
 
         return pRet;
     }
+
+    static BTMsgFactory* getInstance()
+    {
+        return &m_Instance;
+    }
+
+private:
+    static BTMsgFactory m_Instance;
 
 };
 
