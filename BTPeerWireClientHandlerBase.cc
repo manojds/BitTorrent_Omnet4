@@ -24,6 +24,7 @@
 #include "BTPeerWireBase.h"
 #include "BTPeerWireClientHandlerBase.h"
 #include "BTLogImpl.h"
+#include "BTMsgFactory.h"
 
 #define BTEV	EV << "[BitTorrent_mjp] [" << getHostModule()->getParentModule()->getFullName() << "]:[PeerWire Thread]: "
 #define BTEV_VERB	EV << "[BitTorrent_mjp] [" << getHostModule()->getParentModule()->getFullName() << "]<=>["<< getRemotePeerID()<<"]: "
@@ -578,7 +579,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	{
 	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] snubbed by remote peer. Engaging in anti-snubbing mode.");
 		setState(ANTI_SNUBBING);
-		scheduleAt(simTime(), new cMessage(peerWireBase->toString(CHOKE_TIMER),CHOKE_TIMER));
+		scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(CHOKE_TIMER),CHOKE_TIMER));
 		break;
 	}
 	case BITFIELD_TIMER:
@@ -642,7 +643,9 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		BTPeerStateMsg* interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(INTERESTED_MSG),INTERESTED_MSG);
 
 		sendMessage(interested);
-		cancelAndDelete(timer);
+		cancelEvent(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer);
+		timer = 0;
 		setAmInterested(true);
 		
 		if (!peerChoking())
@@ -655,7 +658,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Not-Interested message");
 		BTPeerStateMsg* not_interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(NOT_INTERESTED_MSG),NOT_INTERESTED_MSG);
 		sendMessage(not_interested);
-		delete timer;
+		BTMsgFactory::getInstance()->releaseObject(timer);
+		timer = 0;
 		setAmInterested(false);
 		break;
 	}
@@ -729,7 +733,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		setAmChoking(false);
 		setLastChokeUnchoke(simTime());
 
-		delete timer;
+		BTMsgFactory::getInstance()->releaseObject(timer);
+		timer = 0;
 		break;
 	}
 	case CHOKE_TIMER:
@@ -745,7 +750,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 
 		sendMessage(choke);
 		cancelEvent(evtMeasureUploadRate);
-		delete timer;
+		BTMsgFactory::getInstance()->releaseObject(timer);
+		timer = 0;
 		break;
 	}
 	case  CLOSE_CONNECTION_TIMER:
@@ -759,7 +765,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		}
 
 		closeConnection();
-		delete timer;
+		BTMsgFactory::getInstance()->releaseObject(timer);
+		timer = 0;
 		break;
 	}
 	case INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER:
