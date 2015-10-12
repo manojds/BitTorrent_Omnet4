@@ -352,7 +352,8 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			if (index>=0)
 				peerState.updatePeerID(index, peer.peerId.c_str());
 			else
-				error("%s:%d at %s() Inconsistent peer state, received a handshake msg from an unknown connection. \n", __FILE__, __LINE__, __func__);
+				error("%s:%d at %s() Inconsistent peer state, received a handshake msg from an unknown connection. \n",
+				        __FILE__, __LINE__, __func__);
 
 			delete upmsg;
 			break;
@@ -360,9 +361,10 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 
 		case INTERNAL_SUPER_SEED_HAVE_MSG:
 		{
-			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()<<"] in Super-Seed mode: sending a Have message for a rare piece");
+			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()<<
+			        "] in Super-Seed mode: sending a Have message for a rare piece");
 			scheduleSuperSeedHaveMsg(thread);
-			delete msg;
+			BTMsgFactory::getInstance()->releaseObject(msg);
 			break;
 		}
 		case INTERNAL_SUPER_SEED_COMPLETE_MSG:
@@ -376,12 +378,13 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 		case INTERNAL_UPDATE_INTERESTS_MSG:
 		{
 			updateInterests();
-			delete msg;
+			BTMsgFactory::getInstance()->releaseObject( msg);
 			break;
 		}
 		case BITFIELD_MSG:
 		{
-		    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()<<"]received a Bitfield message, updating piece frequencies.");
+		    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()<<
+		            "]received a Bitfield message, updating piece frequencies.");
 			pieceFreqState.updatePieceFrequencies(check_and_cast<BTBitfieldMsg*>(msg));
 
 			if (getState() == SEEDER)
@@ -440,7 +443,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 					scheduleEndGameRequests();
 			}
 
-			delete msg;
+			BTMsgFactory::getInstance()->releaseObject(msg);
 			break;
 		}
 		case INTERESTED_MSG:
@@ -457,7 +460,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 		case INTERNAL_RECORD_DATA_PROVIDER_TIMER:
 		{
 			dataProviderPeerIDs.insert(handler->getRemotePeerID());
-			delete msg;
+			BTMsgFactory::getInstance()->releaseObject(msg);
 			break;
 		}
 		default:
@@ -466,7 +469,8 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			if (thread!=NULL)
 				thread->timerExpired(msg);
 			else
-				error("%s:%d at %s() Inconsistent thread state, could not find thread to handle this message. kind [%d] \n", __FILE__, __LINE__, __func__, msg->getKind());
+				error("%s:%d at %s() Inconsistent thread state, could not find thread to handle this message. kind [%d] \n",
+				        __FILE__, __LINE__, __func__, msg->getKind());
 
 			break;
 		}
@@ -509,9 +513,11 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 				//Added by Manoj - 2015-03-03
 				downloadCompleted(downloadDuration_var);
 
-				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<"]\ndownload of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds.");
+				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<
+				        "]\ndownload of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds.");
 
-				cerr<<"\n*********** "<<getParentModule()->getFullName()<< ": Download of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds. ***********\n"<<endl;
+				cerr<<"\n*********** "<<getParentModule()->getFullName()<< ": Download of file completed! Downloaded = "<<
+				        fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds. ***********\n"<<endl;
 
 				if (timeToSeed()>0)
 				{
@@ -532,7 +538,8 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 			}
 			else if ((localBitfield()->finishedDownloading()) && (getState() >= COMPLETED))
 			{
-				BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<"] received a block item more than once, could not cancel end-game mode request.");
+				BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<
+				        "] received a block item more than once, could not cancel end-game mode request.");
 				notCanceledEndGameReq = true;
 			}
 
@@ -641,7 +648,8 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				if ( index < 0)
 				{
 
-                    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] initializing a thread for the connection with peer: " << peer.peerId <<".");
+                    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<
+                            "] initializing a thread for the connection with peer: " << peer.peerId <<".");
 
                     // new connection -- create new socket object and server process
                     TCPSocket *newsocket = new TCPSocket();
@@ -716,7 +724,8 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 		}
 		case INTERNAL_EXIT_SAFE_MSG:
 		{
-			BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] Peer State Size ["<<peerState.size()<<"] Tracker Comm, is Scheduled ["<<(evtTrackerComm->isScheduled()?"true":"false")<<"]");
+			BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] Peer State Size ["<<
+			        peerState.size()<<"] Tracker Comm, is Scheduled ["<<(evtTrackerComm->isScheduled()?"true":"false")<<"]");
 
 			//Wait until all connections have been closed properly
 			if ((peerState.size() > 0) || (evtTrackerComm->isScheduled()) )
@@ -825,9 +834,12 @@ void BTPeerWireBase::printConnections()
 
 		BTPeerWireClientHandlerBase* handler  =  (BTPeerWireClientHandlerBase*)thread;
 
-		cerr<<"\t\t\t\t"<<getParentModule()->getFullName()<<" connected to  "<<handler->getRemotePeerID()<<", State = "<<handler->getState()<<", SocketState = "<< handler->socketState()<<", Time: "<< entry.connTime()<<" Active: "<< handler->activeConnection()<<endl;
+		cerr<<"\t\t\t\t"<<getParentModule()->getFullName()<<" connected to  "<<handler->getRemotePeerID()<<", State = "<<handler->getState()<<
+		        ", SocketState = "<< handler->socketState()<<", Time: "<< entry.connTime()<<" Active: "<< handler->activeConnection()<<endl;
 
-		BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::printConnections","["<<this->getParentModule()->getFullName()<<"] connected to  "<<handler->getRemotePeerID()<<", State = "<<handler->getState()<<", SocketState = "<< handler->socketState()<<", Time: "<< entry.connTime()<<" Active: "<< handler->activeConnection() );
+		BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::printConnections","["<<this->getParentModule()->getFullName()<<"] connected to  "<<
+		        handler->getRemotePeerID()<<", State = "<<handler->getState()<<", SocketState = "<< handler->socketState()<<", Time: "<<
+		        entry.connTime()<<" Active: "<< handler->activeConnection() );
 	}
 }
 
@@ -997,7 +1009,8 @@ void BTPeerWireBase::ChokingAlgorithm()
 				}
 				else
 				{
-				    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"] [Choking Algorithm]: reached maxNumDownloaders. Not adding "<<handler->getRemotePeerID()<<" to Downloaders. ");
+				    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+				            "] [Choking Algorithm]: reached maxNumDownloaders. Not adding "<<handler->getRemotePeerID()<<" to Downloaders. ");
 				}
 			}
 			else
@@ -1005,7 +1018,8 @@ void BTPeerWireBase::ChokingAlgorithm()
 
 				if (handler->getDownloadRate()> peerState.minDownloaderRate())
 				{
-				    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"]  [Choking Algorithm]: not Interested in "<<handler->getRemotePeerID()<<", unchoking though due to rate.");
+				    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+				            "]  [Choking Algorithm]: not Interested in "<<handler->getRemotePeerID()<<", unchoking though due to rate.");
 					thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER));
 				}
 			}
@@ -1014,12 +1028,14 @@ void BTPeerWireBase::ChokingAlgorithm()
 		{
 			if ((numDownloaders==downloaders()) && (!handler->isOptimisticallyUnchoked()))
 			{
-			    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"]  [Choking Algorithm]: "<<handler->getRemotePeerID()<<" not in the top "<<downloaders()<<" of data providers (download rate), Choking it ...");
+			    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+			            "]  [Choking Algorithm]: "<<handler->getRemotePeerID()<<" not in the top "<<downloaders()<<" of data providers (download rate), Choking it ...");
 				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER));
 			}
 			else
 			{
-				BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"]  [Choking Algorithm]: "<<handler->getRemotePeerID()<<" already in the top "<<downloaders()<<" of data providers (download rate).");
+				BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+				        "]  [Choking Algorithm]: "<<handler->getRemotePeerID()<<" already in the top "<<downloaders()<<" of data providers (download rate).");
 				numDownloaders++;
 			}
 
@@ -1098,7 +1114,8 @@ void BTPeerWireBase::OptimisticUnChokingAlgorithm()
 			thread = (TCPServerThreadBase*)peer.getPeerThread();
 			handler = (BTPeerWireClientHandlerBase*)thread;
 
-			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::OptimisticUnChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"]  optimistically unchoking peer: "<< handler->getRemotePeerID()<<".");
+			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::OptimisticUnChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+			        "]  optimistically unchoking peer: "<< handler->getRemotePeerID()<<".");
 			handler->setOptimisticallyUnchoked(true);
 
 
@@ -1123,7 +1140,8 @@ void BTPeerWireBase::OptimisticUnChokingAlgorithm()
 			thread = (TCPServerThreadBase*)peer.getPeerThread();
 			handler = (BTPeerWireClientHandlerBase*)thread;
 
-			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::OptimisticUnChokingAlgorithm","["<<this->getParentModule()->getFullName()<<"] choking peer: "<<handler->getRemotePeerID()<<" ,that was previously optimistically unchoked.");
+			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::OptimisticUnChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
+			        "] choking peer: "<<handler->getRemotePeerID()<<" ,that was previously optimistically unchoked.");
 			handler->setOptimisticallyUnchoked(false);
 
 			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER));
@@ -1225,7 +1243,8 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 
 	if (remainingConns<=0)
 	{
-		BT_LOG_INFO(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"] refraining from active connection establishment, reached limit of allowed connections.");
+		BT_LOG_INFO(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<
+		        "] refraining from active connection establishment, reached limit of allowed connections.");
 		return;
 	}
 
@@ -1268,7 +1287,9 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 		//Keeping one for passive ...
 		if ( (index<0) && (remainingConns>1))
 		{
-			BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"] received peer "<< peer.peerId.c_str()<< " in tracker's response. Attempting connection ...");
+			BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<
+			        "] received peer "<< peer.peerId.c_str()<< " in tracker's response. Attempting connection ...");
+
 			BTInternalMsg* intMsg = new BTInternalMsg("INTERNAL_INIT_CONNECTION_MSG",INTERNAL_INIT_CONNECTION_MSG);
 			intMsg->setPeer(peer);
 			scheduleAt(simTime(),intMsg);
@@ -1278,13 +1299,16 @@ void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 		{
 			if (index >= 0)
 			{
-			    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"] received peer "<< peer.peerId.c_str()<< " in tracker's response. Already connected to this peer ...");
+			    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"] received peer "<<
+			            peer.peerId.c_str()<< " in tracker's response. Already connected to this peer ...");
 
 			}
 
 			if (remainingConns<=1)
 			{
-			    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"]  received "<< peer.peerId.c_str()<< " in tracker's response. Refraining from connecting, reached maximum of connections (maxNumConnections = "<< maxNumConnections()<<").");
+			    BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::scheduleConnections","["<<this->getParentModule()->getFullName()<<"]  received "<<
+			            peer.peerId.c_str()<< " in tracker's response. Refraining from connecting, reached maximum of connections (maxNumConnections = "
+			            << maxNumConnections()<<").");
 				checkConnections();
 				return;
 			}
@@ -1646,7 +1670,8 @@ void BTPeerWireBase::checkandScheduleHaveMsgs(BTBitfieldMsg* msg, const char* pe
 			PeerEntry peer = peerState.getPeerEntry(bi->peerID());
 			if (!peer.isValid())
 			{
-			    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::checkandScheduleHaveMsgs","["<<this->getParentModule()->getFullName()<<"]  super-seed mode: peer "<<bi->peerID()<<" waiting for another Have msg, is not connected any more.");
+			    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::checkandScheduleHaveMsgs","["<<this->getParentModule()->getFullName()<<"]  super-seed mode: peer "<<
+			            bi->peerID()<<" waiting for another Have msg, is not connected any more.");
 				return;
 			}
 			else
@@ -1785,7 +1810,8 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
         BT_LOG_INFO(
                 btLogSinker,
                 "BTPeerWireBase::handleMessage",
-                "[" << this->getParentModule()->getFullName() << "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<<" peers. My Current State is ["<<getState()<<"]");
+                "[" << this->getParentModule()->getFullName() << "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<<
+                " peers. My Current State is ["<<getState()<<"]");
 
         //Based on the peer dictionary, establish connections to remote peers.
         //Furthermore, initiate the (optimistic un-)choking procedures.

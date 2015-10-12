@@ -14,7 +14,7 @@ public:
 
 
     T *     getObject();
-    void    releaseObject(T* _pNode);
+    void    releaseObject(T* &_pNode);
 
 protected:
     void        checkForRenewal();
@@ -82,9 +82,15 @@ T * BTSimpleObjFactory<T>::getObject()
 
 
 template <class T>
-void BTSimpleObjFactory<T>::releaseObject(T* _pNode)
+void BTSimpleObjFactory<T>::releaseObject(T* &_pNode)
 {
-    lst_FreeList.push_back(_pNode);
+    if (_pNode == NULL)
+        return;
+    else
+    {
+        lst_FreeList.push_back(_pNode);
+        _pNode = 0;
+    }
 }
 
 template <class T>
