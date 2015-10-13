@@ -41,7 +41,7 @@ public:
         return pRet;
     }
 
-    void releaseObject(cMessage* & _pMsg, BTMsgOwnerShipHandlerInterface* _pOwner)
+    void releaseMsgObject(cMessage* & _pMsg, BTMsgOwnerShipHandlerInterface* _pOwner)
     {
         if (_pMsg->isScheduled())
         {

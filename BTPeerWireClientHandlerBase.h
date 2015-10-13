@@ -121,7 +121,7 @@ class INET_API BTPeerWireClientHandlerBase : public TCPServerThreadBase
 //		void sendMessage(cMessage*);	// Encapsulates and sends the message, renews Keep-Alive timer
 		void sendMessage(cPacket*);    // Encapsulates and sends the message, renews Keep-Alive timer
 		void cancelAndDelete(cMessage*);
-		void cancelAndRelease(cMessage*);
+		void cancelAndRelease(cMessage*&);
 
 		//Help methods
 		void printState();
