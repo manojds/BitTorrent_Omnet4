@@ -65,34 +65,29 @@ BTPeerWireClientHandlerBase::~BTPeerWireClientHandlerBase()
 
 	//2015-05-03
 	//Added these deletion by Manoj
-	cancelEvent(evtIsAlive);
-	BTMsgFactory::getInstance()->releaseObject(evtIsAlive);
-	evtIsAlive = NULL;
+	cancelAndRelease(evtIsAlive);
 
-	cancelEvent(evtKeepAlive);
-    BTMsgFactory::getInstance()->releaseObject(evtKeepAlive);
-    evtKeepAlive = NULL;
+	cancelAndRelease(evtKeepAlive);
 
-    cancelEvent(evtDelThread);
-    BTMsgFactory::getInstance()->releaseObject(evtDelThread);
-    evtDelThread = NULL;
+	cancelAndRelease(evtDelThread);
 
-    cancelAndDelete(delThreadMsg);
-    delThreadMsg = NULL;
+	cancelAndRelease(delThreadMsg);
 
-    cancelEvent(evtMeasureDownloadRate);
-    BTMsgFactory::getInstance()->releaseObject(evtMeasureDownloadRate);
-    evtMeasureDownloadRate = NULL;
+    cancelAndRelease(evtMeasureDownloadRate);
 
-    cancelEvent(evtMeasureUploadRate);
-    BTMsgFactory::getInstance()->releaseObject(evtMeasureUploadRate);
-    evtMeasureUploadRate = NULL;
+    cancelAndRelease(evtMeasureUploadRate);
 
 }
 
 void BTPeerWireClientHandlerBase::cancelAndDelete(cMessage* msg)
 {
 	getHostModule()->cancelAndDelete(msg);
+}
+
+void BTPeerWireClientHandlerBase::cancelAndRelease(cMessage* msg)
+{
+    getHostModule()->cancelEvent(msg);
+    BTMsgFactory::getInstance()->releaseObject(msg);
 }
 
 void BTPeerWireClientHandlerBase::established()
@@ -922,10 +917,10 @@ void BTPeerWireClientHandlerBase::closeConnection()
 	{
 		if (getState() != EARLY_ABORTING)
 		{
-			cancelAndDelete(evtIsAlive);
+		    cancelAndRelease(evtIsAlive);
 			evtIsAlive = NULL;
 
-			cancelAndDelete(evtKeepAlive);
+			cancelAndRelease(evtKeepAlive);
 			evtKeepAlive=NULL;
 			// Anti-snubbing  not actually supported due to contradictory definitions...
 			//cancelAndDelete(evtAntiSnub);
@@ -934,7 +929,7 @@ void BTPeerWireClientHandlerBase::closeConnection()
 		setState(ACTIVE_ABORTING);
 
 		if( evtDelThread->isScheduled())
-			cancelEvent	(evtDelThread);
+		    cancelEvent(evtDelThread);
 
 		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::closeConnection", "["<<getHostModule()->getParentModule()->getFullName()<<
 		        "] remote host ["<<getSocket()->getRemoteAddress() <<"] Scheduling Delete Thread Timer after ["<<
@@ -964,10 +959,10 @@ void BTPeerWireClientHandlerBase::peerClosed()
 
 		scheduleAt(simTime() + 2*TCP_TIMEOUT_2MSL, evtDelThread);
 
-		cancelAndDelete(evtIsAlive);
+		cancelAndRelease(evtIsAlive);
 		evtIsAlive = NULL;
 
-		cancelAndDelete(evtKeepAlive);
+		cancelAndRelease(evtKeepAlive);
 		evtKeepAlive=NULL;
 		// Anti-snubbing  not actually supported due to contradictory definitions...
 		//cancelAndDelete(evtAntiSnub);
@@ -997,13 +992,13 @@ void BTPeerWireClientHandlerBase::failure(int code)
 		setState(PASSIVE_ABORTING);
 		if(evtIsAlive)
 		{
-		    cancelAndDelete(evtIsAlive);
+		    cancelAndRelease(evtIsAlive);
 		    evtIsAlive = NULL;
 		}
 
 		if(evtKeepAlive)
 		{
-		    cancelAndDelete(evtKeepAlive);
+		    cancelAndRelease(evtKeepAlive);
 		    evtKeepAlive = NULL;
 		}
 
@@ -1027,17 +1022,13 @@ void BTPeerWireClientHandlerBase::removeCurrentThread()
 	chokedRequests.clear();
 	chokedIncomingRequests.clear();
 
-    cancelEvent(evtMeasureDownloadRate);
-    BTMsgFactory::getInstance()->releaseObject(evtMeasureDownloadRate);
-    evtMeasureDownloadRate = NULL;
+	cancelAndRelease(evtMeasureDownloadRate);
 
-    cancelEvent(evtMeasureUploadRate);
-    BTMsgFactory::getInstance()->releaseObject(evtMeasureUploadRate);
-	evtMeasureUploadRate = NULL;
+	cancelAndRelease(evtMeasureUploadRate);
 
 	if (evtDelThread)
 	{
-	    cancelAndDelete(evtDelThread);
+	    cancelAndRelease(evtDelThread);
 	    evtDelThread = NULL;
 	}
 
