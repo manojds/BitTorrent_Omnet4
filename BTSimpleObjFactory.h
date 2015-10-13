@@ -13,8 +13,8 @@ public:
     virtual ~BTSimpleObjFactory();
 
 
-    T *     getObject();
-    void    releaseObject(T* &_pNode);
+    virtual T *     getObject();
+    virtual void    releaseObject(T* &_pNode);
 
 protected:
     void        checkForRenewal();

@@ -40,6 +40,15 @@ public:
         return pRet;
     }
 
+    void releaseObject(cMessage* & _pMsg)
+    {
+        if (_pMsg->isScheduled())
+        {
+            throw cRuntimeError("Failed to release the scheduled message. message name [%s]", _pMsg->getName());
+        }
+        BTSimpleObjFactory<cMessage>::releaseObject(_pMsg);
+    }
+
     static BTMsgFactory* getInstance()
     {
         return &m_Instance;
