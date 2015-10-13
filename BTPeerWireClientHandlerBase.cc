@@ -31,7 +31,15 @@
 
 Register_Class(BTPeerWireClientHandlerBase)
 
-BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
+BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase():
+evtKeepAlive(NULL),
+evtIsAlive(NULL),
+evtDelThread(NULL),
+evtAntiSnub(NULL),
+evtHandshake(NULL),
+evtMeasureDownloadRate(NULL),
+evtMeasureUploadRate(NULL),
+peerWireBase(NULL)
 {
 	setAmChoking(true);
 	setAmInterested(false);
@@ -86,8 +94,11 @@ void BTPeerWireClientHandlerBase::cancelAndDelete(cMessage* msg)
 
 void BTPeerWireClientHandlerBase::cancelAndRelease(cMessage* msg)
 {
-    getHostModule()->cancelEvent(msg);
-    BTMsgFactory::getInstance()->releaseObject(msg);
+    if (msg != NULL)
+    {
+        getHostModule()->cancelEvent(msg);
+        BTMsgFactory::getInstance()->releaseObject(msg);
+    }
 }
 
 void BTPeerWireClientHandlerBase::established()
