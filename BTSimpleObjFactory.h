@@ -36,7 +36,6 @@ BTSimpleObjFactory<T>::BTSimpleObjFactory(int _iChunkSize, bool _bReleaseAllOnDe
     i_ChunkSize(_iChunkSize),
     p_ActiveChunk(NULL)
 {
-    renewTheChunk();
 }
 
 template <class T>
@@ -96,7 +95,7 @@ void BTSimpleObjFactory<T>::releaseObject(T* &_pNode)
 template <class T>
 void BTSimpleObjFactory<T>::checkForRenewal()
 {
-    if (i_NextAvailableSlot >= i_ChunkSize )
+    if ((p_ActiveChunk == NULL) || (i_NextAvailableSlot >= i_ChunkSize ))
         renewTheChunk();
 
 }

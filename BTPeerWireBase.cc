@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <iostream>
 #include "BTLogImpl.h"
-#include "BTMsgFactory.h"
+
 
 using namespace std;
 
@@ -166,9 +166,9 @@ void BTPeerWireBase::initialize()
 	WATCH(currentNumEmptyTrackerResponses_var);
 	WATCH(state_var);
 
-	evtChokeAlg = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_CHOKE_TIMER), INTERNAL_CHOKE_TIMER);
-	evtOptUnChoke = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_OPT_UNCHOKE_TIMER), INTERNAL_OPT_UNCHOKE_TIMER);
-	evtTrackerComm = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_TRACKER_COM_MSG), INTERNAL_TRACKER_COM_MSG);
+	evtChokeAlg = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_CHOKE_TIMER), INTERNAL_CHOKE_TIMER, this);
+	evtOptUnChoke = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_OPT_UNCHOKE_TIMER), INTERNAL_OPT_UNCHOKE_TIMER, this);
+	evtTrackerComm = BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_TRACKER_COM_MSG), INTERNAL_TRACKER_COM_MSG, this);
 
 	//Immidiately schedule the communication with the tracker. We will then learn by the tracker about the interval between requests.
 	//scheduleAt(simTime(), evtTrackerComm);
@@ -403,12 +403,12 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 					if (interest == numPieces())
 						handler->setSeeder(true);
 					if (!handler->amInterested())
-						thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(INTERESTED_TIMER),INTERESTED_TIMER));
+						thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(INTERESTED_TIMER),INTERESTED_TIMER, this));
 				}
 				else
 				{
 					if (handler->amInterested())
-						thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(NOT_INTERESTED_TIMER),NOT_INTERESTED_TIMER));
+						thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(NOT_INTERESTED_TIMER),NOT_INTERESTED_TIMER, this));
 				}
 			}
 			delete msg;
@@ -422,7 +422,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			//Check whether we were not interested in this peer and this piece makes us interested.
 			if ((!handler->amInterested()) && (amInterested(handler->getRemoteBitfield())>0))
 			{
-				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(INTERESTED_TIMER),INTERESTED_TIMER));
+				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(INTERESTED_TIMER),INTERESTED_TIMER, this));
 			}
 
 			delete msg;
@@ -569,7 +569,7 @@ void BTPeerWireBase::leaveSwarmAfter(simtime_t _tDelay)
     }
     //end of the moved block
 
-    scheduleAt(simTime()+ _tDelay,BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
+    scheduleAt(simTime()+ _tDelay,BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG, this));
 }
 
 /**
@@ -717,7 +717,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 			msg = 0;
 
 			onReadyToLeaveSwarm();
- 			scheduleAt(simTime()+1000, BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
+ 			scheduleAt(simTime()+1000, BTMsgFactory::getInstance()->getMessageObj(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG, this));
 
 			break;
 
@@ -883,7 +883,7 @@ void BTPeerWireBase::closeAllConnections()
         if (!thread)
             error("%s:%d at %s() Inconsistent thread state, could not find peer thread. \n", __FILE__, __LINE__, __func__);
 
-        thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CLOSE_CONNECTION_TIMER),CLOSE_CONNECTION_TIMER));
+        thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CLOSE_CONNECTION_TIMER),CLOSE_CONNECTION_TIMER, this));
     }
 
 }
@@ -944,7 +944,7 @@ void BTPeerWireBase::makeNextPeerMove(TCPServerThreadBase* thread)
 		// or the case in which have already requested the remainig pieces from another peer.
 		if (amInterested(handler->getRemoteBitfield())==0)
 		{
-			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(NOT_INTERESTED_TIMER),NOT_INTERESTED_TIMER));
+			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(NOT_INTERESTED_TIMER),NOT_INTERESTED_TIMER, this));
 		}
 		else
 		{
@@ -1004,7 +1004,7 @@ void BTPeerWireBase::ChokingAlgorithm()
 						peerState.setMinDownloaderRate(handler->getDownloadRate());
 
 
-					thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER));
+					thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER, this));
 					numDownloaders++;
 				}
 				else
@@ -1020,7 +1020,7 @@ void BTPeerWireBase::ChokingAlgorithm()
 				{
 				    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
 				            "]  [Choking Algorithm]: not Interested in "<<handler->getRemotePeerID()<<", unchoking though due to rate.");
-					thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER));
+					thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER, this));
 				}
 			}
 		}
@@ -1030,7 +1030,7 @@ void BTPeerWireBase::ChokingAlgorithm()
 			{
 			    BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::ChokingAlgorithm","["<<this->getParentModule()->getFullName()<<
 			            "]  [Choking Algorithm]: "<<handler->getRemotePeerID()<<" not in the top "<<downloaders()<<" of data providers (download rate), Choking it ...");
-				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER));
+				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER, this));
 			}
 			else
 			{
@@ -1119,7 +1119,7 @@ void BTPeerWireBase::OptimisticUnChokingAlgorithm()
 			handler->setOptimisticallyUnchoked(true);
 
 
-			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER));
+			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(UNCHOKE_TIMER),UNCHOKE_TIMER, this));
 			numUnchoked++;
 		}
 
@@ -1144,7 +1144,7 @@ void BTPeerWireBase::OptimisticUnChokingAlgorithm()
 			        "] choking peer: "<<handler->getRemotePeerID()<<" ,that was previously optimistically unchoked.");
 			handler->setOptimisticallyUnchoked(false);
 
-			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER));
+			thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER, this));
 		}
 	}
 }
@@ -1216,7 +1216,7 @@ void BTPeerWireBase::chokeWorstDownloader()
 
 			if (numDownloaders == downloaders())
 			{
-				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER));
+				thread->timerExpired(BTMsgFactory::getInstance()->getMessageObj(toString(CHOKE_TIMER),CHOKE_TIMER, this));
 				return;
 			}
 		}

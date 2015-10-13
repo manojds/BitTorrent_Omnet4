@@ -40,15 +40,15 @@ BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
 
 	setState(INITIAL);
 
-	evtIsAlive              =  BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(IS_ALIVE_TIMER), IS_ALIVE_TIMER);
-	evtKeepAlive            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(KEEP_ALIVE_TIMER), KEEP_ALIVE_TIMER);
-	evtDelThread            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(DEL_THREAD_TIMER), DEL_THREAD_TIMER);
+	evtIsAlive              =  BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(IS_ALIVE_TIMER), IS_ALIVE_TIMER, peerWireBase);
+	evtKeepAlive            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(KEEP_ALIVE_TIMER), KEEP_ALIVE_TIMER, peerWireBase);
+	evtDelThread            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(DEL_THREAD_TIMER), DEL_THREAD_TIMER, peerWireBase);
 	// Anti-snubbing  not actually supported due to contradictory definitions...
 	//evtAntiSnub  = 	new cMessage(peerWireBase->toString(ANTI_SNUB_TIMER), ANTI_SNUB_TIMER);
 	delThreadMsg            = new BTInternalMsg(peerWireBase->toString(INTERNAL_REMOVE_THREAD_MSG),INTERNAL_REMOVE_THREAD_MSG);
 
-	evtMeasureDownloadRate  = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER);
-	evtMeasureUploadRate    = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER);
+	evtMeasureDownloadRate  = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER, peerWireBase);
+	evtMeasureUploadRate    = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER, peerWireBase);
 	lastDownloadTime_var    = 0;
 	setDownloadRate(0);
 	lastUploadTime_var = simTime();
@@ -324,7 +324,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 								RequestEntry entry(req->index(),req->begin(),req->dataLength(),simTime(),getRemotePeerID().c_str());
 								incomingRequests.insert(entry);
 
-								scheduleAt(simTime(),BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(PIECE_TIMER),PIECE_TIMER));
+								scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(PIECE_TIMER),PIECE_TIMER, peerWireBase));
 
 								//If we are in super-seed mode and we just sent the last block, we shall inform
 								//this client of another piece only if we see the current piece in another
@@ -399,7 +399,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 
 						if (!evtMeasureDownloadRate->isScheduled())
 						{
-							scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj("INTERNAL_RECORD_DATA_PROVIDER_TIMER",INTERNAL_RECORD_DATA_PROVIDER_TIMER));
+							scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj("INTERNAL_RECORD_DATA_PROVIDER_TIMER",INTERNAL_RECORD_DATA_PROVIDER_TIMER, peerWireBase));
 						}
 
 						BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] observed download rate ="<<getDownloadRate()<<" KB/sec");
@@ -419,7 +419,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 							else
 							{
 								//We cannot request any other block for this piece, so we will try for another piece...
-								scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG));
+								scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG, peerWireBase));
 							}
 						}
 					}
@@ -508,10 +508,10 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 
 		//We schedule the transmission of a bitfield message. In timerExpired() we will
 		//check whether we have any piece or we should cancel (or postpone) this msg transmission.
-		scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(BITFIELD_TIMER),BITFIELD_TIMER));
+		scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(BITFIELD_TIMER),BITFIELD_TIMER, peerWireBase));
 
 		if (peerWireBase->superSeedMode())
-			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_SUPER_SEED_HAVE_MSG),INTERNAL_SUPER_SEED_HAVE_MSG));
+			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_SUPER_SEED_HAVE_MSG),INTERNAL_SUPER_SEED_HAVE_MSG, peerWireBase));
 	}
 	else
 	{
@@ -585,7 +585,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	{
 	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] snubbed by remote peer. Engaging in anti-snubbing mode.");
 		setState(ANTI_SNUBBING);
-		scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(CHOKE_TIMER),CHOKE_TIMER));
+		scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(CHOKE_TIMER),CHOKE_TIMER, peerWireBase));
 		break;
 	}
 	case BITFIELD_TIMER:
@@ -655,7 +655,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		setAmInterested(true);
 		
 		if (!peerChoking())
-			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG));
+			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG, peerWireBase));
 
 		break;
 	}
@@ -781,7 +781,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (downloadRateSamples.size()>0)
 		{
 			float sum = 0;
-			for (int i=0; i<downloadRateSamples.size();i++)
+			for (unsigned int i=0; i<downloadRateSamples.size();i++)
 			{
 				sum = sum + downloadRateSamples[i];
 
@@ -875,7 +875,7 @@ void BTPeerWireClientHandlerBase::sendBlockRequests(int pieceIndex,int blockInde
 		{
 			//Ask for another piece to request, since we can send more requests than
 			//the remaining blocks.
-			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG));
+			scheduleAt(simTime(), BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_NEXT_REQUEST_MSG),INTERNAL_NEXT_REQUEST_MSG, peerWireBase));
 			break;
 		}
 		else
@@ -1053,7 +1053,7 @@ void BTPeerWireClientHandlerBase::clearPendingRequests()
 		chokedRequests.addRequest(re);
 	}
 
-	cMessage* uiMsg = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_UPDATE_INTERESTS_MSG), INTERNAL_UPDATE_INTERESTS_MSG);
+	cMessage* uiMsg = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_UPDATE_INTERESTS_MSG), INTERNAL_UPDATE_INTERESTS_MSG, peerWireBase);
 	scheduleAt(simTime(),uiMsg);
 
 	requests.clear();

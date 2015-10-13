@@ -32,6 +32,7 @@
 #include "BTTrackerMsg_m.h"
 #include "BTStatistics.h"
 
+#include "BTMsgFactory.h"
 #include <TCP.h>
 
 using namespace std;
@@ -116,7 +117,7 @@ using namespace std;
  * the client <-> peer conversation.
  */
 
-class INET_API BTPeerWireBase : public TCPSrvHostApp
+class INET_API BTPeerWireBase : public TCPSrvHostApp, public BTMsgOwnerShipTakerInterface
 {
 	protected:
 		/* new members in BTPeerWireBase */
@@ -268,6 +269,9 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		const char* toString(int);
 
 		virtual void startNodeAt(simtime_t t);
+
+		//Overrides of BTMsgOwnerShipTakerInterface to make use of BTMsgFactory
+		virtual void takeOwnerShip(cMessage* _pMsg){ take (_pMsg); }
 
 	protected:
 		/* Redefined methods from BTPeerWireBase */
