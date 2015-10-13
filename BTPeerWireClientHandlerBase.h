@@ -189,6 +189,7 @@ class INET_API BTPeerWireClientHandlerBase : public TCPServerThreadBase
 		virtual void failure(int);
 
 		virtual void initiatePeerWireProtocol(cMessage*);
+		virtual void createMessages();
 
 		//Block added by Manoj
 	private:

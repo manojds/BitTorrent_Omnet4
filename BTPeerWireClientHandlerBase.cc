@@ -40,15 +40,7 @@ BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
 
 	setState(INITIAL);
 
-	evtIsAlive              =  BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(IS_ALIVE_TIMER), IS_ALIVE_TIMER, peerWireBase);
-	evtKeepAlive            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(KEEP_ALIVE_TIMER), KEEP_ALIVE_TIMER, peerWireBase);
-	evtDelThread            = 	BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(DEL_THREAD_TIMER), DEL_THREAD_TIMER, peerWireBase);
-	// Anti-snubbing  not actually supported due to contradictory definitions...
-	//evtAntiSnub  = 	new cMessage(peerWireBase->toString(ANTI_SNUB_TIMER), ANTI_SNUB_TIMER);
-	delThreadMsg            = new BTInternalMsg(peerWireBase->toString(INTERNAL_REMOVE_THREAD_MSG),INTERNAL_REMOVE_THREAD_MSG);
 
-	evtMeasureDownloadRate  = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER, peerWireBase);
-	evtMeasureUploadRate    = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER, peerWireBase);
 	lastDownloadTime_var    = 0;
 	setDownloadRate(0);
 	lastUploadTime_var = simTime();
@@ -140,6 +132,9 @@ void BTPeerWireClientHandlerBase::init( TCPSrvHostApp* hostmodule, TCPSocket* so
             "] initialized object ["<<this<<']');
 
 	peerWireBase= (BTPeerWireBase*) getHostModule();
+
+	createMessages();
+
 	remoteBitfield = new BitField(peerWireBase->numPieces(),peerWireBase->numBlocks(),false);	
 	remoteBitfield->setLocal(false);
 
@@ -160,6 +155,18 @@ void BTPeerWireClientHandlerBase::init( TCPSrvHostApp* hostmodule, TCPSocket* so
 	setAllowedToRequest(true);
 }
 
+void BTPeerWireClientHandlerBase::createMessages()
+{
+    evtIsAlive              =  BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(IS_ALIVE_TIMER), IS_ALIVE_TIMER, peerWireBase);
+    evtKeepAlive            =   BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(KEEP_ALIVE_TIMER), KEEP_ALIVE_TIMER, peerWireBase);
+    evtDelThread            =   BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(DEL_THREAD_TIMER), DEL_THREAD_TIMER, peerWireBase);
+    // Anti-snubbing  not actually supported due to contradictory definitions...
+    //evtAntiSnub  =    new cMessage(peerWireBase->toString(ANTI_SNUB_TIMER), ANTI_SNUB_TIMER);
+    delThreadMsg            = new BTInternalMsg(peerWireBase->toString(INTERNAL_REMOVE_THREAD_MSG),INTERNAL_REMOVE_THREAD_MSG);
+
+    evtMeasureDownloadRate  = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER),INTERNAL_MEASURE_DOWNLOAD_RATE_TIMER, peerWireBase);
+    evtMeasureUploadRate    = BTMsgFactory::getInstance()->getMessageObj(peerWireBase->toString(INTERNAL_MEASURE_UPLOAD_RATE_TIMER),INTERNAL_MEASURE_UPLOAD_RATE_TIMER, peerWireBase);
+}
 
 void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 {
@@ -803,7 +810,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (uploadRateSamples.size()>0)
 		{
 			float sum = 0;
-			for (int i=0; i<uploadRateSamples.size();i++)
+			for (unsigned int i=0; i<uploadRateSamples.size();i++)
 			{
 				sum = sum + uploadRateSamples[i];
 			}
