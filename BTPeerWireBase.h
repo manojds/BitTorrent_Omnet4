@@ -117,7 +117,7 @@ using namespace std;
  * the client <-> peer conversation.
  */
 
-class INET_API BTPeerWireBase : public TCPSrvHostApp, public BTMsgOwnerShipTakerInterface
+class INET_API BTPeerWireBase : public TCPSrvHostApp, public BTMsgOwnerShipHandlerInterface
 {
 	protected:
 		/* new members in BTPeerWireBase */
@@ -272,6 +272,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp, public BTMsgOwnerShipTaker
 
 		//Overrides of BTMsgOwnerShipTakerInterface to make use of BTMsgFactory
 		virtual void takeOwnerShip(cMessage* _pMsg){ take (_pMsg); }
+		virtual void releaseOwnerShip(cMessage* _pMsg){ drop (_pMsg); }
 
 	protected:
 		/* Redefined methods from BTPeerWireBase */

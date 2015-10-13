@@ -364,7 +364,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 			BT_LOG_DETAIL(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()<<
 			        "] in Super-Seed mode: sending a Have message for a rare piece");
 			scheduleSuperSeedHaveMsg(thread);
-			BTMsgFactory::getInstance()->releaseObject(msg);
+			BTMsgFactory::getInstance()->releaseObject(msg, this);
 			break;
 		}
 		case INTERNAL_SUPER_SEED_COMPLETE_MSG:
@@ -378,7 +378,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 		case INTERNAL_UPDATE_INTERESTS_MSG:
 		{
 			updateInterests();
-			BTMsgFactory::getInstance()->releaseObject( msg);
+			BTMsgFactory::getInstance()->releaseObject( msg, this);
 			break;
 		}
 		case BITFIELD_MSG:
@@ -443,7 +443,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 					scheduleEndGameRequests();
 			}
 
-			BTMsgFactory::getInstance()->releaseObject(msg);
+			BTMsgFactory::getInstance()->releaseObject(msg, this);
 			break;
 		}
 		case INTERESTED_MSG:
@@ -460,7 +460,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 		case INTERNAL_RECORD_DATA_PROVIDER_TIMER:
 		{
 			dataProviderPeerIDs.insert(handler->getRemotePeerID());
-			BTMsgFactory::getInstance()->releaseObject(msg);
+			BTMsgFactory::getInstance()->releaseObject(msg, this);
 			break;
 		}
 		default:
@@ -713,7 +713,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 			stopListening();
 
-			BTMsgFactory::getInstance()->releaseObject(msg);
+			BTMsgFactory::getInstance()->releaseObject(msg, this);
 			msg = 0;
 
 			onReadyToLeaveSwarm();
@@ -739,7 +739,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				cerr<<"\t\t\t\t\t***** "<<getParentModule()->getFullName()<<" EXITING SAFELY *****"<<endl;
 
 
-				BTMsgFactory::getInstance()->releaseObject(msg);
+				BTMsgFactory::getInstance()->releaseObject(msg, this);
 				msg = 0;
 
 			    //moved out to the leaveSwarmAfter() fucntion by Manoj - 2015-04-26
@@ -759,7 +759,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 				//Clean up ...
 				cancelEvent(evtTrackerComm);
-				BTMsgFactory::getInstance()->releaseObject(evtTrackerComm);
+				BTMsgFactory::getInstance()->releaseObject(evtTrackerComm, this);
 				evtTrackerComm = 0;
 
 				deleteTrackerResponse();
@@ -860,11 +860,11 @@ void BTPeerWireBase::stopChokingAlorithms()
     BT_LOG_INFO( btLogSinker, "BTPeerWireBase::stopChokingAlorithms","["<<this->getParentModule()->getFullName()<<"] "
             "stopping Choking Algorithms");
 	cancelEvent(evtChokeAlg);
-	BTMsgFactory::getInstance()->releaseObject(evtChokeAlg);
+	BTMsgFactory::getInstance()->releaseObject(evtChokeAlg, this);
 	evtChokeAlg=0;
 
 	cancelEvent(evtOptUnChoke);
-	BTMsgFactory::getInstance()->releaseObject(evtOptUnChoke);
+	BTMsgFactory::getInstance()->releaseObject(evtOptUnChoke, this);
 	evtOptUnChoke=0;
 }
 

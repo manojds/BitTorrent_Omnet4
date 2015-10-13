@@ -97,7 +97,7 @@ void BTPeerWireClientHandlerBase::cancelAndRelease(cMessage* msg)
     if (msg != NULL)
     {
         getHostModule()->cancelEvent(msg);
-        BTMsgFactory::getInstance()->releaseObject(msg);
+        BTMsgFactory::getInstance()->releaseObject(msg, peerWireBase);
     }
 }
 
@@ -619,7 +619,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] will not send a bitfield message, no pieces in possession.");
 		}
 
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		break;
 	}
 	case HAVE_TIMER:
@@ -663,7 +663,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 
 		sendMessage(interested);
 		cancelEvent(timer);
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		timer = 0;
 		setAmInterested(true);
 		
@@ -677,7 +677,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Not-Interested message");
 		BTPeerStateMsg* not_interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(NOT_INTERESTED_MSG),NOT_INTERESTED_MSG);
 		sendMessage(not_interested);
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		timer = 0;
 		setAmInterested(false);
 		break;
@@ -721,7 +721,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 			}
 		}
 
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		//delete req;
 		break;
 	}
@@ -752,7 +752,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		setAmChoking(false);
 		setLastChokeUnchoke(simTime());
 
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		timer = 0;
 		break;
 	}
@@ -769,7 +769,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 
 		sendMessage(choke);
 		cancelEvent(evtMeasureUploadRate);
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		timer = 0;
 		break;
 	}
@@ -784,7 +784,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		}
 
 		closeConnection();
-		BTMsgFactory::getInstance()->releaseObject(timer);
+		BTMsgFactory::getInstance()->releaseObject(timer, peerWireBase);
 		timer = 0;
 		break;
 	}
