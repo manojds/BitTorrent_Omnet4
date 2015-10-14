@@ -30,7 +30,15 @@
 
 Register_Class(BTPeerWireClientHandlerBase)
 
-BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase()
+BTPeerWireClientHandlerBase::BTPeerWireClientHandlerBase():
+evtKeepAlive(NULL),
+evtIsAlive(NULL),
+evtDelThread(NULL),
+evtAntiSnub(NULL),
+evtHandshake(NULL),
+evtMeasureDownloadRate(NULL),
+evtMeasureUploadRate(NULL),
+peerWireBase(NULL)
 {
 	setAmChoking(true);
 	setAmInterested(false);
@@ -467,7 +475,7 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 		setRemotePeerID(incomingHandShake->peerId());
 
 		PEER peer;
-		peer.peerId = *(new opp_string(getRemotePeerID().c_str()));
+		peer.peerId = getRemotePeerID().c_str();
 		upmsg->setPeer(peer);
 
 		scheduleAt(simTime(),upmsg);
@@ -768,7 +776,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (downloadRateSamples.size()>0)
 		{
 			float sum = 0;
-			for (int i=0; i<downloadRateSamples.size();i++)
+			for (unsigned int i=0; i<downloadRateSamples.size();i++)
 			{
 				sum = sum + downloadRateSamples[i];
 
@@ -790,7 +798,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (uploadRateSamples.size()>0)
 		{
 			float sum = 0;
-			for (int i=0; i<uploadRateSamples.size();i++)
+			for (unsigned int i=0; i<uploadRateSamples.size();i++)
 			{
 				sum = sum + uploadRateSamples[i];
 			}
