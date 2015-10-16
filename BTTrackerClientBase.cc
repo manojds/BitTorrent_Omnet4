@@ -334,7 +334,8 @@ void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg,
 		{
 
 			// report the error
-			error("%s:%d at %s() invalid state occured, should a transient state(state_var=%d, transient_var=%d) occured (simTime() = %s)\n", __FILE__, __LINE__, __func__, state_var, transient_var, SIMTIME_STR(simTime()));
+			error("%s:%d at %s() invalid state occured, should a transient state(state_var=%d, transient_var=%d) occured (simTime() = %s)\n",
+			        __FILE__, __LINE__, __func__, state_var, transient_var, SIMTIME_STR(simTime()));
 
 		}
 
@@ -355,7 +356,7 @@ void BTTrackerClientBase::socketDataArrived(int connId, void *ptr, cPacket *msg,
 	// I (Manoj) got an error like this - tracker set error and don't set announce interval
 	// in the message. and since no checks are performed here that message get forwarded to PeerwireBase
 	// then PeerwireBase act like a normal message and uses announce interval which is not set (may be default to 0 )
-	// and get a wired error where INET says socket of this module get a message which does not belong to it.
+	// and get a weird error where INET says socket of this module get a message which does not belong to it.
 
 	// forward the message to the btorrent application
 	send(mmsg, "btorrentOut");

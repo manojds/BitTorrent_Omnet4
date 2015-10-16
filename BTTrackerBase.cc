@@ -759,10 +759,26 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 		default:
 			// report the error
 			getHostModule()->error("%s:%d at %s() invalid announce code passed(acode=%d)\n", __FILE__, __LINE__, __func__, acode);
+			break;
 	}
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client["<< amsg->peerId()<<", address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+
+    if ( rmsg->getKind() == R_WARN)
+    {
+        BT_LOG_WARN(btLogSinker, "BTTrackerClntHndlB::sendResponse", "Reply to client["<< amsg->peerId()<<
+                "] Warning is set. message ["<<rmsg->warning()<<"]");
+    }
+    if ( rmsg->getKind() == R_FAIL)
+    {
+        BT_LOG_WARN(btLogSinker, "BTTrackerClntHndlB::sendResponse", "Reply to client["<< amsg->peerId()<<
+                "] Failure is set. message ["<<rmsg->failure()<<"]");
+    }
+
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client["<< amsg->peerId()<<", address="
+	        << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+
+
 
 	// set the response size
 	findAndSetResponseSize(rmsg, compact, no_peer_id);

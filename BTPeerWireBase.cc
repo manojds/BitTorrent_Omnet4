@@ -330,7 +330,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
 				PeerEntry pe=peerState.getPeerEntry((handler)->getRemotePeerID().c_str());
                 connectionLostFromPeer(pe.getPeer(), handler->activeConnection());
                 BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()
-                        <<"] removing thread for connection ["<<(handler)->getRemotePeerID()<<"]");
+                        <<"] removing thread for connection remote peer ["<<(handler)->getRemotePeerID()<<"]");
 
 				peerState.removePeer((handler)->getRemotePeerID());
 
@@ -669,9 +669,9 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
                     newsocket->setCallbackObject(proc);
 
                     BTPeerWireClientHandlerBase* myProc = (BTPeerWireClientHandlerBase*) proc;
+                    myProc->setRemotePeerID(peer.peerId.c_str());
                     myProc->init(this, newsocket);
                     myProc->setActiveConnection(true);
-                    myProc->setRemotePeerID(peer.peerId.c_str());
                     peerState.addPeer(peer,proc);
 
                     newsocket->setOutputGate(gate("tcpOut"));
