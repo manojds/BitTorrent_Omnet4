@@ -72,6 +72,8 @@ void BTTrackerClientBase::initialize()
 	// from a parameter.
 	peerId_var		 = generatePeerID();
 
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "Generated peer ID as : [" << peerId_var << "] ");
+
 	// watches
 	WATCH(state_var);
 	WATCH(transient_var);

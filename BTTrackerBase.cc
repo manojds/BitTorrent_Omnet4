@@ -771,7 +771,7 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
     }
     if ( rmsg->getKind() == R_FAIL)
     {
-        BT_LOG_WARN(btLogSinker, "BTTrackerClntHndlB::sendResponse", "Reply to client["<< amsg->peerId()<<
+        BT_LOG_ERROR(btLogSinker, "BTTrackerClntHndlB::sendResponse", "Reply to client["<< amsg->peerId()<<
                 "] Failure is set. message ["<<rmsg->failure()<<"]");
     }
 

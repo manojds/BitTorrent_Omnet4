@@ -128,8 +128,13 @@ void BTPeerWireClientHandlerBase::established()
 		{
 			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::established", "[" << getHostModule()->getParentModule()->getFullName() <<
 			        "] connection accepted by remote peer "<< getRemotePeerID() <<", sending Handshake msg.");
+
 			setState(ACTIVE_HANDSHAKE);
 			BTMsgHandshake* handShakeMsg = (BTMsgHandshake*)createBTPeerWireMessage(peerWireBase->toString(HANDSHAKE_MSG),HANDSHAKE_MSG);
+
+            BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::established", "[" << getHostModule()->getParentModule()->getFullName() <<
+                    "] handshake message ID ["<< handShakeMsg->getId()<<"] remote peer - "<< getRemotePeerID());
+
 			sendMessage(handShakeMsg);
 		}
 }
@@ -435,7 +440,7 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 				}//PIECE_MSG
 				case CANCEL_MSG:
 				{
-				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel message.");
+				    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel message. remote peer ["<<getRemotePeerID() <<"]");
 					renewAliveTimer(evtIsAlive);
 					cancelBlockRequest((BTRequestCancelMsg*)msg);
 					break;
@@ -452,6 +457,10 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 {
 	BTMsgHandshake* incomingHandShake = check_and_cast<BTMsgHandshake*>(msg);
+
+    BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
+            "] handshake message received. ID ["<< incomingHandShake->getId()<<"] remote peer - "<< getRemotePeerID());
+
 
 	if (getState() == CONNECTED)
 		setState(PASSIVE_HANDSHAKE);
@@ -498,7 +507,12 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 		{
 			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
 			        "] replying with a Handshake message. to ["<<getRemotePeerID()<<']');
+
 			BTMsgHandshake* response = (BTMsgHandshake*)createBTPeerWireMessage(peerWireBase->toString(HANDSHAKE_MSG),HANDSHAKE_MSG);
+
+            BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
+                    "] handshake message ID ["<< response->getId()<<"] remote peer - "<< getRemotePeerID());
+
 			sendMessage(response);
 		}
 		else if (getState() == ACTIVE_HANDSHAKE)
@@ -1225,7 +1239,7 @@ cMessage* BTPeerWireClientHandlerBase::createBTPeerWireMessage(const char* name,
 			handShakeMsg->setPeerId(trackerClient->peerId().c_str());
 
 			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::createBTPeerWireMessage", "[" << getHostModule()->getParentModule()->getFullName() <<
-			        "] set peer ID in msg as ]"<<handShakeMsg->peerId()<<"] tracker client peer id ["<<trackerClient->peerId()<<"]");
+			        "] set peer ID in msg as ["<<handShakeMsg->peerId()<<"] tracker client peer id ["<<trackerClient->peerId()<<"]");
 
 			handShakeMsg->setByteLength(HANDSHAKE_MSG_SIZE);
 			return handShakeMsg;
