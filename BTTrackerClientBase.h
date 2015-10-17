@@ -116,7 +116,7 @@ class INET_API BTTrackerClientBase : public TCPGenericCliAppBase
 		const string& key() const;
 		void setKey(const string&);
 
-		virtual const char* generatePeerID();
+		virtual std::string generatePeerID();
 	protected:
 		/* Redefined methods from TCPGenericCliAppBase */
 		virtual void initialize();

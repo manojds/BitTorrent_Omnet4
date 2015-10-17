@@ -265,7 +265,7 @@ void BTTrackerClientBase::socketEstablished(int connId, void *ptr)
  *
  * This method should be re-implemented in future subclasses in order to change the.way peer IDs are generated.
  */
-const char* BTTrackerClientBase::generatePeerID()
+std::string BTTrackerClientBase::generatePeerID()
 {
 	string strID("-OM0001-");
 	stringstream oss;
@@ -282,7 +282,7 @@ const char* BTTrackerClientBase::generatePeerID()
 //    	for(int i=0; i<12; i++)
 //        	oss <<intrand(10);
 	
-	return 	oss.str().c_str();
+	return 	oss.str();
 }
 
 
