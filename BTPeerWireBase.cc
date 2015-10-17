@@ -1223,7 +1223,7 @@ void BTPeerWireBase::chokeWorstDownloader()
  */
 void BTPeerWireBase::scheduleConnections(BTTrackerMsgResponse* msg)
 {
-    for (int i = 0; i < msg->peersArraySize(); i++)
+    for (unsigned int i = 0; i < msg->peersArraySize(); i++)
     {
         peerFoundFromTracker(msg->peers(i));
     }

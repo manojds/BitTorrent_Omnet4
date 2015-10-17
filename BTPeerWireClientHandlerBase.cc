@@ -145,7 +145,7 @@ void BTPeerWireClientHandlerBase::init( TCPSrvHostApp* hostmodule, TCPSocket* so
 
     BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::init", "[" <<
             getHostModule()->getParentModule()->getFullName() <<
-            "] initialized object ["<<this<<'] remote peer ["<<getRemotePeerID() <<"]');
+            "] initialized object ["<<this<<"] remote peer ["<<getRemotePeerID() <<"]");
 
 	peerWireBase= (BTPeerWireBase*) getHostModule();
 	remoteBitfield = new BitField(peerWireBase->numPieces(),peerWireBase->numBlocks(),false);	
