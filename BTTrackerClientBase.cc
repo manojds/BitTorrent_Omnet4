@@ -72,7 +72,7 @@ void BTTrackerClientBase::initialize()
 	// from a parameter.
 	peerId_var		 = generatePeerID();
 
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "Generated peer ID as : [" << peerId_var << "] ");
+	BT_LOG_DETAIL(btLogSinker, "BTTrackerClientB::announce", "Generated peer ID as : [" << peerId_var << "] ");
 
 	// watches
 	WATCH(state_var);
@@ -465,7 +465,9 @@ void BTTrackerClientBase::announce()
 		case 0:
 		default:
 			// report the error
-			error("%s:%d at %s() invalid state occured, should a transient state(state_var=%d, transient_var=%d) occured (simTime() = %s)\n", __FILE__, __LINE__, __func__, state_var, transient_var, SIMTIME_STR(simTime()));
+			error("%s:%d at %s() invalid state occured, should a transient state(state_var=%d, transient_var=%d) occurred (simTime() = %s)\n",
+			        __FILE__, __LINE__, __func__, state_var, transient_var, SIMTIME_STR(simTime()));
+			break;
 	}
 
 	// set the announce size
@@ -476,8 +478,8 @@ void BTTrackerClientBase::announce()
 	bytesSent+=msg->getByteLength();
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" << par("connectAddress").stdstringValue ()
-	        << ", port=" << (int)par("connectPort") << "] info Hash ["<<infoHash() <<"]");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" <<
+	        par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] info Hash ["<<infoHash() <<"]");
 
 	// send the announce
 	socket.send(msg);

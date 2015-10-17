@@ -36,8 +36,6 @@ s_Buffer("") {
 
 BTLogger::~BTLogger() {
 
-    int iRet = -1;
-
 
     if (pc_FileNamePrefix != NULL) {
         delete [] pc_FileNamePrefix;
@@ -51,7 +49,6 @@ BTLogger::~BTLogger() {
             fclose(fp_Log);
             fp_Log = NULL;
         }
-
 
 }
 
@@ -214,10 +211,6 @@ void BTLogger::WriteInFile(const char *_pszMsg) {
         {
             if(ferror(fp_Log))
             {
-                char  pErrorBuffer[128];
-
-
-
                 throw std::runtime_error("Failed to write in the log");
             }            
         }        
