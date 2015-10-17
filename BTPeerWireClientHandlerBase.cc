@@ -321,7 +321,8 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 					{
 						BTRequestCancelMsg* req = (BTRequestCancelMsg*)msg;
 
-						BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] received Request message for piece: "<< req->index() <<", block : "<<req->begin() );
+						BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName()
+						        << "] received Request message for piece: "<< req->index() <<", block : "<<req->begin()<<".  remote peer ["<<getRemotePeerID() <<"]");
 
 						if (peerWireBase->localBitfield()->isBlockAvailable(req->index(),req->begin()))
 						{
@@ -348,17 +349,20 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 							}
 							else
 							{
-							    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] client in anti-snubbing mode, refusing to send the piece.");
+							    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() <<
+							            "] client in anti-snubbing mode, refusing to send the piece.");
 							}
 						}
 						else
 						{
-						    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, requested block not available.");
+						    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() <<
+						            "] cannot serve request, requested block not available.");
 						}
 					}
 					else
 					{
-					    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() << "] cannot serve request, peer is choked.");
+					    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::dataArrived", "[" << getHostModule()->getParentModule()->getFullName() <<
+					            "] cannot serve request, peer is choked.");
 					}
 
 					delete msg;
@@ -644,7 +648,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 			//In case of HAVE suppression we will not send the Have msg to those peers that already have the piece.
 			if (!((peerWireBase->haveSupression()) && (remoteBitfield->isPieceAvailable(have->index()))))
 			{
-				BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Have message for piece #"<< have->index());
+				BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
+				        "] sending Have message for piece #"<< have->index() <<".  remote peer ["<<getRemotePeerID() <<"] ");
 				have->setKind(HAVE_MSG);
 				//Commented by Manoj
 //				sendMessage((cMessage*)have->dup());
@@ -653,7 +658,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 			}
 			else
 			{
-			    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] Have suppression: not sending Have message for piece #"<< have->index());
+			    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
+			            "] Have suppression: not sending Have message for piece #"<< have->index());
 			}
 		}
 		else
@@ -706,7 +712,10 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (req.getIndex()>=0)
 		{
 			BTPieceMsg* piece = (BTPieceMsg*)createBTPeerWireMessage(peerWireBase->toString(PIECE_MSG),PIECE_MSG,req.getIndex(),req.begin(),req.length());
-			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Piece message (data)");
+
+			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
+			        "] sending Piece message (data). remote peer ["<<getRemotePeerID() <<"]");
+
 			sendMessage(piece);
 
 			simtime_t interval = simTime()-lastUploadTime_var;
@@ -724,7 +733,8 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 					scheduleAt(simTime()+peerWireBase->getDownloadRateSamplingDuration(),evtMeasureUploadRate);
 				}
 
-				BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] observed upload rate ="<<getUploadRate()<<" KB/sec");
+				BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
+				        "] observed upload rate ="<<getUploadRate()<<" KB/sec.  remote peer ["<<getRemotePeerID() <<"]");
 			}
 		}
 
@@ -910,7 +920,8 @@ void BTPeerWireClientHandlerBase::sendBlockRequests(int pieceIndex,int blockInde
 void BTPeerWireClientHandlerBase::cancelBlockRequest(BTRequestCancelMsg* cancel)
 {
 	int requestIndex = incomingRequests.findRequest(cancel->index(),cancel->begin());
-	BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] received Cancel msg for Request about piece #"<< cancel->index()<<" , block #"<< cancel->begin()<<". ");
+	BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() <<
+	        "] received Cancel msg for Request about piece #"<< cancel->index()<<" , block #"<< cancel->begin()<<". ");
 
 	if (requestIndex >= 0)
 	{
@@ -918,7 +929,8 @@ void BTPeerWireClientHandlerBase::cancelBlockRequest(BTRequestCancelMsg* cancel)
 	 	incomingRequests.removeRequest(requestIndex);
 	}
 	else
-	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() << "] this request does not exist. Either we have already sent the data or this is an error.");
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::cancelBlockRequest", "[" << getHostModule()->getParentModule()->getFullName() <<
+	            "] this request does not exist. Either we have already sent the data or this is an error.");
 
 	delete cancel;
 }
