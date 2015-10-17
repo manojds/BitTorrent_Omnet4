@@ -79,7 +79,12 @@ void BTTrackerBase::cleanRemovePeer(int index)
 {
 	if (index>=0)
 	{
+
 		BTTrackerStructBase* peer = (BTTrackerStructBase*)peers()[index];
+
+		BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::cleanRemovePeer", "removing peer ["<<peer->peerId()<<
+		        "] IP ["<<peer->ipAddress()<<"] port ["<<peer->peerPort()<<"]");
+
 		peers().remove(index);
 		delete peer;
 	}
@@ -131,7 +136,9 @@ void BTTrackerBase::initialize()
 	// schedule the first stat event
 	scheduleAt(simTime() + (simtime_t)announceInterval_var, statMsg);
 
-	BT_LOG_ESSEN(btLogSinker, "BTTrackerClientHandlerB::initialize", "Tracker ["<<this<<"] Initialized");
+	BT_LOG_ESSEN(btLogSinker, "BTTrackerClientHandlerB::initialize", "Tracker ["<<this<<"] Initialized. Announce interval ["<<
+	        announceInterval_var<<"], Cleanup interval ["<<cleanupInterval_var<<"]");
+
 	std::cout<<"****** Tracker Initialized *******"<<std::endl;
 }
 
@@ -144,6 +151,8 @@ void BTTrackerBase::handleMessage(cMessage* msg)
 	if(msg->getKind() == EVT_CLN)
 	{
 
+        BT_LOG_INFO(btLogSinker, "BTTrackerBase::handleMessage", "Event Cleanup timer fired. current time ["<<simTime()<<"], trying to clean peers..");
+
 		// traverse the peers pool and remove the inactive entries
 		for(int i=0; i<peers_var.size(); i++)
 		{
@@ -152,6 +161,8 @@ void BTTrackerBase::handleMessage(cMessage* msg)
 			// the entry is not null and is inactive
 			if(tpeer && (simTime() - tpeer->lastAnnounce() >= (simtime_t)cleanupInterval_var))
 			{
+                BT_LOG_INFO(btLogSinker, "BTTrackerBase::handleMessage","Removing peer ["<< tpeer->peerId()
+                        <<"] due to inactivity");
 				// remove
 				if(tpeer->isSeed()) // if the peer was a seeder change the seeds count
 				{
@@ -163,7 +174,6 @@ void BTTrackerBase::handleMessage(cMessage* msg)
 			}
 
 		}
-
 
 		// schedule the next cleanup event
 		scheduleAt(simTime() + (simtime_t)cleanupInterval_var, clean);
@@ -572,6 +582,10 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			if(cPeer == -1)
 			{
 				// stopped event with no started event before from the same peer
+
+                BT_LOG_ERROR(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client ["
+                            << amsg->peerId() << "] with event ["<<amsg->event()<<"] But there was no started event from client received.");
+
 				return A_NO_STARTED;
 			}
 
@@ -751,6 +765,8 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
 
 		// no response to a stopped event
 		case A_VALID_STOPPED:
+		    BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "Client Stopped. Avoid sending reply to client["<< amsg->peerId()<<", address="
+		            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 			// stop
 			return;
 			break;
