@@ -60,6 +60,12 @@ void BTTrackerBase::cleanUpPeers()
 		// get an entry
 		BTTrackerStructBase* peer = (BTTrackerStructBase*)peers()[i];
 		peers().remove(i);
+
+		if (peer != NULL )
+		{
+		    removePeerFromtheMap(peer->peerId());
+		}
+
 		delete peer;
 	}
 }
@@ -86,6 +92,7 @@ void BTTrackerBase::cleanRemovePeer(int index)
 		        "] IP ["<<peer->ipAddress()<<"] port ["<<peer->peerPort()<<"]");
 
 		peers().remove(index);
+		removePeerFromtheMap(peer->peerId());
 		delete peer;
 	}
 	else
@@ -365,6 +372,47 @@ int BTTrackerBase::contains(BTTrackerStructBase* obj) const
 	return -1;
 }
 
+int BTTrackerBase::containsPeer(const std::string & _sPeerID) const
+{
+    int iIndex(-1);
+
+    std::map<std::string, int>::const_iterator itr = map_Peers.find(_sPeerID);
+    if ( itr != map_Peers.end())
+    {
+        iIndex = itr->second;
+    }
+
+    return iIndex;
+
+}
+
+void BTTrackerBase::insertPeerIntoMap(const std::string & _sPeerID, int _iIndex)
+{
+    std::map<std::string, int>::iterator itr = map_Peers.find(_sPeerID);
+    if ( itr == map_Peers.end())
+    {
+        map_Peers[_sPeerID] = _iIndex;
+    }
+    else
+    {
+        throw cRuntimeError("BTTrackerBase::insertPeerIntoMap - Peer [%s] already present in the map. current index [%s], requested index [%s]",
+                _sPeerID.c_str(), itr->second, _iIndex);
+    }
+
+}
+void BTTrackerBase::removePeerFromtheMap(const std::string & _sPeerID)
+{
+    std::map<std::string, int>::iterator itr = map_Peers.find(_sPeerID);
+    if ( itr != map_Peers.end())
+    {
+        map_Peers.erase(itr);
+    }
+    else
+    {
+        throw cRuntimeError("BTTrackerBase::removePeerFromtheMap - Peer [%s] not present in the map.", _sPeerID.c_str());
+    }
+}
+
 /**
  * Get the seeds count.
  */
@@ -445,8 +493,7 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
     BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client[address="
             << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"] Client ["<<amsg->peerId()<<"]");
 
-	// temporary peer struct with the announce info
-	BTTrackerStructBase* tpeer 	= NULL;
+
 	// a peer from the pool
 	BTTrackerStructBase* peer 	= NULL;
 	// the position of the peer in the pool
@@ -469,11 +516,8 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 		return A_INVALID_PORT;
 	}
 
-	// init the temp peer struct
-	tpeer = createTrackerStructObj(amsg);
-
 	// search to find if the peer exists in the pool or not
-	cPeer = getHostModule()->contains(tpeer);
+	cPeer = getHostModule()->containsPeer(amsg->peerId());
 
 	// differentiate based on the actual message event field
 	switch(amsg->event())
@@ -484,23 +528,17 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			// insert the peer to the peers pool
 			if(cPeer == -1) // do the magic only if the peer does not exist
 			{
+			    // init the peer struct
+			    BTTrackerStructBase* tpeer  = createTrackerStructObj(amsg);
 				cPeer = getHostModule()->peers().add(tpeer);
+				getHostModule()->insertPeerIntoMap(tpeer->peerId(), cPeer);
 				getHostModule()->setPeersNum(getHostModule()->peersNum() + 1);
 				getHostModule()->incrementStartedCount();
 			}
 			else // the peer exists, update its fields
 			{
-				// get the peer
-				peer = (BTTrackerStructBase*)getHostModule()->peers()[cPeer];
 				// update
-				peer->setIpAddress(tpeer->ipAddress());
-				peer->setPeerId(tpeer->peerId());
-				peer->setPeerPort(tpeer->peerPort());
-				peer->setKey(tpeer->key());
-				peer->setLastAnnounce(tpeer->lastAnnounce());
-				peer->setIsSeed(tpeer->isSeed());
-				//Ntinos Katsaros: 22/11/2008
-				delete tpeer;
+				updatePeerDetailsFromAnnounceMsg(amsg, cPeer, true);
 			}
 
 			// valid announce with started event
@@ -525,21 +563,13 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			// update the peer's status and the seeds' count only for the first completed event
 			if(!peer->isSeed())
 			{
-				peer->setIsSeed(true);
 				getHostModule()->setSeeds(getHostModule()->seeds() + 1);
 
 				getHostModule()->incrementCompletedCount();
 			}
 
 			// update
-			peer->setIpAddress(tpeer->ipAddress());
-			peer->setPeerId(tpeer->peerId());
-			peer->setPeerPort(tpeer->peerPort());
-			peer->setKey(tpeer->key());
-			peer->setLastAnnounce(tpeer->lastAnnounce());
-
-			//Ntinos Katsaros: 22/11/2008
-			delete tpeer;
+			updatePeerDetailsFromAnnounceMsg(amsg, cPeer, true);
 
 			// valid announce with completed event
 			return A_VALID_COMPLETED;
@@ -555,21 +585,11 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 				return A_NO_STARTED;
 			}
 
-			// get the peer
-			peer = (BTTrackerStructBase*)getHostModule()->peers()[cPeer];
-
 			// update
-			peer->setIpAddress(tpeer->ipAddress());
-			peer->setPeerId(tpeer->peerId());
-			peer->setPeerPort(tpeer->peerPort());
-			peer->setKey(tpeer->key());
-			peer->setLastAnnounce(tpeer->lastAnnounce());
+			updatePeerDetailsFromAnnounceMsg(amsg, cPeer, false);
 			//removed by Manoj. We don't need this because it is already initialized as not a seed.
 			//removed since this created problems when hiding leachers( sedning only seeders in the reponse)
 			//peer->setIsSeed(false);
-
-			//Ntinos Katsaros: 22/11/2008
-			delete tpeer;
 
 			// valid normal announce
 			return A_VALID_NORMAL;
@@ -601,21 +621,31 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 			getHostModule()->cleanRemovePeer(cPeer);
 			getHostModule()->setPeersNum(getHostModule()->peersNum() - 1);
 
-			//Ntinos Katsaros: 22/11/2008
-			delete tpeer;
-
 			// valid announce with stopped event
 			return A_VALID_STOPPED;
 			break;
 
 		// invalid message event field
 		default:
-
-			//Ntinos Katsaros: 22/11/2008
-			delete tpeer;
-
 			return A_INVALID_EVENT;
+			break;
 	}
+}
+
+void BTTrackerClientHandlerBase::updatePeerDetailsFromAnnounceMsg(BTTrackerMsgAnnounce* _pMsg, int _iPeerIndex, bool _bSetIsSeeder)
+{
+    BTTrackerStructBase* peer = (BTTrackerStructBase*)getHostModule()->peers()[_iPeerIndex];
+    // update
+    peer->setIpAddress(IPvXAddress(getSocket()->getRemoteAddress()));
+    peer->setPeerId(_pMsg->peerId());
+    peer->setPeerPort(_pMsg->peerPort());
+    peer->setKey(_pMsg->key());
+    peer->setLastAnnounce(simTime());
+
+    if (_bSetIsSeeder)
+    {
+        peer->setIsSeed((_pMsg->event() == A_COMPLETED) ? true : false);
+    }
 }
 
 /**
@@ -1040,6 +1070,8 @@ BTTrackerStructBase * BTTrackerClientHandlerBase::createTrackerStructObj(BTTrack
 
     return pRet;
 }
+
+
 
 /**
  * Initializes the session variables and performs some logging.
