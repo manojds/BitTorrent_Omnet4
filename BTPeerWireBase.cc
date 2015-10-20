@@ -771,6 +771,12 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 			break;
 		}
+
+		case INTERNAL_START_NODE_MSG:
+		    doStartNode();
+		    delete msg;
+		    break;
+
 		default:
 			error("%s:%d at %s() Unknown self-message type (msg->getKind() = %d). \n", __FILE__, __LINE__, __func__,msg->getKind());
 	}
@@ -1675,7 +1681,10 @@ void BTPeerWireBase::checkandScheduleHaveMsgs(BTBitfieldMsg* msg, const char* pe
 	}
 }
 
-
+/*!
+ * Starts node at the specified time.
+ * arguments : t - absolute time from zero at which the node should be started.
+ */
 void BTPeerWireBase::startNodeAt(simtime_t t)
 {
     Enter_Method_Silent();
@@ -1684,9 +1693,20 @@ void BTPeerWireBase::startNodeAt(simtime_t t)
 //            "BTPeerWireBase::startNodeAt",
 //                    "["<< this->getParentModule()->getFullName()<<"] scheduleTrackerCommAt - "<< t);
 
-    setDownloadDuration(t);
+    scheduleAt( t , new cMessage(toString(INTERNAL_START_NODE_MSG),INTERNAL_START_NODE_MSG));
+}
 
-    scheduleTrackerCommAt(t);
+/*!
+ * executes functionality to start the node now
+ */
+void BTPeerWireBase::doStartNode()
+{
+    BT_LOG_DEBUG(btLogSinker, "BTPeerWireBase::handleMessage", "[" << this->getParentModule()->getFullName() <<
+                    "] Starting the node ....");
+
+    setDownloadDuration(simTime());
+
+    scheduleTrackerCommAt(simTime());
 }
 
 void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
@@ -1798,11 +1818,8 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
 
         setAnnounceInterval(trackerResponse()->announceInterval());
 
-        BT_LOG_INFO(
-                btLogSinker,
-                "BTPeerWireBase::handleMessage",
-                "[" << this->getParentModule()->getFullName() << "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<<
-                " peers. My Current State is ["<<getState()<<"]");
+        BT_LOG_INFO(btLogSinker, "BTPeerWireBase::handleMessage", "[" << this->getParentModule()->getFullName() <<
+                "] received a Tracker Response containing "<< trackerResponse()->peersArraySize()<< " peers. My Current State is ["<<getState()<<"]");
 
         //Based on the peer dictionary, establish connections to remote peers.
         //Furthermore, initiate the (optimistic un-)choking procedures.

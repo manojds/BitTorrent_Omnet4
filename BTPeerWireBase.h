@@ -46,6 +46,7 @@ using namespace std;
 #define INTERNAL_OPT_UNCHOKE_TIMER              205
 #define INTERNAL_EXIT_MSG                       206
 #define INTERNAL_EXIT_SAFE_MSG                  207
+#define INTERNAL_START_NODE_MSG                 208
 #define _PEER_WIRE_BASE_MSG_FLAG                299
 
 // Messages/timers used for the PeerWireBase-Threads communication
@@ -268,6 +269,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		const char* toString(int);
 
 		virtual void startNodeAt(simtime_t t);
+		virtual void doStartNode();
 
 	protected:
 		/* Redefined methods from BTPeerWireBase */
