@@ -513,7 +513,7 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 				downloadCompleted(downloadDuration_var);
 
 				BT_LOG_INFO(btLogSinker,"BTPeerWireBase::updateBitField","["<<this->getParentModule()->getFullName()<<
-				        "]\ndownload of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds.");
+				        "] download of file completed! Downloaded = "<< fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds.");
 
 				cerr<<"\n*********** "<<getParentModule()->getFullName()<< ": Download of file completed! Downloaded = "<<
 				        fileSize()/1024 <<" MBs in "<< downloadDuration() << " seconds. ***********\n"<<endl;
@@ -568,6 +568,11 @@ void BTPeerWireBase::leaveSwarmAfter(simtime_t _tDelay)
     }
     //end of the moved block
 
+    scheduleExitMsgAfter(_tDelay);
+}
+
+void BTPeerWireBase::scheduleExitMsgAfter(simtime_t _tDelay)
+{
     scheduleAt(simTime()+ _tDelay,new cMessage(toString(INTERNAL_EXIT_MSG), INTERNAL_EXIT_MSG));
 }
 
@@ -703,7 +708,7 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 				stopChokingAlorithms();
 			}
 
-			BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ...");
+			BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ... Time ["<<simTime()<<"]");
 
 			//Following function call was added by Manoj. 2015-01-31
 			//Previously contents of this function just executed here.
@@ -715,6 +720,11 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 
 			onReadyToLeaveSwarm();
  			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
+
+ 			//added by manoj, because we have stopped listening, thus it is not fair to keep
+ 			//announcing to tracker because rest of the swarm might believe that we are still alive
+ 			//if we keep announcing.
+ 			cancelEvent(evtTrackerComm);
 
 			break;
 
@@ -1702,7 +1712,7 @@ void BTPeerWireBase::startNodeAt(simtime_t t)
 void BTPeerWireBase::doStartNode()
 {
     BT_LOG_DEBUG(btLogSinker, "BTPeerWireBase::handleMessage", "[" << this->getParentModule()->getFullName() <<
-                    "] Starting the node ....");
+                    "] Starting the node .... Time ["<<simTime()<<"]");
 
     setDownloadDuration(simTime());
 

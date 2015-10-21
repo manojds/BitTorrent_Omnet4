@@ -458,7 +458,7 @@ void BTTrackerBase::setPeersNum(size_t peersNum)
 
 void BTTrackerBase::writeStats()
 {
-    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Started Count ["<<started_count_var<<"], Peer array size ["<<peers().size()
+    BT_LOG_INFO(btLogSinker, "BTTrackerB::writeStats", "******** Tracker Stats ******** - Time ["<<simTime() <<"] Started Count ["<<started_count_var<<"], Peer array size ["<<peers().size()
             <<"] seeder count ["<<seeds()<<"] completed count ["<<completed_count_var<<"]");
 }
 

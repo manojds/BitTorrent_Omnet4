@@ -479,7 +479,7 @@ void BTTrackerClientBase::announce()
 
 	// logging
 	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::announce", "[" << peerId_var << "] sending announce to Tracker[address=" <<
-	        par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] info Hash ["<<infoHash() <<"]");
+	        par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] info Hash ["<<infoHash() <<"] Time ["<<simTime()<<"]");
 
 	// send the announce
 	socket.send(msg);

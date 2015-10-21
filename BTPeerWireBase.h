@@ -298,6 +298,7 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual void connectionLostFromPeer(PEER peer, bool isActiveConn){}
 		virtual void downloadCompleted(simtime_t _tDuration){}
 		virtual void leaveSwarmAfter(simtime_t _tDelay);
+		virtual void scheduleExitMsgAfter(simtime_t _tDelay);
 		//end of the functions added by Manoj.
 
 		void initializePieceFrequencies(int);
