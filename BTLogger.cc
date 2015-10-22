@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
-
+#include <omnetpp.h>
 
 
 using std::cerr;
@@ -162,23 +162,24 @@ void BTLogger::SetFileTimeStamp() {
 
 void BTLogger::Log(const char *_pszMsgType, const char *_pszMsgKey, const char *_pszText) {
 
-    struct timeb tbNow;
-    char szNow[16];
+//    struct timeb tbNow;
+//    char szNow[16];
     char szLog[i_LogMsgMaxLength];
     int iPrintfRes;
 
         // acquire the current time
-        ftime(&tbNow);
-        strftime(szNow, sizeof (szNow), "%H:%M:%S", localtime(&tbNow.time));
+//        ftime(&tbNow);
+//        strftime(szNow, sizeof (szNow), "%H:%M:%S", localtime(&tbNow.time));
         // prepares the complete string to write to the file
+        double dSimTime = simTime().dbl();
 
 #ifndef WINNT
-        iPrintfRes = snprintf(szLog, i_LogMsgMaxLength, "%s.%03u  %-3.3s %-*.*s %s \n\n",
-                szNow, tbNow.millitm,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey, _pszText);
+        iPrintfRes = snprintf(szLog, i_LogMsgMaxLength, "%.6f  %-3.3s %-*.*s  %s \n\n",
+                dSimTime,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey,  _pszText);
 
 #else
-        iPrintfRes = _snprintf(szLog, i_LogMsgMaxLength, "%s.%03u  %-3.3s %-*.*s %s \n\n",
-                szNow, tbNow.millitm,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey, _pszText);
+        iPrintfRes = _snprintf(szLog, i_LogMsgMaxLength, "%.6f  %-3.3s %-*.*s  %s \n\n",
+                dSimTime,  _pszMsgType, i_LogTokenWidth, i_LogTokenWidth-3, _pszMsgKey,  _pszText);
 
 #endif /* WINNT */
 
