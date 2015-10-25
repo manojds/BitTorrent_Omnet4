@@ -553,6 +553,10 @@ void BTPeerWireClientHandlerBase::sendMessage(cPacket* msg)
 {
 	if (getState() >= CONNECTED && (getSocket()->getState() == TCPSocket::CONNECTED) )
 	{
+	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::sendMessage", "[" << getHostModule()->getParentModule()->getFullName()
+	                    << "] sensing message ["<<msg->getName()<<"] remote peer ["<< getRemotePeerID()<<"] kind ["<<msg->getKind()<<
+	                    "] ID ["<<msg->getId()<<"] treeID ["<<msg->getTreeId()<<"] event ["<< msg->getPreviousEventNumber()<<"]");
+
 		msg->setTimestamp();
 		//Commented by Manoj
 //      cMessage* wrapper = new cMessage(msg->getName(),TCP_I_DATA);
