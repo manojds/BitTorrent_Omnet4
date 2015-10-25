@@ -77,35 +77,38 @@ simple BTPeerWireBase like TCPApp
         double 			optUnchocking_interval;// time between optimistic unchocking events, in sec 
 												// (default = 30 sec)
 
-        double snubbing_interval;			// time interval until a peer is condifered to snub the client, in sec
+        double 			snubbing_interval;			// time interval until a peer is condifered to snub the client, in sec
 											// (default = 60 sec)
 
-        double rarest_list_size;			// the number of rarest pieces among which we shall 
+        double 			rarest_list_size;			// the number of rarest pieces among which we shall 
 											// randomize selection
 
-        int minNumConnections;				// minimum number of maintained connections (default = 30)
+        int 			minNumConnections;				// minimum number of maintained connections (default = 30)
 
-        int maxNumConnections;				// maximum number of maintained connections (default = 55)
+        int 			maxNumConnections;				// maximum number of maintained connections (default = 55)
 
-        string serverThreadClass;
+        string 			serverThreadClass;
+        
+        bool			useRandomSeedTime	= default(false);	//added by Manoj. use random seed time which is no more than
+        												//specified in "timeToSeed" parameter
 
-        double timeToSeed;				// the time a peer remains in the system as a seeder
+        double 			timeToSeed;				// the time a peer remains in the system as a seeder
 
-        double request_queue_depth;		// number of allowed pending requests (default = 5)
+        double 			request_queue_depth;		// number of allowed pending requests (default = 5)
 
-        bool super_seed_mode;					// whether this node is in super seeding mode
+        bool 			super_seed_mode;					// whether this node is in super seeding mode
 
-        double maxNumEmptyTrackerResponses; 	// maximum number of subsequent empty peer sets received 
+        double 			maxNumEmptyTrackerResponses; 	// maximum number of subsequent empty peer sets received 
 													// from the tracker before exiting
 
-        double newlyConnectedOptUnchokeProb;	// probability by which a newly connected peer is selected 
+        double 			newlyConnectedOptUnchokeProb;	// probability by which a newly connected peer is selected 
 													// for optimistic unchoke, compared to a random choice (default = 0.75)
 
-        bool enableEndGameMode;						//whether to enable end-game mode of the peer-wire protocol
+        bool 			enableEndGameMode;						//whether to enable end-game mode of the peer-wire protocol
 
-        string statisticsModulePath;					//location of BtTorrentStatics module under simulation
+        string 			statisticsModulePath;					//location of BtTorrentStatics module under simulation
 
-        double downloadRateSamplingDuration;	//duration of dowload rate sampling (default = 20 sec)
+        double 			downloadRateSamplingDuration;	//duration of dowload rate sampling (default = 20 sec)
 
         volatile double procDelay;								//processing delay (in micro-seconds)
     gates:

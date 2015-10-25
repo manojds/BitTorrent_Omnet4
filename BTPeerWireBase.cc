@@ -76,9 +76,17 @@ void BTPeerWireBase::initialize()
 	rarest_list_size_var		= (int)par("rarest_list_size");
 	minNumConnections_var		= (int)par("minNumConnections");
 	maxNumConnections_var		= (int)par("maxNumConnections");
-	timeToSeed_var				= (int)par("timeToSeed");
 	request_queue_depth_var		= (int)par("request_queue_depth");
 	super_seed_mode_var			= (bool)par("super_seed_mode");
+
+	bool bUseRandomTimeToSeed   = par("useRandomSeedTime");
+	timeToSeed_var              = (int)par("timeToSeed");
+
+	if (bUseRandomTimeToSeed)
+	{
+	    //gerneate random variable no more than timeToSeed_var
+	    timeToSeed_var = intrand(timeToSeed_var);
+	}
 
 	maxNumEmptyTrackerResponses_var 	= (int)par("maxNumEmptyTrackerResponses");
 	newlyConnectedOptUnchokeProb_var	= (double)par("newlyConnectedOptUnchokeProb");

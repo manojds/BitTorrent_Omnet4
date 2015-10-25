@@ -132,9 +132,6 @@ void BTPeerWireClientHandlerBase::established()
 			setState(ACTIVE_HANDSHAKE);
 			BTMsgHandshake* handShakeMsg = (BTMsgHandshake*)createBTPeerWireMessage(peerWireBase->toString(HANDSHAKE_MSG),HANDSHAKE_MSG);
 
-            BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::established", "[" << getHostModule()->getParentModule()->getFullName() <<
-                    "] handshake message ID ["<< handShakeMsg->getId()<<"] remote peer - "<< getRemotePeerID());
-
 			sendMessage(handShakeMsg);
 		}
 }
@@ -510,12 +507,9 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 		if (getState() == PASSIVE_HANDSHAKE)
 		{
 			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
-			        "] replying with a Handshake message. to ["<<getRemotePeerID()<<']');
+			        "] replying with a Handshake message. to ["<<getRemotePeerID()<<"]");
 
 			BTMsgHandshake* response = (BTMsgHandshake*)createBTPeerWireMessage(peerWireBase->toString(HANDSHAKE_MSG),HANDSHAKE_MSG);
-
-            BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
-                    "] handshake message ID ["<< response->getId()<<"] remote peer - "<< getRemotePeerID());
 
 			sendMessage(response);
 		}
@@ -524,7 +518,18 @@ void BTPeerWireClientHandlerBase::initiatePeerWireProtocol(cMessage* msg)
 			BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() << "] have already exchanged Handshakes.");
 		}
 		else
-			getHostModule()->error("%s:%d at %s() Invalid peer-wire protocol msg sequence (state = %d).\n", __FILE__, __LINE__, __func__,getState());
+		{
+		    //commented by Manoj.
+		    //because due to some weird reason handshake message receive twice.
+		    //it seems like second one is a duplicate of first one since second one has the tree ID as
+		    // the message ID of the first one. Decided to cotinue because cannot find a reasonable cause for this behaviour
+			//getHostModule()->error("%s:%d at %s() Invalid peer-wire protocol msg sequence (state = %d).\n", __FILE__, __LINE__, __func__,getState());
+
+		    BT_LOG_ERROR(btLogSinker, "BTPWClientHndlrB::initiatePeerWireProtocol", "[" << getHostModule()->getParentModule()->getFullName() <<
+		            "] received handshake message twice. remote peer["<<getRemotePeerID()<<"]");
+			delete incomingHandShake;
+			return;
+		}
 
 		//Either we have received or sent a handshake reply. In both cases we have completed
 		//the peer-wire handshake procedure.
@@ -591,7 +596,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case  KEEP_ALIVE_TIMER:
 	{
-		BT_LOG_DEBUG(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] local Keep-Alive timer expired, sending KEEP-ALIVE message.");
+
 		BTKeepAliveMsg* keepAlive = (BTKeepAliveMsg*)createBTPeerWireMessage(peerWireBase->toString(KEEP_ALIVE_MSG),KEEP_ALIVE_MSG);
 		sendMessage(keepAlive);
 		break;
@@ -624,8 +629,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (bitfield->havePiece())
 		{
 			setState(BITFIELD_COMPLETE);
-			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
-			        "] sending Bitfield message. remote peer ["<<getRemotePeerID() <<"]");
+
 			BTBitfieldMsg* bietfieldMsg = (BTBitfieldMsg*)createBTPeerWireMessage(peerWireBase->toString(BITFIELD_MSG),BITFIELD_MSG);
 			sendMessage(bietfieldMsg);
 		}
@@ -678,7 +682,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case INTERESTED_TIMER:
 	{
-	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Interested message.");
+
 		BTPeerStateMsg* interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(INTERESTED_MSG),INTERESTED_MSG);
 
 		sendMessage(interested);
@@ -692,7 +696,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case NOT_INTERESTED_TIMER:
 	{
-	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Not-Interested message");
+
 		BTPeerStateMsg* not_interested = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(NOT_INTERESTED_MSG),NOT_INTERESTED_MSG);
 		sendMessage(not_interested);
 		delete timer;
@@ -716,9 +720,6 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 		if (req.getIndex()>=0)
 		{
 			BTPieceMsg* piece = (BTPieceMsg*)createBTPeerWireMessage(peerWireBase->toString(PIECE_MSG),PIECE_MSG,req.getIndex(),req.begin(),req.length());
-
-			BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() <<
-			        "] sending Piece message (data). remote peer ["<<getRemotePeerID() <<"]");
 
 			sendMessage(piece);
 
@@ -766,7 +767,7 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case  UNCHOKE_TIMER:
 	{
-	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Unchoke message.");
+
 		BTPeerStateMsg* unchoke = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(UNCHOKE_MSG),UNCHOKE_MSG);
 
 		clearPendingIncomingRequests();
@@ -779,7 +780,6 @@ void BTPeerWireClientHandlerBase::timerExpired(cMessage *timer)
 	}
 	case CHOKE_TIMER:
 	{
-	    BT_LOG_DETAIL(btLogSinker, "BTPWClientHndlrB::timerExpired", "[" << getHostModule()->getParentModule()->getFullName() << "] sending Choke message.");
 		BTPeerStateMsg* choke = (BTPeerStateMsg*)createBTPeerWireMessage(peerWireBase->toString(CHOKE_MSG),CHOKE_MSG);
 
 		clearPendingIncomingRequests();
