@@ -960,15 +960,19 @@ void BTPeerWireClientHandlerBase::closeConnection()
 
 		setState(ACTIVE_ABORTING);
 
-		if( evtDelThread->isScheduled())
-			cancelEvent	(evtDelThread);
+		if (evtDelThread != NULL )
+		{
 
-		BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::closeConnection", "["<<getHostModule()->getParentModule()->getFullName()<<
-		        "] remote host ["<<getSocket()->getRemoteAddress() <<"] Scheduling Delete Thread Timer after ["<<
-		        2*TCP_TIMEOUT_2MSL<<"] seconds");
+            if( evtDelThread->isScheduled())
+                cancelEvent	(evtDelThread);
 
-		simtime_t tSchdTime=simTime() + (double)(2*TCP_TIMEOUT_2MSL);
-		scheduleAt(tSchdTime, evtDelThread);
+            BT_LOG_INFO(btLogSinker, "BTPWClientHndlrB::closeConnection", "["<<getHostModule()->getParentModule()->getFullName()<<
+                    "] remote host ["<<getSocket()->getRemoteAddress() <<"] Scheduling Delete Thread Timer after ["<<
+                    2*TCP_TIMEOUT_2MSL<<"] seconds");
+
+            simtime_t tSchdTime=simTime() + (double)(2*TCP_TIMEOUT_2MSL);
+            scheduleAt(tSchdTime, evtDelThread);
+		}
 
 		//this if condition before the close was added by Manoj. - 2015-04-26
 		//some times errors pop up saying that connection already closed.
@@ -986,10 +990,14 @@ void BTPeerWireClientHandlerBase::peerClosed()
 	if (getState() > ACTIVE_ABORTING)
 	{
 		setState(PASSIVE_ABORTING);
-		if( evtDelThread->isScheduled())
-			cancelEvent	(evtDelThread);
 
-		scheduleAt(simTime() + 2*TCP_TIMEOUT_2MSL, evtDelThread);
+		if (evtDelThread != NULL )
+		{
+            if( evtDelThread->isScheduled())
+                cancelEvent	(evtDelThread);
+
+            scheduleAt(simTime() + 2*TCP_TIMEOUT_2MSL, evtDelThread);
+		}
 
 		cancelAndDelete(evtIsAlive);
 		evtIsAlive = NULL;
