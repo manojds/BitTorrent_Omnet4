@@ -107,6 +107,7 @@ using namespace std;
 #define SEEDING     3 // seeding after download
 #define SEEDER      4 // initial seeder
 #define EXITING     5 // exiting the application
+#define EXITED      6 //node already exited. added by Manoj
 
 
 

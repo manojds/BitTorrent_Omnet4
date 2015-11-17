@@ -206,7 +206,7 @@ void BTPeerWireBase::startListening()
 {
 	int sockstate = serverSocket.getState();
 
-	if ((sockstate==TCPSocket::NOT_BOUND) && (getState()!=EXITING))
+	if ((sockstate==TCPSocket::NOT_BOUND) && (getState() < EXITING))
 	{
 		const char *address = par("address");
 		int port = par("port");
@@ -551,7 +551,7 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 			}
 
 			//Do not inform peers if exiting or if they have been previously informed
-			if ((getState() != EXITING) && (!notCanceledEndGameReq))
+			if ((getState() < EXITING) && (!notCanceledEndGameReq))
 			{
 				informPeers(pieceIndex);
 			}
@@ -709,30 +709,38 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 		}
 		case INTERNAL_EXIT_MSG:
 		{
+		    if ( getState() < EXITED)// if node is not exited already
+		    {
+                if (getState()==SEEDING)
+                {
+                    setState(EXITING);
+                    stopChokingAlorithms();
+                }
 
-			if (getState()==SEEDING)
-			{
-				setState(EXITING);
-				stopChokingAlorithms();
-			}
+                BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ... Time ["<<simTime()<<"]");
 
-			BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exiting application ... Time ["<<simTime()<<"]");
+                //Following function call was added by Manoj. 2015-01-31
+                //Previously contents of this function just executed here.
+                //Refactored since this code segment can be reused in subclasses
+                closeAllConnections();
 
-			//Following function call was added by Manoj. 2015-01-31
-			//Previously contents of this function just executed here.
-			//Refactored since this code segment can be reused in subclasses
-			closeAllConnections();
+                stopListening();
+                delete msg;
 
-			stopListening();
-			delete msg;
+                onReadyToLeaveSwarm();
+                scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
 
-			onReadyToLeaveSwarm();
- 			scheduleAt(simTime()+1000, new cMessage(toString(INTERNAL_EXIT_SAFE_MSG),INTERNAL_EXIT_SAFE_MSG));
+                //added by manoj, because we have stopped listening, thus it is not fair to keep
+                //announcing to tracker because rest of the swarm might believe that we are still alive
+                //if we keep announcing.
+                cancelEvent(evtTrackerComm);
 
- 			//added by manoj, because we have stopped listening, thus it is not fair to keep
- 			//announcing to tracker because rest of the swarm might believe that we are still alive
- 			//if we keep announcing.
- 			cancelEvent(evtTrackerComm);
+                setState(EXITED);
+		    }
+		    else
+		    {
+		        BT_LOG_ESSEN(btLogSinker,"BTPeerWireBase::handleSelfMessage","["<<this->getParentModule()->getFullName()<<"] exit message received, while node in exit state. message discarded !");
+		    }
 
 			break;
 
