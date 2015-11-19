@@ -1854,29 +1854,6 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
             setCurrentNumEmptyTrackerResponses(0);
             scheduleConnections(trackerResponse());
 
-//            //this if and else block added by Manoj. 214-12-27
-//            //previously only call to scheduleConnections(trackerResponse()); was here.
-//            //this was added to stop seeders initiating conenctions.
-//            //when seeders initiating connections, simulation doesn't stop because when one peer is done with simualtion it can't
-//            //stop because BTHostSeeder, who is still in operation tries to connect to this peer
-//            if ((getState() != SEEDING) && (getState() != SEEDER))
-//            {
-//                scheduleConnections(trackerResponse());
-//            }
-//            else
-//            {
-//                BT_LOG_INFO( btLogSinker,"BTPeerWireBase::handleMessage",
-//                        "[" << this->getParentModule()->getFullName() <<
-//                        "] refraining from initiating connections by my self because I am seeding. ");
-//            }
-
-            //Starting Choking algorithm if not started
-
-            //Following function call was added by Manoj. 2015-01-31
-            //Previously contents of this function just executed here.
-            //Refactored since this code segment can be reused in subclasses
-            startChokingAlorithms();
-
         }
         else
         {
@@ -1903,6 +1880,9 @@ void BTPeerWireBase::handleMsgFromTrackerClient(cMessage *msg)
                 leaveSwarmAfter(0);
             }
         }
+
+        //Starting Choking algorithm if not started
+        startChokingAlorithms();
 
         //Scheduling next contact with the tracker.
         //scheduleAt(simTime() + announceInterval(), evtTrackerComm);
