@@ -618,6 +618,11 @@ void BTPeerWireBase::handleSelfMessage(cMessage* msg)
 					send(new cMessage(toString(EVT_STOP),EVT_STOP),"btorrentOut");
 					break;
 				}
+                case EXITED:
+                {
+                    send(new cMessage(toString(EVT_STOP),EVT_STOP),"btorrentOut");
+                    break;
+                }
 				default:
 					error("%s:%d at %s() Invalid client state (STATE = %d). \n", __FILE__, __LINE__, __func__,getState());
 
