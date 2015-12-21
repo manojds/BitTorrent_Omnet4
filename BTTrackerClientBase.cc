@@ -197,12 +197,11 @@ void BTTrackerClientBase::handleTimer(cMessage *msg)
 
 	// we should reach this point only if a timeout did not occur
 
-	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::handleTimer", "[" << peerId_var << "] connecting to Tracker[address=" << (const char *)par("connectAddress") << ", port=" << (int)par("connectPort") << "]");
-
 	// grab my IP address
 	findAndSetIPAddress();
-	BT_LOG_INFO(btLogSinker,"BTTrackerClientB::handleTimer","[" << this->getParentModule()->getFullName() << "] my local address is ["<<ipaddress_var<<"]");
+
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::handleTimer", "[" << peerId_var << "] connecting to Tracker[address=" << (const char *)par("connectAddress")
+	        << ", port=" << (int)par("connectPort") << "] my local address is ["<<ipaddress_var<<"] info hash ["<< infoHash_var<<"]");
 	// fire the actual connect() - TCP
 	connect();
 }
@@ -248,7 +247,7 @@ void BTTrackerClientBase::socketEstablished(int connId, void *ptr)
 	TCPGenericCliAppBase::socketEstablished(connId, ptr);
 
 	// logging
-	BT_LOG_DEBUG(btLogSinker, "BTTrackerClientB::socketEstablished", "[" << peerId_var << "] connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketEstablished", "[" << peerId_var << "] connected to Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "]");
 
 
 	// perform the announce
@@ -406,7 +405,8 @@ void BTTrackerClientBase::socketFailure(int connId, void *yourPtr, int code)
 	if(transient_var != 0)
 	{
 		// logging
-		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketFailure", "[" << peerId_var << "] session with Tracker[address=" << par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] died unexpectedly");
+		BT_LOG_INFO(btLogSinker, "BTTrackerClientB::socketFailure", "[" << peerId_var << "] session with Tracker[address=" <<
+		        par("connectAddress").stdstringValue () << ", port=" << (int)par("connectPort") << "] died unexpectedly. infohash ["<<infoHash_var<<"]");
 
 		// fire the timeout event to handle possible errors
 		cancelEvent(evtTout);
