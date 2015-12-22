@@ -1742,6 +1742,10 @@ void BTPeerWireBase::doStartNode()
 
 void BTPeerWireBase::scheduleTrackerCommAt(simtime_t t)
 {
+    if (evtTrackerComm->isScheduled())
+    {
+        cancelEvent(evtTrackerComm);
+    }
     scheduleAt(t, evtTrackerComm);
 }
 
