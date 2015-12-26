@@ -1156,9 +1156,19 @@ void BTTrackerClientHandlerBase::timerExpired(cMessage* msg)
 	// timer expired while waiting
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] expired");
+	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address=" <<
+	        getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] expired");
 	// perform close()
-	getSocket()->close();
+	if ( getSocket()->getState() < TCPSocket::LOCALLY_CLOSED)
+	{
+	    getSocket()->close();
+	}
+	else
+	{
+	    BT_LOG_WARN(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address="
+	            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] already closed");
+	}
+
 }
 
 /**
