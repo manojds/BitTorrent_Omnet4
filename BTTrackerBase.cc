@@ -75,13 +75,18 @@ void BTTrackerBase::cleanUpPeers()
  */
 void BTTrackerBase::cleanRemovePeer(BTTrackerStructBase* peer)
 {
-	cleanRemovePeer(peers().find(peer));
+	if ( ! cleanRemovePeer(peers().find(peer)) )
+	{
+        BT_LOG_ERROR(btLogSinker, "BTTrackerClientHandlerB::cleanRemovePeer",
+                "Cannot delete peer entry. Indicated peer ["<< peer->peerId()<<"] not found in the set. IP ["
+                <<peer->ipAddress()<<"]");
+	}
 }
 
 /**
  * Remove a peer from the peer set ensuring memory deallocation.
  */
-void BTTrackerBase::cleanRemovePeer(int index)
+bool BTTrackerBase::cleanRemovePeer(int index)
 {
 	if (index>=0)
 	{
@@ -94,9 +99,14 @@ void BTTrackerBase::cleanRemovePeer(int index)
 		peers().remove(index);
 		removePeerFromtheMap(peer->peerId());
 		delete peer;
+		return true;
 	}
 	else
-		opp_error("Cannnot delete peer entry. Indicated peer not found in the set.");
+	{
+	    BT_LOG_ERROR(btLogSinker, "BTTrackerClientHandlerB::cleanRemovePeer",
+	            "Cannot delete peer entry. Indicated peer not found in the set.");
+	    return false;
+	}
 }
 
 /**

@@ -143,7 +143,7 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		//Ntinos Katsaros 24/11/2008
 		void cleanUpPeers();
 		void cleanRemovePeer(BTTrackerStructBase*);
-		void cleanRemovePeer(int);
+		bool cleanRemovePeer(int);
 
 
 	protected:
