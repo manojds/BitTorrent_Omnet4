@@ -132,7 +132,6 @@ void BTPeerWireBase::initialize()
 		downloaders_var = (int)par("seederDownloaders");
 		optUnchockedPeers_var = (int)par("seederOptUnchockedPeers");
 		initializeLocalBitfield(true);
-		setTimeToSeed(std::numeric_limits<double>::max());
 	}
 	else
 	{
@@ -337,7 +336,7 @@ void BTPeerWireBase::handleThreadMessage(cMessage* msg)
                 //Added by Manoj - 2015-01-28
 				PeerEntry pe=peerState.getPeerEntry((handler)->getRemotePeerID().c_str());
                 connectionLostFromPeer(pe.getPeer(), handler->activeConnection());
-                BT_LOG_INFO(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()
+                BT_LOG_DEBUG(btLogSinker,"BTPeerWireBase::handleThreadMessage","["<<this->getParentModule()->getFullName()
                         <<"] removing thread for connection remote peer ["<<(handler)->getRemotePeerID()<<"]");
 
 				peerState.removePeer((handler)->getRemotePeerID());
