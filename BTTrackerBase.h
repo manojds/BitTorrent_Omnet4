@@ -166,6 +166,7 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		cMessage* evtTout;	// session timeout
 		size_t state_var;	// the state of the thread
 		int cPeer;		// index to the peer that made the announce (i.e., its position in the vector container)
+		string peer_id;
 
 
 		/* Reflection methods */
@@ -200,6 +201,7 @@ class INET_API BTTrackerClientHandlerBase : public TCPServerThreadBase
 		virtual void dataArrived(cMessage*, bool);
 		virtual void timerExpired(cMessage*);
 		virtual void peerClosed();
+		virtual void failure(int code);
 };
 
 /**

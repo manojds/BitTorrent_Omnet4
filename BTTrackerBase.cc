@@ -481,6 +481,7 @@ BTTrackerClientHandlerBase::BTTrackerClientHandlerBase()
 	evtTout		= new cMessage(NULL, EVT_TOUT);
 	state_var	= PENDING;
 	cPeer		= -1;
+	peer_id     = "NOT_SET";
 }
 
 /**
@@ -500,8 +501,9 @@ BTTrackerClientHandlerBase::~BTTrackerClientHandlerBase()
  */
 int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 {
-    BT_LOG_INFO(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client[address="
-            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<"] Client ["<<amsg->peerId()<<"]");
+    BT_LOG_ESSEN(btLogSinker, "BTTrackerClientHandlerB::processAnnounce", "Announce request from client[address="
+            << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] with event ["<<amsg->event()<<
+            "] Client ["<<amsg->peerId()<<"] info hash ["<<amsg->infoHash()<<"]");
 
 
 	// a peer from the pool
@@ -528,6 +530,8 @@ int BTTrackerClientHandlerBase::processAnnounce(BTTrackerMsgAnnounce* amsg)
 
 	// search to find if the peer exists in the pool or not
 	cPeer = getHostModule()->containsPeer(amsg->peerId());
+
+	peer_id = amsg->peerId();
 
 	// differentiate based on the actual message event field
 	switch(amsg->event())
@@ -831,8 +835,8 @@ void BTTrackerClientHandlerBase::sendResponse(int acode, BTTrackerMsgAnnounce* a
                 "] Failure is set. message ["<<rmsg->failure()<<"]");
     }
 
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client["<< amsg->peerId()<<", address="
-	        << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+	BT_LOG_ESSEN(btLogSinker, "BTTrackerClntHndlB::sendResponse", "sending reply to client["<< amsg->peerId()<<", address="
+	        << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] peer array size ["<<rmsg->peersArraySize()<<"]");
 
 
 
@@ -1090,12 +1094,16 @@ BTTrackerStructBase * BTTrackerClientHandlerBase::createTrackerStructObj(BTTrack
  */
 void BTTrackerClientHandlerBase::established()
 {
+    BT_LOG_ESSEN(btLogSinker, "BTTrackerClntHndlB::established", "connection with client[address=" << getSocket()->getRemoteAddress()
+            << ", port=" << getSocket()->getRemotePort() << "] established");
+
 	// start the session timer
 	scheduleAt(simTime() + (simtime_t)getHostModule()->sessionTimeout(), evtTout);
 
 	// logging
-	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::established", "connection with client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] established");
-	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::established", "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address=" << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
+
+	BT_LOG_DEBUG(btLogSinker, "BTTrackerClntHndlB::established", "starting session timer[" << getHostModule()->sessionTimeout() << " secs] for client[address="
+	        << getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "]");
 
 	// change state
 	state_var 	= ESTABLISHED;
@@ -1156,7 +1164,7 @@ void BTTrackerClientHandlerBase::timerExpired(cMessage* msg)
 	// timer expired while waiting
 
 	// logging
-	BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address=" <<
+    BT_LOG_ESSEN(btLogSinker, "BTTrackerClntHndlB::timerExpired", "session with client[address=" <<
 	        getSocket()->getRemoteAddress() << ", port=" << getSocket()->getRemotePort() << "] expired");
 	// perform close()
 	if ( getSocket()->getState() < TCPSocket::LOCALLY_CLOSED)
@@ -1179,7 +1187,7 @@ void BTTrackerClientHandlerBase::timerExpired(cMessage* msg)
 void BTTrackerClientHandlerBase::peerClosed()
 {
     BT_LOG_INFO(btLogSinker, "BTTrackerClntHndlB::peerClosed", "session with client[address=" << getSocket()->getRemoteAddress() <<
-            ", port=" << getSocket()->getRemotePort() << "] ended");
+            ", port=" << getSocket()->getRemotePort() << "] ended. ID ["<<peer_id<<"] ");
     TCPServerThreadBase::peerClosed();
 
     //Above part is added by Manoj instead of below part.
@@ -1214,6 +1222,14 @@ void BTTrackerClientHandlerBase::peerClosed()
 //			// report the error
 //			getHostModule()->error("%s:%d at %s() invalid state occured(state_var=%d)\n", __FILE__, __LINE__, __func__, state_var);
 //        }
+}
+
+void BTTrackerClientHandlerBase::failure(int code)
+{
+    BT_LOG_WARN(btLogSinker, "BTTrackerClntHndlB::failure","Socket failed from client . ID ["<<peer_id<<"], IP ["
+            <<getSocket()->getRemoteAddress() <<"]");
+    TCPServerThreadBase::failure(code);
+
 }
 
 /**
