@@ -187,7 +187,8 @@ void BTTrackerBase::handleMessage(cMessage* msg)
 				}
 				//peers_var.remove(tpeer);
 				cleanRemovePeer(tpeer);
-				peersNum_var--;
+				//peersNum_var--;
+				setPeersNum(peersNum() - 1);
 			}
 
 		}

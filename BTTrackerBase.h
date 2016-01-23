@@ -133,7 +133,7 @@ class INET_API BTTrackerBase : public TCPSrvHostApp
 		void incrementCompletedCount();
 		void incrementStartedCount();
 		size_t peersNum() const;
-		void setPeersNum(size_t);
+		virtual void setPeersNum(size_t);
 
 		void insertPeerIntoMap(const std::string & _sPeerID, int _iIndex);
 		void removePeerFromtheMap(const std::string & _sPeerID);
