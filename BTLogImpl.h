@@ -14,7 +14,7 @@
 
 extern BTLogSink btLogSinker;
 
-#define MJP_DEBUG
+//#define MJP_DEBUG
 
 #endif	/* BTLOGIMPL_H */
 
