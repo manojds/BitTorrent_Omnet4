@@ -878,10 +878,10 @@ void BTPeerWireBase::printConnections()
  */
 void BTPeerWireBase::startChokingAlorithms()
 {
-    if (!((cMessage*) evtChokeAlg)->isScheduled())
+    if ( (evtChokeAlg!=NULL) && !((cMessage*) evtChokeAlg)->isScheduled())
         scheduleAt(simTime(), evtChokeAlg);
 
-    if (!((cMessage*) evtOptUnChoke)->isScheduled())
+    if ((evtOptUnChoke!=NULL) && !((cMessage*) evtOptUnChoke)->isScheduled())
         scheduleAt(simTime(), evtOptUnChoke);
 }
 
