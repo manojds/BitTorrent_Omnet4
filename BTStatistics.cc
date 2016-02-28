@@ -31,8 +31,10 @@ Define_Module(BTStatistics);
 BTStatistics::BTStatistics():
         ui_TotalBlockCount(0),
         ui_TotalPieceCount(0),
+        ui_CumDownloadedBlockCount(0),
+        ui_CumDownloadedPieceCount(0),
         p_PerPeerStatMsg(NULL),
-        s_BTPerPeerStatFileName("BT_Stats"){
+        s_BTPerPeerStatFileName("BT_PerPeer_Stats.txt"){
 
 }
 
@@ -80,6 +82,9 @@ void BTStatistics::initialize()
 
 	if (b_RecordPerPeerStats )
 	{
+	    char pFullFileName[256];
+	    fillFileNameWithTimeStamp(s_BTPerPeerStatFileName.c_str(), pFullFileName);
+	    s_BTPerPeerStatFileName = pFullFileName;
 
 	    p_PerPeerStatMsg = new cMessage("BT_PER_PEER_STAT", BT_PER_PEER_STAT);
 
@@ -202,7 +207,7 @@ void BTStatistics::BTPerPeerStatTimerFired()
     if (!b_RecordPerPeerStats)
         return ;
 
-    ofstream myfile (s_BTPerPeerStatFileName.c_str(), ios::app);
+    ofstream myfile (s_BTPerPeerStatFileName.c_str());
     if (myfile.is_open() == false)
     {
       throw cRuntimeError("Failed to open file [%s] for stat writing", s_BTPerPeerStatFileName.c_str());
@@ -231,8 +236,13 @@ void BTStatistics::BTPerPeerStatTimerFired()
 
     myfile<<simTime()<<" , **Cumulative Stat** , Total Blocks Downloaded ,"<<uiCumDownloadedBlockCount<<" , Total Blocks ,"<<uiCumBlockCount<<" ,  Total Pieces Downloaded  ,"
             <<uiCumDownloadedPieceCount<<" , Total Pieces , "<<uiCumPieceCount<<endl;
+    myfile<<"**Cumulative Stat Previous Time Tick** , Total Blocks Downloaded , "<<ui_CumDownloadedBlockCount<<
+            " , Total Pieces Downloaded  , "<<ui_CumDownloadedPieceCount<<endl;
 
     myfile.close();
+
+    ui_CumDownloadedBlockCount = uiCumDownloadedBlockCount;
+    ui_CumDownloadedPieceCount = uiCumDownloadedPieceCount;
 
     scheduleAt( simTime() + i_PerPeerStatinterval, p_PerPeerStatMsg);
 
@@ -263,3 +273,20 @@ void BTStatistics::finish()
 
 }
 
+void BTStatistics::fillFileNameWithTimeStamp(const char * _pFileNameIn, char * _pFileNameOut)
+{
+    time_t timer;
+    time(&timer);
+
+    struct timeb tbNow;
+    char szNow[128];
+
+    ftime(&tbNow);
+    strftime(szNow, sizeof (szNow), "%m%d_%H%M%S", localtime(&tbNow.time));
+
+#ifndef WINNT
+snprintf(_pFileNameOut, 256,"%s_%s.txt", _pFileNameIn, szNow);
+#else
+_snprintf(_pFileNameOut, 256,"%s_%s.txt", _pFileNameIn, szNow);
+#endif /* WINNT */
+}

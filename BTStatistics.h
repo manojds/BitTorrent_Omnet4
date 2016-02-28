@@ -73,6 +73,8 @@ class INET_API BTStatistics : public cSimpleModule
     void updatePerPeerBlockCount(const string & _sPeerID, unsigned int _uiDownloadedBlocks, unsigned int _uiTotalBlocks ,
                                             unsigned int _uiDownloadedPieces, unsigned int _uiTotalPieces, double _dLastDwlTime);
 
+    static void fillFileNameWithTimeStamp(const char * _pFileNameIn, char * _pFileNameOut);
+
 protected:
     int currentTerminalNum;
     int targetOverlayTerminalNum;
@@ -123,6 +125,9 @@ protected:
     bool            b_RecordPerPeerStats;
     unsigned int    ui_TotalBlockCount;
     unsigned int    ui_TotalPieceCount;
+    unsigned int    ui_CumDownloadedBlockCount;
+    unsigned int    ui_CumDownloadedPieceCount;
+
     cMessage*       p_PerPeerStatMsg;
     std::string     s_BTPerPeerStatFileName;
     map<string, PerPeerStatItem*> map_PerPeerStats;
