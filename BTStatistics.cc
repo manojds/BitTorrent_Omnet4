@@ -24,10 +24,15 @@
 #include "BTStatistics.h"
 #include "BTLogImpl.h"
 #include <iostream>
+#include <fstream>
 
 Define_Module(BTStatistics);
 
-BTStatistics::BTStatistics(){
+BTStatistics::BTStatistics():
+        ui_TotalBlockCount(0),
+        ui_TotalPieceCount(0),
+        p_PerPeerStatMsg(NULL),
+        s_BTPerPeerStatFileName("BT_Stats"){
 
 }
 
@@ -37,6 +42,8 @@ BTStatistics::~BTStatistics()
 	delete numBlockFail;
 	delete dataProviders;
 	delete numSeederBlocks;
+
+	cancelAndDelete(p_PerPeerStatMsg);
 }
 
 
@@ -67,6 +74,28 @@ void BTStatistics::initialize()
 
 	numSeederBlocks = new cStdDev("BitTorrent:Number of Blocks Download From Seeder");
 	numSeederBlocks_vec.setName("BitTorrent:Number of Blocks Download From Seeder");
+
+	i_PerPeerStatinterval = par("perPeerStatInterval");
+	b_RecordPerPeerStats = par("recordPerPeerStats");
+
+	if (b_RecordPerPeerStats )
+	{
+
+	    p_PerPeerStatMsg = new cMessage("BT_PER_PEER_STAT", BT_PER_PEER_STAT);
+
+	    ofstream myfile (s_BTPerPeerStatFileName.c_str());
+        if (myfile.is_open() == false)
+        {
+          throw cRuntimeError("Failed to open file [%s] for stat writing", s_BTPerPeerStatFileName.c_str());
+          return;
+        }
+
+        myfile<<" ************** BT Per Peer Stats *********************"<<endl<<endl;
+
+        myfile.close();
+
+        BTPerPeerStatTimerFired();
+	}
 }
 
 
@@ -121,6 +150,9 @@ void BTStatistics::handleMessage(cMessage* msg)
 			doFinish();
 			break;
 		}
+        case BT_PER_PEER_STAT:
+            BTPerPeerStatTimerFired();
+            break;
 		default:
 		{
 			opp_error("Unknown message type %d",msg->getKind());
@@ -138,6 +170,73 @@ void BTStatistics::checkFinish()
 		//scheduleAt(simTime()+BT_STATS_MSG_TIME, new cMessage(NULL,BT_STATS_EXIT));
 	    scheduleAt(simTime()+simulationFinishDelay, new cMessage(NULL,BT_STATS_EXIT));
 	}
+}
+
+void BTStatistics::updatePerPeerBlockCount(const string & _sPeerID,unsigned int _uiDownloadedBlocks, unsigned int _uiTotalBlocks ,
+        unsigned int _uiDownloadedPieces, unsigned int _uiTotalPieces, double _dLastDwlTime)
+{
+
+    ui_TotalBlockCount = _uiTotalBlocks;
+    ui_TotalPieceCount = _uiTotalPieces;
+
+    PerPeerStatItem* pStatItem(NULL);
+    map<string,PerPeerStatItem*>::iterator itr = map_PerPeerStats.find(_sPeerID);
+
+    if (itr == map_PerPeerStats.end())
+    {
+        pStatItem = new PerPeerStatItem();
+        map_PerPeerStats[_sPeerID] = pStatItem;
+    }
+    else
+    {
+        pStatItem = itr->second;
+    }
+
+    pStatItem->ui_BlockCount = _uiDownloadedBlocks;
+    pStatItem->ui_PieceCount = _uiDownloadedPieces;
+    pStatItem->d_LastDwlTime = _dLastDwlTime;
+}
+
+void BTStatistics::BTPerPeerStatTimerFired()
+{
+    if (!b_RecordPerPeerStats)
+        return ;
+
+    ofstream myfile (s_BTPerPeerStatFileName.c_str(), ios::app);
+    if (myfile.is_open() == false)
+    {
+      throw cRuntimeError("Failed to open file [%s] for stat writing", s_BTPerPeerStatFileName.c_str());
+      return;
+    }
+
+    unsigned int uiCumBlockCount = ui_TotalBlockCount*map_PerPeerStats.size();
+    unsigned int uiCumPieceCount = ui_TotalPieceCount*map_PerPeerStats.size();
+
+    unsigned int uiCumDownloadedBlockCount(0);
+    unsigned int uiCumDownloadedPieceCount(0);
+
+    myfile<<"Time - "<<simTime()<<endl;
+
+    map<string,PerPeerStatItem*>::iterator itr =  map_PerPeerStats.begin();
+    for( ; itr !=  map_PerPeerStats.end() ; itr++ )
+    {
+        myfile<<itr->first<<" , Block Count , "<<itr->second->ui_BlockCount<<" , Total Block Count , "<<ui_TotalBlockCount<<
+                " , Piece Count , "<<itr->second->ui_PieceCount << " , Total Piece Count , "<<ui_TotalPieceCount<<
+                " , Last Download Time , "<<itr->second->d_LastDwlTime<<endl;
+
+        uiCumDownloadedBlockCount += itr->second->ui_BlockCount;
+        uiCumDownloadedPieceCount += itr->second->ui_PieceCount;
+
+    }
+
+    myfile<<simTime()<<" , **Cumulative Stat** , Total Blocks Downloaded ,"<<uiCumDownloadedBlockCount<<" , Total Blocks ,"<<uiCumBlockCount<<" ,  Total Pieces Downloaded  ,"
+            <<uiCumDownloadedPieceCount<<" , Total Pieces , "<<uiCumPieceCount<<endl;
+
+    myfile.close();
+
+    scheduleAt( simTime() + i_PerPeerStatinterval, p_PerPeerStatMsg);
+
+
 }
 
 void BTStatistics::doFinish()

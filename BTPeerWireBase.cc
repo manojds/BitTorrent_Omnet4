@@ -555,6 +555,15 @@ void BTPeerWireBase::updateBitField(int pieceIndex, int blockIndex, bool expecte
 				informPeers(pieceIndex);
 			}
 		}
+
+		BTStatistics* pStatMod = (BTStatistics*)btStatistics;
+		unsigned int totalPieces =  localBitfield_var->numPieces();
+		unsigned int totalBlocks=  totalPieces * localBitfield_var->numBlocks();
+
+		pStatMod->updatePerPeerBlockCount(getParentModule()->getFullName(),
+		        totalBlocks - localBitfield_var->numRemainingBlocks(), totalBlocks,
+		        totalPieces - localBitfield_var->numRemainingPieces(),  totalPieces,
+		        localBitfield_var->lastDownloadTime().dbl());
 	}
 }
 

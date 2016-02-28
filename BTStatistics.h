@@ -26,6 +26,8 @@
 
 
 #include <omnetpp.h>
+#include <map>
+#include <string>
 #include "BTStatisticsMsg_m.h"
 //edited by Manoj - 2014-12-22
 //# define BT_STATS_DWL			59760
@@ -37,11 +39,20 @@
 # define BT_STATS_PP			761
 # define BT_STATS_NSB			762
 # define BT_STATS_EXIT			763
+# define BT_PER_PEER_STAT       766
 //end of the edited code
 
 # define BT_STATS_MSG_TIME 		20000
 
 using namespace std;
+
+class PerPeerStatItem
+{
+public:
+    unsigned int ui_BlockCount;
+    unsigned int ui_PieceCount;
+    double       d_LastDwlTime;
+};
 
 /**
  * Module that calculates the multicast groups sizes and randomly selects their participants (receivers and sender).
@@ -58,6 +69,9 @@ class INET_API BTStatistics : public cSimpleModule
      * Destructor
      */
     virtual ~BTStatistics();
+
+    void updatePerPeerBlockCount(const string & _sPeerID, unsigned int _uiDownloadedBlocks, unsigned int _uiTotalBlocks ,
+                                            unsigned int _uiDownloadedPieces, unsigned int _uiTotalPieces, double _dLastDwlTime);
 
 protected:
     int currentTerminalNum;
@@ -102,6 +116,16 @@ protected:
      * Do the actual finish() call and record scalars
      */
     virtual void doFinish();
+
+    virtual void BTPerPeerStatTimerFired();
+
+    int             i_PerPeerStatinterval;
+    bool            b_RecordPerPeerStats;
+    unsigned int    ui_TotalBlockCount;
+    unsigned int    ui_TotalPieceCount;
+    cMessage*       p_PerPeerStatMsg;
+    std::string     s_BTPerPeerStatFileName;
+    map<string, PerPeerStatItem*> map_PerPeerStats;
 };
 
 #endif

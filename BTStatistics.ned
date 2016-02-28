@@ -36,6 +36,9 @@ simple BTStatistics
 		//because this parameters's hard coded value is too high for
 		//small file downloads
 		int simulationFinishDelay=default(20000);
+		
+		bool 	recordPerPeerStats= default(false);
+		int		perPeerStatInterval = default (25);
     gates:
         input direct_in;
 }
