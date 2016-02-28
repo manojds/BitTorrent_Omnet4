@@ -25,6 +25,8 @@
 #include "BTLogImpl.h"
 #include <iostream>
 #include <fstream>
+#include <sys/timeb.h>
+#include <string.h>
 
 Define_Module(BTStatistics);
 
