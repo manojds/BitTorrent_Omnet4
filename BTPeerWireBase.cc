@@ -1678,7 +1678,7 @@ void BTPeerWireBase::scheduleEndGameCancel(int pieceIndex, int blockIndex, const
 				BTRequestCancelMsg* cancelMsg = new BTRequestCancelMsg(toString(CANCEL_TIMER),CANCEL_TIMER);
 				cancelMsg->setIndex(endGameRequests[pos].getIndex());
 				cancelMsg->setBegin(endGameRequests[pos].begin()/** 1024*blockSize()*/);
-				cancelMsg->setBitLength(blockSize());
+				cancelMsg->setDataLength(blockSize());
 				thread->timerExpired(cancelMsg);
 			}
 		}
