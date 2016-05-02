@@ -172,6 +172,13 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		cSimpleModule* btStatistics;
 		set<string> dataProviderPeerIDs;
 		double blocksFromSeeder_var;
+
+		//added by Manoj
+	    int packetsSent;
+	    int packetsRcvd;
+	    int bytesSent;
+	    int bytesRcvd;
+
 	public:
 		// constructor
 		BTPeerWireBase();
@@ -179,6 +186,9 @@ class INET_API BTPeerWireBase : public TCPSrvHostApp
 		virtual ~BTPeerWireBase();
 
 		const char* debuggedNode; //TODO:To be removed, for debugginh only!
+
+		void incresePacketsSent(int byteCount){packetsSent++; bytesSent += byteCount; }
+		void incresePacketsRcvd(int byteCount){packetsRcvd++; bytesRcvd += byteCount; }
 
 		// GET/SET methods
 		double fileSize();

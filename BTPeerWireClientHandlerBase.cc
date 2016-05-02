@@ -196,6 +196,8 @@ void BTPeerWireClientHandlerBase::dataArrived(cMessage* mmsg, bool urgent)
 
     //end of the edited code.
 
+    ((BTPeerWireBase*)getHostModule())->incresePacketsRcvd(msg->getByteLength());
+
 
 	if (msg->getKind() == HANDSHAKE_MSG)
 		initiatePeerWireProtocol(msg);
@@ -575,6 +577,8 @@ void BTPeerWireClientHandlerBase::sendMessage(cPacket* msg)
 
 		getSocket()->send(wrapper);
 		renewAliveTimer(evtKeepAlive);
+
+		((BTPeerWireBase*)getHostModule())->incresePacketsSent(msg->getByteLength());
 	}
 	else
 	{

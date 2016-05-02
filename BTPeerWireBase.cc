@@ -37,6 +37,10 @@ Define_Module(BTPeerWireBase);
 
 BTPeerWireBase::BTPeerWireBase()
 {
+    packetsRcvd = 0;
+    packetsSent = 0;
+    bytesRcvd = 0 ;
+    bytesSent = 0;
 }
 
 BTPeerWireBase::~BTPeerWireBase()
@@ -47,6 +51,10 @@ BTPeerWireBase::~BTPeerWireBase()
 
 void BTPeerWireBase::finish()
 {
+    recordScalar("packets sent", packetsSent);
+    recordScalar("packets rcvd", packetsRcvd);
+    recordScalar("bytes sent", bytesSent);
+    recordScalar("bytes rcvd", bytesRcvd);
 }
 
 void BTPeerWireBase::initialize()
